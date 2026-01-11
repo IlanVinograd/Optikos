@@ -7,8 +7,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 
+file(GLOB_RECURSE UTILITY_SOURCES 
+    CONFIGURE_DEPENDS
+    "src/utilities/*.cpp"
+)
+
 set(COMMON_SOURCES
     src/main.cpp
+    ${UTILITY_SOURCES}
 )
 
 set(WIN_SOURCES
@@ -34,4 +40,9 @@ target_link_libraries(Optikos PRIVATE glad::glad glfw)
 
 target_include_directories(Optikos PRIVATE
     ${CMAKE_SOURCE_DIR}/src
+)
+
+target_compile_options(Optikos PRIVATE
+  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
