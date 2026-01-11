@@ -1,38 +1,57 @@
-#include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#ifdef PLATFORM_WINDOWS
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3native.h>
+#endif
+
+#include <glad/glad.h>
+#include <platform/titlebar.hpp>
 #include <iostream>
 
-int main()
+static void error_callback(int error, const char* description)
 {
-    if (!glfwInit())
-    {
-        std::cout << "GLFW init failed\n";
-        return -1;
-    }
+    fprintf(stderr, "Error: %s\n", description);
+}
 
-    GLFWwindow* window = glfwCreateWindow(640, 480, "Optikos Test", nullptr, nullptr);
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+int main(void)
+{
+    glfwSetErrorCallback(error_callback);
+ 
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+ 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+ 
+    GLFWwindow* window = glfwCreateWindow(640, 480, "Window", NULL, NULL);
     if (!window)
     {
-        std::cout << "Window creation failed\n";
         glfwTerminate();
-        return -1;
+        exit(EXIT_FAILURE);
     }
-
+ 
+    glfwSetKeyCallback(window, key_callback);
     glfwMakeContextCurrent(window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "GLAD init failed\n";
-        return -1;
-    }
+    #ifdef PLATFORM_WINDOWS
+        HWND hwnd = glfwGetWin32Window(window);
+        set_title_bar(hwnd);
+    #else
+        set_title_bar(window);
+    #endif
 
-    std::cout << "OpenGL: " << glGetString(GL_VERSION) << "\n";
+    gladLoadGL();
 
-    while (!glfwWindowShouldClose(window))
-    {
-        glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
+    while (!glfwWindowShouldClose(window)){
         glClear(GL_COLOR_BUFFER_BIT);
 
         glfwSwapBuffers(window);
@@ -40,6 +59,7 @@ int main()
     }
 
     glfwDestroyWindow(window);
+ 
     glfwTerminate();
-    return 0;
+    exit(EXIT_SUCCESS);
 }
