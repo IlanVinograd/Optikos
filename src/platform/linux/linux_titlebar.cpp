@@ -2,7 +2,7 @@
 
 #ifndef PLATFORM_WINDOWS
 
-void set_title_bar(GLFWwindow* window) {
+void set_title_bar(GLFWwindow* window, Color color) {
     // linux
 }
 

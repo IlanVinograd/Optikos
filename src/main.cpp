@@ -44,9 +44,9 @@ int main(void)
 
     #ifdef PLATFORM_WINDOWS
         HWND hwnd = glfwGetWin32Window(window);
-        set_title_bar(hwnd);
+        set_title_bar(hwnd, UIColors::TitleBar);
     #else
-        set_title_bar(window);
+        set_title_bar(window, UIColors::TitleBar);
     #endif
 
     gladLoadGL();
