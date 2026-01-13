@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <unordered_map>
 #include <queue>
 #include <thread>
@@ -12,6 +13,8 @@
 #include <mutex>
 #include <condition_variable>
 #include <utility>
+#include <format>
+#include <chrono>
 
 class Logger {
 public:
@@ -27,7 +30,7 @@ public:
 
     struct LoggerEntry {
         std::ofstream log;
-        std::queue<std::pair<Severity, std::string>> queue;
+        std::queue<std::string> queue;
         std::mutex mutex;
         std::condition_variable cv;
         std::atomic<bool> running{true};
@@ -39,10 +42,23 @@ public:
     Logger() = default;
     ~Logger();
 
-    void add_logger(std::string file);
+    void add_logger(const std::string& file = "log");
+    void log(const std::string& msg, const Severity severity, const std::string& file = "log");
 
 private:
     Logs logs;
+
+    static constexpr std::string_view severity_to_string(Severity severity) noexcept {
+        switch(severity) {
+            case Severity::trace: return "TRACE";
+            case Severity::debug: return "DEBUG";
+            case Severity::info:  return "INFO";
+            case Severity::warn:  return "WARN";
+            case Severity::error: return "ERROR";
+            case Severity::fatal: return "FATAL";
+        }
+        std::unreachable();
+    }
 };
 
 #endif /* LOGGER_H */

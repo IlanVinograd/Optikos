@@ -60,3 +60,4 @@ Makefile
 
 # Logs
 *.log
+logs/log
