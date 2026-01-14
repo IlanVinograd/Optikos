@@ -24,9 +24,8 @@ static void key_callback(GLFWwindow* window, int key,[[maybe_unused]] int scanco
 
 int main(void)
 {
-    Logger logger;
-    logger.add_logger("log");
-    logger.log("Logger named: log initialized", Logger::Severity::trace);
+    Logger::add_logger();
+    LOG_TRACE("Logger named: log initialized", "log");
     
     glfwSetErrorCallback(error_callback);
  
@@ -43,8 +42,7 @@ int main(void)
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-
-    logger.log("Window opened", Logger::Severity::trace);
+    LOG_TRACE("Window opened", "log");
 
     glfwSetKeyCallback(window, key_callback);
     glfwMakeContextCurrent(window);
@@ -66,7 +64,7 @@ int main(void)
     }
 
     glfwDestroyWindow(window);
-    logger.log("Window closed", Logger::Severity::trace);
+    LOG_TRACE("Window closed", "log");
 
     glfwTerminate();
     exit(EXIT_SUCCESS);

@@ -16,9 +16,15 @@
 #include <format>
 #include <chrono>
 
+#define LOG_TRACE(msg, file) Logger::log(msg, Logger::Severity::trace, file)
+#define LOG_DEBUG(msg, file) Logger::log(msg, Logger::Severity::debug, file)
+#define LOG_INFO(msg, file)  Logger::log(msg, Logger::Severity::info, file)
+#define LOG_WARN(msg, file)  Logger::log(msg, Logger::Severity::warn, file)
+#define LOG_ERROR(msg, file) Logger::log(msg, Logger::Severity::error, file)
+#define LOG_FATAL(msg, file) Logger::log(msg, Logger::Severity::fatal, file)
+
 class Logger {
 public:
-
     enum class Severity {
         trace,
         debug,
@@ -39,13 +45,21 @@ public:
 
     using Logs = std::unordered_map<std::string, LoggerEntry>;
 
-    Logger() = default;
+    Logger(const Logger&) = delete;
+    Logger& operator=(const Logger&) = delete;
+    static Logger& getInstance() {
+        static Logger logger;
+        return logger;
+    }
+
     ~Logger();
 
-    void add_logger(const std::string& file = "log");
-    void log(const std::string& msg, const Severity severity, const std::string& file = "log");
+    static void add_logger(const std::string& file = "log");
+    static void log(const std::string& msg, const Severity severity, const std::string& file = "log");
 
 private:
+    Logger() {}
+
     Logs logs;
 
     static constexpr std::string_view severity_to_string(Severity severity) noexcept {

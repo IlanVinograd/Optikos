@@ -14,7 +14,8 @@ Logger::~Logger() {
 }
 
 void Logger::add_logger(const std::string& file) {
-    auto [it_entry, inserted] = logs.try_emplace(file);
+    auto& logger = getInstance();
+    auto [it_entry, inserted] = logger.logs.try_emplace(file);
     
     if (!inserted)
         throw std::runtime_error("Logger already exists");
@@ -31,14 +32,15 @@ void Logger::add_logger(const std::string& file) {
     entry.worker = std::thread([ptr](){
         while(ptr->running.load()) {
             std::unique_lock<std::mutex> lock(ptr->mutex);
-            ptr->cv.wait(lock, [&] { return !ptr->running.load() || !ptr->queue.empty(); });
+            ptr->cv.wait(lock, [ptr] { return !ptr->running.load() || !ptr->queue.empty(); });
 
             while(!ptr->queue.empty()) {
-                auto message = ptr->queue.front();
+                auto message = std::move(ptr->queue.front());
                 ptr->queue.pop();
 
                 lock.unlock();
                 ptr->log << message << std::endl;
+                ptr->log.flush();
                 lock.lock();
             }
         }
@@ -46,8 +48,9 @@ void Logger::add_logger(const std::string& file) {
 }
 
 void Logger::log(const std::string& msg, const Severity severity, const std::string& file) {
-    auto it = logs.find(file);
-    if(it == logs.end())
+    auto& logger = getInstance();
+    auto it = logger.logs.find(file);
+    if(it == logger.logs.end())
         throw std::runtime_error("file not exist");
 
     auto now = std::chrono::system_clock::now();
