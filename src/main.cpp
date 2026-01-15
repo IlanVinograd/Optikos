@@ -1,71 +1,17 @@
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-
-#ifdef PLATFORM_WINDOWS
-    #define GLFW_EXPOSE_NATIVE_WIN32
-    #include <GLFW/glfw3native.h>
-#endif
-
-#include <glad/glad.h>
-#include <platform/titlebar.hpp>
-#include <iostream>
-#include <utilities/logger.hpp>
-
-static void error_callback([[maybe_unused]]int error, const char* description)
-{
-    fprintf(stderr, "Error: %s\n", description);
-}
-
-static void key_callback(GLFWwindow* window, int key,[[maybe_unused]] int scancode, int action,[[maybe_unused]] int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
+#include "platform/glfw/GLFWWindow.hpp"
+#include "render/opengl/OpenGLRenderer.hpp"
+#include <memory>
 
 int main(void)
 {
     Logger::add_logger();
-    LOG_TRACE("Logger named: log initialized", "log");
-    
-    glfwSetErrorCallback(error_callback);
- 
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
- 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
- 
-    GLFWwindow* window = glfwCreateWindow(640, 480, "Window", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    LOG_TRACE("Window opened", "log");
+    auto window = std::make_unique<Optikos::GLFWWindow>(800, 600, "App");
+    window->setWindowTitleBar({25, 25, 25});
+    while (!glfwWindowShouldClose(static_cast<GLFWwindow*>(window->native_handle()))) {
+        // process_events();
+        // render();
 
-    glfwSetKeyCallback(window, key_callback);
-    glfwMakeContextCurrent(window);
-
-    #ifdef PLATFORM_WINDOWS
-        HWND hwnd = glfwGetWin32Window(window);
-        set_title_bar(hwnd, UIColors::TitleBar);
-    #else
-        set_title_bar(window, UIColors::TitleBar);
-    #endif
-
-    gladLoadGL();
-
-    while (!glfwWindowShouldClose(window)){
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(static_cast<GLFWwindow*>(window->native_handle()));
         glfwPollEvents();
     }
-
-    glfwDestroyWindow(window);
-    LOG_TRACE("Window closed", "log");
-
-    glfwTerminate();
-    exit(EXIT_SUCCESS);
 }
