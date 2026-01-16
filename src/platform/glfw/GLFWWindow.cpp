@@ -64,4 +64,8 @@ void GLFWWindow::poll_events() {
     glfwPollEvents();
 }
 
+bool GLFWWindow::should_close() const {
+    return glfwWindowShouldClose(m_window);
+}
+
 } /* Optikos */

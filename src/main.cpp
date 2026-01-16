@@ -12,10 +12,10 @@ int main(void)
     auto window = std::make_unique<Optikos::GLFWWindow>(800, 600, "App", config);
     auto render = std::make_unique<Optikos::OpenGLRenderer>(window.get());
     auto input = std::make_unique<Optikos::GLFWInputSystem>((GLFWwindow*)window->native_handle());
+    
     window->setWindowTitleBar({25, 25, 25});
 
-    auto* nativeWin = static_cast<GLFWwindow*>(window->native_handle());
-    while (!glfwWindowShouldClose(nativeWin)) {
+    while (!window->should_close()) {
         // process_events();
         // render();
 

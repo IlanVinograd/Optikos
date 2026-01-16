@@ -28,6 +28,7 @@ public:
     virtual void setWindowTitleBar(Color color) = 0;
     virtual void* native_handle() = 0;
     virtual void poll_events() = 0;
+    virtual bool should_close() const = 0;
 
 private:
     

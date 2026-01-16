@@ -29,7 +29,8 @@ public:
 
     void setWindowTitleBar(Color color) override;
     void* native_handle() override;
-    void poll_events();
+    void poll_events() override;
+    bool should_close() const override;
 
 private:
     GLFWwindow* m_window;
