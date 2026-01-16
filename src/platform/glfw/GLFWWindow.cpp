@@ -4,7 +4,7 @@ namespace Optikos {
 
 GLFWWindow::GLFWWindow(const int w, const int h, const char* title, GraphicsConfig config) : m_config(config) {
     glfwSetErrorCallback(error_callback);
-    
+
     if (!glfwInit())
         throw std::runtime_error("glfwInit failed");
 
@@ -70,7 +70,7 @@ bool GLFWWindow::should_close() const {
     return glfwWindowShouldClose(m_window);
 }
 
-void error_callback(int error, const char* description) {
+void GLFWWindow::error_callback(int error, const char* description) {
     fprintf(stderr, "Error [%d]: %s\n", error, description);
 }
 
