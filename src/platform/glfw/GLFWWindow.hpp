@@ -36,6 +36,7 @@ private:
     GLFWwindow* m_window;
     GraphicsConfig m_config;
 
+    static void error_callback(int error, const char* description);
 };
 
 } /* Optikos */
