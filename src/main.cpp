@@ -1,6 +1,6 @@
 #include "platform/glfw/GLFWWindow.hpp"
 #include "render/opengl/OpenGLRenderer.hpp"
-#include "platform/IWindow.hpp"
+#include "input/glfw/GLFWInputSystem.hpp"
 #include <memory>
 
 int main(void)
@@ -11,6 +11,7 @@ int main(void)
 
     auto window = std::make_unique<Optikos::GLFWWindow>(800, 600, "App", config);
     auto render = std::make_unique<Optikos::OpenGLRenderer>(window.get());
+    auto input = std::make_unique<Optikos::GLFWInputSystem>((GLFWwindow*)window->native_handle());
     window->setWindowTitleBar({25, 25, 25});
 
     auto* nativeWin = static_cast<GLFWwindow*>(window->native_handle());
