@@ -3,6 +3,19 @@
 
 namespace Optikos {
 
+enum class GraphicsAPI {
+    None,
+    OpenGL,
+    // Vulkan,
+    // DirectX12
+};
+
+struct GraphicsConfig {
+    GraphicsAPI api = GraphicsAPI::OpenGL;
+    int versionMajor = 4;
+    int versionMinor = 6;
+};
+
 struct Color {
     int r;
     int g;

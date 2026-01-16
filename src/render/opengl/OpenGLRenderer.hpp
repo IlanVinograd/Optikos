@@ -15,8 +15,8 @@ namespace Optikos {
 
 class OpenGLRenderer : public IRenderer {
 public:
-    explicit OpenGLRenderer(IWindow* window, int minLvl, int maxLvl);
-    ~OpenGLRenderer() override;
+    explicit OpenGLRenderer(IWindow* window);
+    virtual ~OpenGLRenderer() override = default;
 
     void swap_buffer() override;
 

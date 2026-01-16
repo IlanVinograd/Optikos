@@ -2,11 +2,18 @@
 
 namespace Optikos {
 
-GLFWWindow::GLFWWindow(const int w, const int h, const char* title) {
+GLFWWindow::GLFWWindow(const int w, const int h, const char* title, GraphicsConfig config) : m_config(config) {
     if (!glfwInit())
         throw std::runtime_error("glfwInit failed");
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    if (m_config.api == GraphicsAPI::OpenGL) {
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, m_config.versionMajor);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, m_config.versionMinor);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    } else
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
     m_window = glfwCreateWindow(w, h, title, NULL, NULL);
 
     if (!m_window) {
@@ -15,11 +22,19 @@ GLFWWindow::GLFWWindow(const int w, const int h, const char* title) {
     }
     LOG_TRACE("Window opened", "log");
 
+    if (m_config.api == GraphicsAPI::OpenGL) {
+        glfwMakeContextCurrent(m_window);
+    }
+
     glfwSetWindowUserPointer(m_window, this);
 }
 
 GLFWWindow::~GLFWWindow() {
     if (m_window) {
+
+        if(m_config.api == GraphicsAPI::OpenGL)
+            glfwMakeContextCurrent(nullptr);
+
         glfwDestroyWindow(m_window);
         glfwTerminate();
         LOG_TRACE("Window closed", "log");
