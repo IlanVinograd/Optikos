@@ -9,6 +9,7 @@ find_package(glad CONFIG REQUIRED)
 
 set(COMMON_SOURCES
     src/main.cpp
+    src/optikos.cpp
     src/utilities/logger.cpp
     src/render/opengl/OpenGLRenderer.cpp
     src/input/glfw/GLFWInputSystem.cpp
@@ -35,7 +36,6 @@ target_link_libraries(Optikos PRIVATE glad::glad glfw)
 
 target_include_directories(Optikos PRIVATE
     "${CMAKE_SOURCE_DIR}/src"
-
 )
 
 target_compile_options(Optikos PRIVATE

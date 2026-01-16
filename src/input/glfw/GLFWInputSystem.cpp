@@ -26,7 +26,7 @@ void GLFWInputSystem::cursor_position_callback(GLFWwindow* window, double xpos, 
     self->cursor.x = xpos;
     self->cursor.y = ypos;
 
-    //std::cout << "x: " << self->cursor.x << " y: " << self->cursor.y << std::endl;  
+    // std::cout << "x: " << self->cursor.x << " y: " << self->cursor.y << std::endl;  
 }
 
 } /* Optikos */

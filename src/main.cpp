@@ -1,25 +1,19 @@
+#include "optikos.hpp"
 #include "platform/glfw/GLFWWindow.hpp"
 #include "render/opengl/OpenGLRenderer.hpp"
 #include "input/glfw/GLFWInputSystem.hpp"
+#include "utilities/logger.hpp"
 #include <memory>
 
-int main(void)
-{
+int main() {
     Logger::add_logger();
 
     Optikos::GraphicsConfig config{Optikos::GraphicsAPI::OpenGL, 4, 6};
 
     auto window = std::make_unique<Optikos::GLFWWindow>(800, 600, "App", config);
-    auto render = std::make_unique<Optikos::OpenGLRenderer>(window.get());
+    auto renderer = std::make_unique<Optikos::OpenGLRenderer>(window.get());
     auto input = std::make_unique<Optikos::GLFWInputSystem>((GLFWwindow*)window->native_handle());
-    
-    window->setWindowTitleBar({25, 25, 25});
 
-    while (!window->should_close()) {
-        // process_events();
-        // render();
-
-        render->swap_buffer();
-        window->poll_events();
-    }
+    Optikos::Optikos app(std::move(window), std::move(renderer), std::move(input), config);
+    app.run();
 }
