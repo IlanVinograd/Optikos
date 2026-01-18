@@ -1,17 +1,20 @@
 #ifndef IRENDER_H
 #define IRENDER_H
 
-namespace Optikos {
+#include "ui/UISystem.hpp"
 
-class IRenderer {
-public:
-    virtual ~IRenderer() = default;
-    virtual void swap_buffer() = 0;
+namespace Optikos
+{
+class IRenderer
+{
+   public:
+    virtual ~IRenderer()                               = default;
+    virtual void onWindowResize(int width, int height) = 0;
+    virtual void swap_buffer()                         = 0;
 
-private:
-
+   private:
 };
 
-} /* Optikos */
+}  // namespace Optikos
 
 #endif /* IRENDER_H */

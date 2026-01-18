@@ -13,6 +13,8 @@ set(COMMON_SOURCES
     src/utilities/logger.cpp
     src/render/opengl/OpenGLRenderer.cpp
     src/input/glfw/GLFWInputSystem.cpp
+    src/ui/UISystem.cpp
+    src/ui/sdk/container.cpp
 )
 
 add_executable(Optikos ${COMMON_SOURCES})

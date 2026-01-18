@@ -1,30 +1,32 @@
 #ifndef OPENGLRENDERER_H
 #define OPENGLRENDERER_H
 
-#include "render/IRenderer.hpp"
-#include "platform/glfw/GLFWWindow.hpp"
-#include "utilities/logger.hpp"
-
 #include <iostream>
+
+#include "platform/glfw/GLFWWindow.hpp"
+#include "render/IRenderer.hpp"
+#include "utilities/logger.hpp"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-namespace Optikos {
-
-class OpenGLRenderer : public IRenderer {
-public:
-    explicit OpenGLRenderer(IWindow* window);
+namespace Optikos
+{
+class OpenGLRenderer : public IRenderer
+{
+   public:
+    explicit OpenGLRenderer(IWindow* window, UISystem* uiSystem);
     virtual ~OpenGLRenderer() override = default;
 
     void swap_buffer() override;
+    void onWindowResize(int width, int height) override;
 
-private:
-    IWindow* m_window;
-
+   private:
+    IWindow*  m_window;
+    UISystem* m_uiSystem;
 };
 
-} /* Optikos */
+}  // namespace Optikos
 
 #endif /* OPENGLRENDERER_H */

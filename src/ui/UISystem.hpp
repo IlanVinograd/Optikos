@@ -1,0 +1,23 @@
+#ifndef UISYSTEM_H
+#define UISYSTEM_H
+
+#include <memory>
+#include <unordered_map>
+
+#include "ui/IWidget.hpp"
+#include "utilities/logger.hpp"
+
+
+class UISystem
+{
+   public:
+    UISystem() = default;
+
+    bool add_widget(const uint32_t idx, IWidget* widget);
+    bool rem_widget(const uint32_t idx);
+
+   private:
+    std::unordered_map<uint32_t, std::unique_ptr<IWidget>> widgets;
+};
+
+#endif /* UISYSTEM_H */
