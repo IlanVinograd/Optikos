@@ -16,6 +16,7 @@ void Optikos::run()
 {
     while (!m_window->should_close())
     {
+        m_renderer->render();
         m_renderer->swap_buffer();
         m_window->poll_events();
     }

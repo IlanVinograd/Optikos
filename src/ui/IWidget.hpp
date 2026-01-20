@@ -23,14 +23,14 @@ struct RenderData
 class IWidget
 {
    public:
-    virtual ~IWidget()                 = default;
-    virtual vec2     getPosition()     = 0;  // return cord of left top corner
-    virtual uint32_t getWidth() const  = 0;
-    virtual uint32_t getHeight() const = 0;
+    virtual ~IWidget()                                    = default;
+    virtual vec2                      getPosition()       = 0;  // return cord of left top corner
+    virtual uint32_t                  getWidth() const    = 0;
+    virtual uint32_t                  getHeight() const   = 0;
+    virtual std::vector<float>        getVertices() const = 0;
+    virtual std::vector<unsigned int> getIndices() const  = 0;
 
    private:
-    virtual std::vector<float>        setup_vertices() = 0;
-    virtual std::vector<unsigned int> setup_indices()  = 0;
 };
 
 #endif /* IWIDGET_H */

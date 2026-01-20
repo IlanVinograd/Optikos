@@ -3,7 +3,6 @@
 
 namespace Optikos
 {
-
 class IRenderer;
 
 enum class GraphicsAPI
@@ -43,6 +42,8 @@ class IWindow
     virtual void* native_handle()                  = 0;
     virtual void  poll_events()                    = 0;
     virtual bool  should_close() const             = 0;
+    virtual int   getHeight() const                = 0;
+    virtual int   getWidth() const                 = 0;
 
    private:
 };

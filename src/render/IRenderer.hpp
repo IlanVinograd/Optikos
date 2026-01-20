@@ -11,6 +11,7 @@ class IRenderer
     virtual ~IRenderer()                               = default;
     virtual void onWindowResize(int width, int height) = 0;
     virtual void swap_buffer()                         = 0;
+    virtual void render()                              = 0;
 
    private:
 };

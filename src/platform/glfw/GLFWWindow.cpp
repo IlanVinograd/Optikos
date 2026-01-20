@@ -124,6 +124,19 @@ void GLFWWindow::framebuffer_size_callback(GLFWwindow* window, int width, int he
         return;
     }
     windowPtr->m_renderer->onWindowResize(width, height);
+
+    /* This part of code used to resize window while resizing */
+    windowPtr->m_renderer->render();
+    windowPtr->m_renderer->swap_buffer();
+}
+
+int GLFWWindow::getHeight() const
+{
+    return m_windowSize.height;
+}
+int GLFWWindow::getWidth() const
+{
+    return m_windowSize.width;
 }
 
 }  // namespace Optikos

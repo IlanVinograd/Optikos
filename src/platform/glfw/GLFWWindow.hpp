@@ -33,6 +33,8 @@ class GLFWWindow : public IWindow
     void* native_handle() override;
     void  poll_events() override;
     bool  should_close() const override;
+    int   getHeight() const override;
+    int   getWidth() const override;
 
    private:
     GLFWwindow*    m_window = nullptr;

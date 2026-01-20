@@ -7,14 +7,15 @@
 #include "ui/IWidget.hpp"
 #include "utilities/logger.hpp"
 
-
 class UISystem
 {
    public:
     UISystem() = default;
 
-    bool add_widget(const uint32_t idx, IWidget* widget);
+    bool add_widget(const uint32_t idx, std::unique_ptr<IWidget> widget);
     bool rem_widget(const uint32_t idx);
+
+    RenderData accumulateWidgets();
 
    private:
     std::unordered_map<uint32_t, std::unique_ptr<IWidget>> widgets;

@@ -24,3 +24,13 @@ uint32_t Container::getHeight() const
 {
     return m_height;
 }
+
+std::vector<float> Container::getVertices() const
+{
+    return m_data.vertices;
+}
+
+std::vector<unsigned int> Container::getIndices() const
+{
+    return m_data.indices;
+}
