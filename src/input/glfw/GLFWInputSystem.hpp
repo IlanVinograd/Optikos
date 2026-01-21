@@ -20,7 +20,7 @@ class GLFWInputSystem : public IInputSystem
     Cursor getCursor() override;
 
    private:
-    GLFWwindow* m_window;
+    GLFWwindow* m_window = nullptr;
     Cursor      cursor;
 
     static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);

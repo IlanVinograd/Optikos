@@ -30,17 +30,23 @@ class GLFWWindow : public IWindow
 
     void  setWindowTitleBar(Color color) override;
     void  setRenderer(IRenderer* renderer) override;
+    void  setInputSystem(IInputSystem* inputSystem) override;
+    IInputSystem* getInputSystem() const override;
     void* native_handle() override;
     void  poll_events() override;
     bool  should_close() const override;
     int   getHeight() const override;
     int   getWidth() const override;
 
+    void makeContextCurrent();
+
    private:
-    GLFWwindow*    m_window = nullptr;
-    GraphicsConfig m_config;
-    Window         m_windowSize;
-    IRenderer*     m_renderer = nullptr;
+   GLFWwindow*    m_window   = nullptr;
+   IRenderer*     m_renderer = nullptr; /* DONT TOUCH MUST BE UNDER m_config */
+   IInputSystem*  m_inputSystem = nullptr;
+   Window         m_windowSize;
+   GraphicsConfig m_config; /* DONT TOUCH MUST BE ABOVE m_renderer */
+
 
     static void error_callback(int error, const char* description);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);

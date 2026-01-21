@@ -21,7 +21,7 @@ namespace Optikos
 class OpenGLRenderer : public IRenderer
 {
    public:
-    explicit OpenGLRenderer(IWindow* window, UISystem* uiSystem, IShader* shader);
+    explicit OpenGLRenderer(IWindow* window, std::unique_ptr<UISystem> uiSystem, std::unique_ptr<IShader> shader);
     virtual ~OpenGLRenderer() override = default;
 
     void swap_buffer() override;
@@ -33,8 +33,8 @@ class OpenGLRenderer : public IRenderer
 
    private:
     IWindow*  m_window;
-    UISystem* m_uiSystem;
-    IShader* m_shader;
+    std::unique_ptr<UISystem> m_uiSystem;
+    std::unique_ptr<IShader> m_shader;
     bool error = false;
 };
 

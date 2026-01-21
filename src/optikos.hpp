@@ -18,8 +18,8 @@ class Optikos
     void run();
 
    private:
-    std::unique_ptr<IWindow>      m_window;
     std::unique_ptr<IRenderer>    m_renderer;
+    std::unique_ptr<IWindow>      m_window;
     std::unique_ptr<IInputSystem> m_inputSystem;
 
     GraphicsConfig m_config;

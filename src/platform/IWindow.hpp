@@ -1,9 +1,13 @@
 #ifndef IWINDOW_H
 #define IWINDOW_H
 
+#define GL_DEFAULT_MAJOR_LVL 6
+#define GL_DEFAULT_MINOR_LVL 4
+
 namespace Optikos
 {
 class IRenderer;
+class IInputSystem;
 
 enum class GraphicsAPI
 {
@@ -16,8 +20,8 @@ enum class GraphicsAPI
 struct GraphicsConfig
 {
     GraphicsAPI api          = GraphicsAPI::OpenGL;
-    int         versionMajor = 4;
-    int         versionMinor = 6;
+    int         versionMinor = GL_DEFAULT_MINOR_LVL;
+    int         versionMajor = GL_DEFAULT_MAJOR_LVL;
 };
 
 struct Color
@@ -36,14 +40,17 @@ struct Window
 class IWindow
 {
    public:
-    virtual ~IWindow()                             = default;
-    virtual void  setWindowTitleBar(Color color)   = 0;
-    virtual void  setRenderer(IRenderer* renderer) = 0;
-    virtual void* native_handle()                  = 0;
-    virtual void  poll_events()                    = 0;
-    virtual bool  should_close() const             = 0;
-    virtual int   getHeight() const                = 0;
-    virtual int   getWidth() const                 = 0;
+    virtual ~IWindow()                                              = default;
+    virtual void          setWindowTitleBar(Color color)            = 0;
+    virtual void          makeContextCurrent()                      = 0;
+    virtual void          setRenderer(IRenderer* renderer)          = 0;
+    virtual void          setInputSystem(IInputSystem* inputSystem) = 0;
+    virtual IInputSystem* getInputSystem() const                    = 0;
+    virtual void*         native_handle()                           = 0;
+    virtual void          poll_events()                             = 0;
+    virtual bool          should_close() const                      = 0;
+    virtual int           getHeight() const                         = 0;
+    virtual int           getWidth() const                          = 0;
 
    private:
 };

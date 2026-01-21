@@ -1,15 +1,11 @@
 #include "GLFWWindow.hpp"
-
 #include "render/IRenderer.hpp"
 
 namespace Optikos
 {
 GLFWWindow::GLFWWindow(const int w, const int h, const char* title, GraphicsConfig config)
-    : m_config(config)
+    : m_window(nullptr), m_renderer(nullptr), m_inputSystem(nullptr), m_config(config), m_windowSize({w, h})
 {
-    m_windowSize.width  = w;
-    m_windowSize.height = h;
-
     glfwSetErrorCallback(error_callback);
 
     if (!glfwInit()) throw std::runtime_error("glfwInit failed");
@@ -23,26 +19,29 @@ GLFWWindow::GLFWWindow(const int w, const int h, const char* title, GraphicsConf
     }
     else
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
+    
     m_window = glfwCreateWindow(w, h, title, NULL, NULL);
-
+    
     if (!m_window)
     {
         glfwTerminate();
         throw std::runtime_error("window creation failed");
     }
+    
     LOG_TRACE("Window opened", "log");
 
     if (m_config.api == GraphicsAPI::OpenGL)
     {
         glfwMakeContextCurrent(m_window);
     }
-
+    
     glfwSetWindowUserPointer(m_window, this);
 }
 
 GLFWWindow::~GLFWWindow()
 {
+    m_renderer = nullptr;
+
     if (m_window)
     {
         if (m_config.api == GraphicsAPI::OpenGL) glfwMakeContextCurrent(nullptr);
@@ -69,6 +68,10 @@ void GLFWWindow::setWindowTitleBar(Color color)
 #endif
 }
 
+void GLFWWindow::makeContextCurrent() {
+    glfwMakeContextCurrent(m_window);
+}
+
 void GLFWWindow::setRenderer(IRenderer* renderer)
 {
     m_renderer = renderer;
@@ -85,6 +88,14 @@ void GLFWWindow::setRenderer(IRenderer* renderer)
 
         LOG_TRACE("[setRenderer] render inside window setted", "log");
     }
+}
+
+void  GLFWWindow::setInputSystem(IInputSystem* inputSystem) {
+    m_inputSystem = inputSystem;
+}
+
+IInputSystem* GLFWWindow::getInputSystem() const {
+    return m_inputSystem;
 }
 
 void* GLFWWindow::native_handle()
@@ -110,6 +121,7 @@ void GLFWWindow::error_callback(int error, const char* description)
 void GLFWWindow::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     auto* windowPtr = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
+
     if (!windowPtr)
     {
         LOG_DEBUG("windowPtr not initilaized", "log");
@@ -124,7 +136,7 @@ void GLFWWindow::framebuffer_size_callback(GLFWwindow* window, int width, int he
         return;
     }
     windowPtr->m_renderer->onWindowResize(width, height);
-
+    
     /* This part of code used to resize window while resizing */
     windowPtr->m_renderer->render();
     windowPtr->m_renderer->swap_buffer();

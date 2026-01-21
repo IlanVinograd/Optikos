@@ -2,11 +2,10 @@
 
 namespace Optikos
 {
-OpenGLRenderer::OpenGLRenderer(IWindow* window, UISystem* uiSystem, IShader* shader)
-    : m_window(window), m_uiSystem(uiSystem), m_shader(shader)
+OpenGLRenderer::OpenGLRenderer(IWindow* window, std::unique_ptr<UISystem> uiSystem, std::unique_ptr<IShader> shader)
+    : m_window(window), m_uiSystem(std::move(uiSystem)), m_shader(std::move(shader))
 {
-    GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window->native_handle());
-    glfwMakeContextCurrent(glfwWindow);
+    m_window->makeContextCurrent();
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
         throw std::runtime_error("GLAD init failed");
