@@ -9,9 +9,9 @@ class Container : public IWidget
     Container(uint32_t width, uint32_t heigth, vec2 position,
               Color color = {0, 0, 0, 1});  // simple rectangle conatiner
 
-    vec2                            getPosition() const override;
-    uint32_t                        getWidth() const override;
-    uint32_t                        getHeight() const override;
+    vec2                             getPosition() const override;
+    uint32_t                         getWidth() const override;
+    uint32_t                         getHeight() const override;
     const std::vector<float>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
 

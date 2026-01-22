@@ -45,8 +45,11 @@ void OpenGLRenderer::initializeBatch(Batch& batch)
     glGenBuffers(1, &batch.IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch.IBO);
 
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) 0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
+
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 }
 
 void OpenGLRenderer::beginFrame()
@@ -78,7 +81,7 @@ void OpenGLRenderer::flush()
 
         m_currentBatch.shaderId = shaderId;
 
-        unsigned int vertexOffset = static_cast<unsigned int>(m_currentBatch.vertices.size()) / 2;
+        unsigned int vertexOffset = static_cast<unsigned int>(m_currentBatch.vertices.size()) / 6;
         m_currentBatch.vertices.insert(m_currentBatch.vertices.end(), cmd.vertices.begin(),
                                        cmd.vertices.end());
 

@@ -29,7 +29,11 @@ int main()
     window->setInputSystem(input.get());
 
     auto uiSystem = std::make_unique<UISystem>();
-    uiSystem->add_widget(1, std::make_unique<Container>(400, 20, vec2{0,0}));
+
+    uiSystem->add_widget(1, std::make_unique<Container>(800, 60, vec2{0,0}, Color{25.0, 25.0, 25.0, 255.0}));
+    uiSystem->add_widget(2, std::make_unique<Container>(800, 60, vec2{0,40}, Color{1.0, 1.0, 100.0, 255.0}));
+    uiSystem->add_widget(3, std::make_unique<Container>(800, 60, vec2{0,100}, Color{1.0, 100.0, 1.0, 255.0}));
+    uiSystem->add_widget(4, std::make_unique<Container>(800, 60, vec2{0,200}, Color{100.0, 1.0, 1.0, 255.0}));
 
     Optikos::Optikos app(
         std::move(window), 
