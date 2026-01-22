@@ -14,6 +14,11 @@ struct Color
     float a;
 };
 
+struct Size
+{
+    uint32_t width;
+    uint32_t height;
+};
 struct RenderData
 {
     std::vector<float>        vertices;
@@ -24,11 +29,11 @@ class IWidget
 {
    public:
     virtual ~IWidget()                                    = default;
-    virtual vec2                      getPosition()       = 0;  // return cord of left top corner
+    virtual vec2                      getPosition() const = 0;  // return cord of left top corner
     virtual uint32_t                  getWidth() const    = 0;
     virtual uint32_t                  getHeight() const   = 0;
-    virtual std::vector<float>        getVertices() const = 0;
-    virtual std::vector<unsigned int> getIndices() const  = 0;
+    virtual const std::vector<float>& getVertices() const = 0;
+    virtual const std::vector<unsigned int>& getIndices() const = 0;
 
    private:
 };

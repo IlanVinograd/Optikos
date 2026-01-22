@@ -1,10 +1,15 @@
 #include "GLFWWindow.hpp"
+
 #include "render/IRenderer.hpp"
 
 namespace Optikos
 {
 GLFWWindow::GLFWWindow(const int w, const int h, const char* title, GraphicsConfig config)
-    : m_window(nullptr), m_renderer(nullptr), m_inputSystem(nullptr), m_config(config), m_windowSize({w, h})
+    : m_window(nullptr),
+      m_renderer(nullptr),
+      m_inputSystem(nullptr),
+      m_config(config),
+      m_windowSize({w, h})
 {
     glfwSetErrorCallback(error_callback);
 
@@ -12,6 +17,9 @@ GLFWWindow::GLFWWindow(const int w, const int h, const char* title, GraphicsConf
 
     if (m_config.api == GraphicsAPI::OpenGL)
     {
+        LOG_TRACE("Config minor: " + std::to_string(m_config.versionMinor) +
+                      " Major: " + std::to_string(m_config.versionMajor),
+                  "log");
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, m_config.versionMajor);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, m_config.versionMinor);
@@ -19,22 +27,22 @@ GLFWWindow::GLFWWindow(const int w, const int h, const char* title, GraphicsConf
     }
     else
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    
+
     m_window = glfwCreateWindow(w, h, title, NULL, NULL);
-    
+
     if (!m_window)
     {
         glfwTerminate();
         throw std::runtime_error("window creation failed");
     }
-    
+
     LOG_TRACE("Window opened", "log");
 
     if (m_config.api == GraphicsAPI::OpenGL)
     {
         glfwMakeContextCurrent(m_window);
     }
-    
+
     glfwSetWindowUserPointer(m_window, this);
 }
 
@@ -68,7 +76,8 @@ void GLFWWindow::setWindowTitleBar(Color color)
 #endif
 }
 
-void GLFWWindow::makeContextCurrent() {
+void GLFWWindow::makeContextCurrent()
+{
     glfwMakeContextCurrent(m_window);
 }
 
@@ -90,11 +99,13 @@ void GLFWWindow::setRenderer(IRenderer* renderer)
     }
 }
 
-void  GLFWWindow::setInputSystem(IInputSystem* inputSystem) {
+void GLFWWindow::setInputSystem(IInputSystem* inputSystem)
+{
     m_inputSystem = inputSystem;
 }
 
-IInputSystem* GLFWWindow::getInputSystem() const {
+IInputSystem* GLFWWindow::getInputSystem() const
+{
     return m_inputSystem;
 }
 
@@ -105,7 +116,7 @@ void* GLFWWindow::native_handle()
 
 void GLFWWindow::poll_events()
 {
-    glfwPollEvents();
+    glfwWaitEvents();
 }
 
 bool GLFWWindow::should_close() const
@@ -136,10 +147,6 @@ void GLFWWindow::framebuffer_size_callback(GLFWwindow* window, int width, int he
         return;
     }
     windowPtr->m_renderer->onWindowResize(width, height);
-    
-    /* This part of code used to resize window while resizing */
-    windowPtr->m_renderer->render();
-    windowPtr->m_renderer->swap_buffer();
 }
 
 int GLFWWindow::getHeight() const

@@ -26,16 +26,15 @@ bool UISystem::rem_widget(const uint32_t idx)
     return false;
 }
 
-RenderData UISystem::accumulateWidgets()
+void UISystem::render(Optikos::IRenderQueue& renderQueue)
 {
-    RenderData data;
-    for (const auto& widget : widgets)
+    for (const auto& [id, widget] : widgets)
     {
-        auto dataVertices = widget.second->getVertices();
-        auto dataIndices = widget.second->getIndices();
-
-        data.vertices.insert(data.vertices.end(), dataVertices.begin(), dataVertices.end());
-        data.indices.insert(data.indices.end(), dataIndices.begin(), dataIndices.end());
+        Optikos::DrawCommand cmd;
+        cmd.vertices = std::move(widget->getVertices());
+        cmd.indices = std::move(widget->getIndices());
+        cmd.shaderId = 0;
+        
+        renderQueue.submit(std::move(cmd));
     }
-    return data;
 }

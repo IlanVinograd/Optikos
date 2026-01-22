@@ -16,6 +16,7 @@ set(COMMON_SOURCES
     src/ui/UISystem.cpp
     src/ui/sdk/container.cpp
     src/shader/GLSL/GLShader.cpp
+    src/render/RenderQueue.cpp
 )
 
 add_executable(Optikos ${COMMON_SOURCES})

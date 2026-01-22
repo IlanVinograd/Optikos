@@ -14,19 +14,30 @@ int main()
 {
     Logger::add_logger();
 
-    Optikos::GraphicsConfig config{Optikos::GraphicsAPI::OpenGL, 6, 4};
+    Optikos::GraphicsConfig config{Optikos::GraphicsAPI::OpenGL, 4, 6};
+    auto window = std::make_unique<Optikos::GLFWWindow>(800, 600, "App", config);
 
-    auto window   = std::make_unique<Optikos::GLFWWindow>(800, 600, "App", config);
-
-    auto uiSystem = std::make_unique<UISystem>();
     auto shader = std::make_unique<GLShader>();
-    uiSystem->add_widget(1, std::make_unique<Container>(400, 20, vec2{0,0}));
-    auto renderer = std::make_unique<Optikos::OpenGLRenderer>(window.get(), std::move(uiSystem), std::move(shader));
+    auto renderer = std::make_unique<Optikos::OpenGLRenderer>(
+        window.get(), 
+        std::move(shader)
+    );
     
-    auto input = std::make_unique<Optikos::GLFWInputSystem>( window->native_handle());
+    auto input = std::make_unique<Optikos::GLFWInputSystem>(
+        (GLFWwindow*)window->native_handle()
+    );
     window->setInputSystem(input.get());
 
-    Optikos::Optikos app(std::move(window), std::move(renderer), std::move(input), config);
+    auto uiSystem = std::make_unique<UISystem>();
+    uiSystem->add_widget(1, std::make_unique<Container>(400, 20, vec2{0,0}));
+
+    Optikos::Optikos app(
+        std::move(window), 
+        std::move(renderer), 
+        std::move(input),
+        std::move(uiSystem),
+        config
+    );
 
     app.run();
 }

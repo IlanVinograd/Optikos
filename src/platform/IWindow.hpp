@@ -4,6 +4,8 @@
 #define GL_DEFAULT_MAJOR_LVL 6
 #define GL_DEFAULT_MINOR_LVL 4
 
+#include <functional>
+
 namespace Optikos
 {
 class IRenderer;
@@ -20,8 +22,8 @@ enum class GraphicsAPI
 struct GraphicsConfig
 {
     GraphicsAPI api          = GraphicsAPI::OpenGL;
-    int         versionMinor = GL_DEFAULT_MINOR_LVL;
     int         versionMajor = GL_DEFAULT_MAJOR_LVL;
+    int         versionMinor = GL_DEFAULT_MINOR_LVL;
 };
 
 struct Color

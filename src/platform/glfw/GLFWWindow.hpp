@@ -42,11 +42,12 @@ class GLFWWindow : public IWindow
 
    private:
    GLFWwindow*    m_window   = nullptr;
-   IRenderer*     m_renderer = nullptr; /* DONT TOUCH MUST BE UNDER m_config */
+   IRenderer*     m_renderer = nullptr;
    IInputSystem*  m_inputSystem = nullptr;
    Window         m_windowSize;
-   GraphicsConfig m_config; /* DONT TOUCH MUST BE ABOVE m_renderer */
+   GraphicsConfig m_config;
 
+   std::function<void()> m_resizeCallback;
 
     static void error_callback(int error, const char* description);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);

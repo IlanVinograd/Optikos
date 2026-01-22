@@ -5,6 +5,8 @@
 #include <unordered_map>
 
 #include "ui/IWidget.hpp"
+#include "render/IRenderQueue.hpp"
+
 #include "utilities/logger.hpp"
 
 class UISystem
@@ -15,7 +17,7 @@ class UISystem
     bool add_widget(const uint32_t idx, std::unique_ptr<IWidget> widget);
     bool rem_widget(const uint32_t idx);
 
-    RenderData accumulateWidgets();
+    void render(Optikos::IRenderQueue& renderQueue);
 
    private:
     std::unordered_map<uint32_t, std::unique_ptr<IWidget>> widgets;

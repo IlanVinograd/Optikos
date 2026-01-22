@@ -1,7 +1,7 @@
-#ifndef IRENDER_H
-#define IRENDER_H
+#ifndef IRENDERER_H
+#define IRENDERER_H
 
-#include "ui/UISystem.hpp"
+#include "render/IRenderQueue.hpp"
 
 namespace Optikos
 {
@@ -10,12 +10,15 @@ class IRenderer
    public:
     virtual ~IRenderer()                               = default;
     virtual void onWindowResize(int width, int height) = 0;
+    virtual void beginFrame()                          = 0;
+    virtual void endFrame()                            = 0;
+    virtual void submit(const DrawCommand&& command)    = 0;
+    virtual void flush()                               = 0;
     virtual void swap_buffer()                         = 0;
-    virtual void render()                              = 0;
 
-   private:
+    virtual IRenderQueue& getRenderQueue() = 0;
 };
 
 }  // namespace Optikos
 
-#endif /* IRENDER_H */
+#endif /* IRENDERER_H */
