@@ -2,6 +2,8 @@
 #define IWIDGET_H
 
 #include <cstdint>
+#include <functional>
+
 #include <vector>
 
 #include "utilities/vec.hpp"
@@ -14,10 +16,13 @@ struct Color
     float a;
 };
 
-struct Size
+struct Attributes
 {
-    uint32_t width;
-    uint32_t height;
+    bool                  isVisible;
+    vec2                  position;
+    uint32_t              width;
+    uint32_t              height;
+    std::function<void()> eventCallback = nullptr;
 };
 struct RenderData
 {
@@ -33,7 +38,9 @@ class IWidget
     virtual uint32_t                  getWidth() const    = 0;
     virtual uint32_t                  getHeight() const   = 0;
     virtual const std::vector<float>& getVertices() const = 0;
+    virtual bool                      getVisible() const  = 0;
     virtual const std::vector<unsigned int>& getIndices() const = 0;
+    virtual void                             handleEvent()      = 0;
 
    private:
 };
