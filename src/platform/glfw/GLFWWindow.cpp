@@ -95,7 +95,7 @@ void GLFWWindow::setRenderer(IRenderer* renderer)
 
         glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
 
-        LOG_TRACE("[setRenderer] render inside window setted", "log");
+        LOG_TRACE("[setRenderer] render inside window set", "log");
     }
 }
 
@@ -135,7 +135,7 @@ void GLFWWindow::framebuffer_size_callback(GLFWwindow* window, int width, int he
 
     if (!windowPtr)
     {
-        LOG_DEBUG("windowPtr not initilaized", "log");
+        LOG_DEBUG("windowPtr not initialized", "log");
         return;
     }
 
@@ -143,7 +143,7 @@ void GLFWWindow::framebuffer_size_callback(GLFWwindow* window, int width, int he
     windowPtr->m_windowSize.height = height;
     if (!windowPtr->m_renderer)
     {
-        LOG_DEBUG("windowPtr->m_renderer not initilaized", "log");
+        LOG_DEBUG("windowPtr->m_renderer not initialized", "log");
         return;
     }
     windowPtr->m_renderer->onWindowResize(width, height);
@@ -156,6 +156,16 @@ int GLFWWindow::getHeight() const
 int GLFWWindow::getWidth() const
 {
     return m_windowSize.width;
+}
+
+UISystem* GLFWWindow::getUiSystem() const
+{
+    return m_uiSystem;
+}
+
+void GLFWWindow::setUiSystem(UISystem* uiSystem)
+{
+    m_uiSystem = uiSystem;
 }
 
 }  // namespace Optikos

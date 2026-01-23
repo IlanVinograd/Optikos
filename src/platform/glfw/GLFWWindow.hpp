@@ -28,10 +28,15 @@ class GLFWWindow : public IWindow
     explicit GLFWWindow(const int w, const int h, const char* title, GraphicsConfig config);
     ~GLFWWindow() override;
 
-    void  setWindowTitleBar(Color color) override;
-    void  setRenderer(IRenderer* renderer) override;
-    void  setInputSystem(IInputSystem* inputSystem) override;
+    void setWindowTitleBar(Color color) override;
+    void setRenderer(IRenderer* renderer) override;
+
+    void          setInputSystem(IInputSystem* inputSystem) override;
     IInputSystem* getInputSystem() const override;
+
+    UISystem* getUiSystem() const override;
+    void      setUiSystem(UISystem* uiSystem) override;
+
     void* native_handle() override;
     void  poll_events() override;
     bool  should_close() const override;
@@ -41,13 +46,14 @@ class GLFWWindow : public IWindow
     void makeContextCurrent();
 
    private:
-   GLFWwindow*    m_window   = nullptr;
-   IRenderer*     m_renderer = nullptr;
-   IInputSystem*  m_inputSystem = nullptr;
-   Window         m_windowSize;
-   GraphicsConfig m_config;
+    GLFWwindow*    m_window      = nullptr;
+    IRenderer*     m_renderer    = nullptr;
+    IInputSystem*  m_inputSystem = nullptr;
+    UISystem*      m_uiSystem    = nullptr;
+    Window         m_windowSize;
+    GraphicsConfig m_config;
 
-   std::function<void()> m_resizeCallback;
+    std::function<void()> m_resizeCallback;
 
     static void error_callback(int error, const char* description);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);

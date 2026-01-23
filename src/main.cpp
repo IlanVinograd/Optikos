@@ -29,6 +29,7 @@ int main()
     window->setInputSystem(input.get());
 
     auto uiSystem = std::make_unique<UISystem>();
+    window->setUiSystem(uiSystem.get());
 
     uiSystem->add_widget(1, std::make_unique<Container>(800, 60, vec2{0,0}, Color{25.0, 25.0, 25.0, 255.0}));
     uiSystem->add_widget(2, std::make_unique<Container>(800, 60, vec2{0,40}, Color{1.0, 1.0, 100.0, 255.0}));

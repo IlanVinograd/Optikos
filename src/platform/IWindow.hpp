@@ -6,6 +6,8 @@
 
 #include <functional>
 
+#include "ui/UISystem.hpp"
+
 namespace Optikos
 {
 class IRenderer;
@@ -48,11 +50,14 @@ class IWindow
     virtual void          setRenderer(IRenderer* renderer)          = 0;
     virtual void          setInputSystem(IInputSystem* inputSystem) = 0;
     virtual IInputSystem* getInputSystem() const                    = 0;
-    virtual void*         native_handle()                           = 0;
-    virtual void          poll_events()                             = 0;
-    virtual bool          should_close() const                      = 0;
-    virtual int           getHeight() const                         = 0;
-    virtual int           getWidth() const                          = 0;
+    virtual void          setUiSystem(UISystem* uiSystem)           = 0;
+    virtual UISystem*     getUiSystem() const                       = 0;
+
+    virtual void* native_handle()      = 0;
+    virtual void  poll_events()        = 0;
+    virtual bool  should_close() const = 0;
+    virtual int   getHeight() const    = 0;
+    virtual int   getWidth() const     = 0;
 
    private:
 };
