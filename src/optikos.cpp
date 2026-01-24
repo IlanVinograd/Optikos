@@ -12,6 +12,9 @@ Optikos::Optikos(std::unique_ptr<IWindow> window, std::unique_ptr<IRenderer> ren
       m_config(config)
 {
     m_window->setRenderer(m_renderer.get());
+    m_window->setInputSystem(m_inputSystem.get());
+    m_window->setUiSystem(m_uiSystem.get());
+
     m_window->setWindowTitleBar({25, 25, 25});
 }
 
