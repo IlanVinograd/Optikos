@@ -41,7 +41,26 @@ bool Container::getVisible() const
     return m_attributes.isVisible;
 }
 
+void Container::resize(int width, int height)
+{
+    (void) height; /* stub */
+    m_data.vertices = {m_attributes.position.x,         m_attributes.position.y,          m_color.r, m_color.g, m_color.b, m_color.a,
+                       m_attributes.position.x + width, m_attributes.position.y,          m_color.r, m_color.g, m_color.b, m_color.a,
+                       m_attributes.position.x + width, m_attributes.position.y + m_attributes.height, m_color.r, m_color.g, m_color.b, m_color.a,
+                       m_attributes.position.x,         m_attributes.position.y + m_attributes.height, m_color.r, m_color.g, m_color.b, m_color.a};
+}
+
 void Container::handleEvent()
 {
     return; /* stub */
+}
+
+void Container::setAutoExpand(bool isExpand)
+{
+    m_attributes.isExpand = isExpand;
+}
+
+bool Container::isExpand()
+{
+    return m_attributes.isExpand;
 }

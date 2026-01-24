@@ -147,6 +147,12 @@ void GLFWWindow::framebuffer_size_callback(GLFWwindow* window, int width, int he
         return;
     }
     windowPtr->m_renderer->onWindowResize(width, height);
+
+    if (!windowPtr->m_uiSystem) {
+        LOG_DEBUG("windowPtr->m_uiSystem not initialized", "log");
+        return;
+    }
+    windowPtr->m_uiSystem->expandWidgets(width, height);
 }
 
 int GLFWWindow::getHeight() const

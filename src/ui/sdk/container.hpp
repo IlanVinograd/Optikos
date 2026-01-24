@@ -16,6 +16,9 @@ class Container : public IWidget
     const std::vector<unsigned int>& getIndices() const override;
     void                             handleEvent() override;
     bool                             getVisible() const override;
+    void                             resize(int width, int height) override;
+    void                             setAutoExpand(bool isExpand) override;
+    bool                             isExpand() override;
 
    private:
     Attributes m_attributes;

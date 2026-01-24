@@ -29,7 +29,11 @@ int main()
 
     auto uiSystem = std::make_unique<UISystem>();
 
-    uiSystem->add_widget(1, std::make_unique<Container>(800, 60, vec2{0,0}, Color{25.0, 25.0, 25.0, 255.0}));
+    auto container = std::make_unique<Container>(800, 60, vec2{0,0}, Color{125.0, 25.0, 25.0, 255.0});
+    container->setAutoExpand(1);
+    uiSystem->add_widget(1, std::move(container));
+
+    uiSystem->add_widget(2, std::make_unique<Container>(800, 60, vec2{0,100}, Color{100.0, 25.0, 25.0, 255.0}));
 
     Optikos::Optikos app(
         std::move(window), 

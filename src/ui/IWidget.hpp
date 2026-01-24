@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <functional>
-
 #include <vector>
 
 #include "utilities/vec.hpp"
@@ -23,6 +22,7 @@ struct Attributes
     uint32_t              width;
     uint32_t              height;
     std::function<void()> eventCallback = nullptr;
+    bool                  isExpand      = false;
 };
 struct RenderData
 {
@@ -39,8 +39,11 @@ class IWidget
     virtual uint32_t                  getHeight() const   = 0;
     virtual const std::vector<float>& getVertices() const = 0;
     virtual bool                      getVisible() const  = 0;
-    virtual const std::vector<unsigned int>& getIndices() const = 0;
-    virtual void                             handleEvent()      = 0;
+    virtual void                      resize(int width, int height)       = 0;
+    virtual const std::vector<unsigned int>& getIndices() const           = 0;
+    virtual void                             handleEvent()                = 0;
+    virtual void                             setAutoExpand(bool isExpand) = 0;
+    virtual bool                             isExpand()                   = 0;
 
    private:
 };

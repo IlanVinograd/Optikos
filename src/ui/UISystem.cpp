@@ -62,3 +62,14 @@ bool UISystem::isInside(const IWidget& widget, double x, double y)
 
     return false;
 }
+
+void UISystem::expandWidgets(int width, int height)
+{
+    for (auto& [id, widget] : widgets)
+    {
+        if (widget->isExpand())
+        {
+            widget->resize(width, height);
+        }
+    }
+}
