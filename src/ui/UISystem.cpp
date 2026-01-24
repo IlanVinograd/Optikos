@@ -17,15 +17,7 @@ void UISystem::render(Optikos::IRenderQueue& renderQueue)
 {
     for (const auto& [id, widget] : widgets)
     {
-        if (widget->getVisible())
-        {
-            Optikos::DrawCommand cmd;
-            cmd.vertices = widget->getVertices();
-            cmd.indices  = widget->getIndices();
-            cmd.shaderId = 0;
-
-            renderQueue.submit(std::move(cmd));
-        }
+        widget->render(renderQueue);
     }
 }
 
@@ -33,9 +25,9 @@ void UISystem::checkIfClicked(double x, double y)
 {
     for (const auto& [id, widget] : widgets)
     {
-        if (widget->getVisible() && isInside(*widget, x, y))
+        if (widget->handleClick(x, y))
         {
-            widget->handleEvent();
+            return;
         }
     }
 }
