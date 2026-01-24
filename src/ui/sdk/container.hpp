@@ -16,14 +16,21 @@ class Container : public IWidget
     const std::vector<unsigned int>& getIndices() const override;
     void                             handleEvent() override;
     bool                             getVisible() const override;
+    bool                             getClickable() const override;
+    void                             setClickable(bool isClickable) override;
     void                             resize(int width, int height) override;
-    void                             setAutoExpand(bool isExpand) override;
-    bool                             isExpand() override;
+    void                             setAutoExpand(int isExpand) override;
+    int                              isExpand() override;
+
+    void addSubWidget(IWidget* widget);
 
    private:
     Attributes m_attributes;
     RenderData m_data;
     Color      m_color;
+
+    int                   subAlignment = 0;
+    std::vector<IWidget*> subWidgets;
 };
 
 #endif /* CONTAINER_H */

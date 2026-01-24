@@ -41,13 +41,48 @@ bool Container::getVisible() const
     return m_attributes.isVisible;
 }
 
+void Container::setClickable(bool isClickable)
+{
+    m_attributes.isClickable = isClickable;
+}
+
+bool Container::getClickable() const
+{
+    return m_attributes.isClickable;
+}
+
 void Container::resize(int width, int height)
 {
-    (void) height; /* stub */
-    m_data.vertices = {m_attributes.position.x,         m_attributes.position.y,          m_color.r, m_color.g, m_color.b, m_color.a,
-                       m_attributes.position.x + width, m_attributes.position.y,          m_color.r, m_color.g, m_color.b, m_color.a,
-                       m_attributes.position.x + width, m_attributes.position.y + m_attributes.height, m_color.r, m_color.g, m_color.b, m_color.a,
-                       m_attributes.position.x,         m_attributes.position.y + m_attributes.height, m_color.r, m_color.g, m_color.b, m_color.a};
+    m_attributes.width  = width;
+    m_attributes.height = height;
+
+    m_data.vertices = {m_attributes.position.x,
+                       m_attributes.position.y,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+
+                       m_attributes.position.x + width,
+                       m_attributes.position.y,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+
+                       m_attributes.position.x + width,
+                       m_attributes.position.y + height,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+
+                       m_attributes.position.x,
+                       m_attributes.position.y + height,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a};
 }
 
 void Container::handleEvent()
@@ -55,12 +90,21 @@ void Container::handleEvent()
     return; /* stub */
 }
 
-void Container::setAutoExpand(bool isExpand)
+void Container::setAutoExpand(int isExpand)
 {
+    assert(isExpand >= 0 && isExpand <= 3);
+    /* 0 = don't expand, 1 = expand only width, 2 = expand only height, 3 = expand both */
+
     m_attributes.isExpand = isExpand;
 }
 
-bool Container::isExpand()
+int Container::isExpand()
 {
     return m_attributes.isExpand;
+}
+
+void Container::addSubWidget(IWidget* widget)
+{
+    if (this != widget) subWidgets.push_back(std::move(widget));
+    else LOG_DEBUG("addSubWidget add [this] to [this]", "log");
 }

@@ -1,18 +1,5 @@
 #include "ui/UISystem.hpp"
 
-bool UISystem::add_widget(const uint32_t idx, std::unique_ptr<IWidget> widget)
-{
-    auto [it, inserted] = widgets.try_emplace(idx, std::move(widget));
-
-    if (!inserted)
-    {
-        LOG_ERROR("[add_widget] widget with idx: " + std::to_string(idx) + " not added", "log");
-        return false;
-    }
-
-    return true;
-}
-
 bool UISystem::rem_widget(const uint32_t idx)
 {
     auto it = widgets.find(idx);
@@ -67,9 +54,24 @@ void UISystem::expandWidgets(int width, int height)
 {
     for (auto& [id, widget] : widgets)
     {
-        if (widget->isExpand())
+        switch (widget->isExpand())
         {
-            widget->resize(width, height);
+            case 0:
+                break;
+            case 1:
+                widget->resize(width, widget->getHeight());
+                break;
+            case 2:
+                widget->resize(widget->getWidth(), height);
+                break;
+            case 3:
+                widget->resize(width, height);
+                break;
+            default:
+                LOG_WARN(
+                    "[expandWidgets] Invalid expand mode: " + std::to_string(widget->isExpand()),
+                    "log");
+                break;
         }
     }
 }

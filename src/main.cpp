@@ -22,21 +22,25 @@ int main()
         window.get(), 
         std::move(shader)
     );
-    
+ 
     auto input = std::make_unique<Optikos::GLFWInputSystem>(
         (GLFWwindow*)window->native_handle()
     );
 
     auto uiSystem = std::make_unique<UISystem>();
 
-    auto container = std::make_unique<Container>(800, 60, vec2{0,0}, Color{125.0, 25.0, 25.0, 255.0});
-    container->setAutoExpand(1);
-    uiSystem->add_widget(1, std::move(container));
+    auto* container = uiSystem->add_widget(1, 
+    std::make_unique<Container>(800, 60, vec2{0,0}, Color{125.0, 25.0, 25.0, 255.0}));
 
-    uiSystem->add_widget(2, std::make_unique<Container>(800, 60, vec2{0,100}, Color{100.0, 25.0, 25.0, 255.0}));
+    container->setAutoExpand(1);
+
+    auto* container2 = uiSystem->add_widget(2, 
+        std::make_unique<Container>(800, 60, vec2{0,100}, Color{100.0, 25.0, 25.0, 255.0}));
+
+    container->addSubWidget(container);
 
     Optikos::Optikos app(
-        std::move(window), 
+        std::move(window),
         std::move(renderer), 
         std::move(input),
         std::move(uiSystem),

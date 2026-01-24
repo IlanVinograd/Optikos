@@ -148,11 +148,17 @@ void GLFWWindow::framebuffer_size_callback(GLFWwindow* window, int width, int he
     }
     windowPtr->m_renderer->onWindowResize(width, height);
 
-    if (!windowPtr->m_uiSystem) {
+    if (!windowPtr->m_uiSystem)
+    {
         LOG_DEBUG("windowPtr->m_uiSystem not initialized", "log");
         return;
     }
     windowPtr->m_uiSystem->expandWidgets(width, height);
+
+    windowPtr->m_renderer->beginFrame();
+    windowPtr->m_uiSystem->render(windowPtr->m_renderer->getRenderQueue());
+    windowPtr->m_renderer->endFrame();
+    windowPtr->m_renderer->swap_buffer();
 }
 
 int GLFWWindow::getHeight() const
@@ -172,6 +178,10 @@ UISystem* GLFWWindow::getUiSystem() const
 void GLFWWindow::setUiSystem(UISystem* uiSystem)
 {
     m_uiSystem = uiSystem;
+    if (m_uiSystem)
+    {
+        m_uiSystem->expandWidgets(m_windowSize.width, m_windowSize.height);
+    }
 }
 
 }  // namespace Optikos
