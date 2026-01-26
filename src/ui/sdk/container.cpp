@@ -1,7 +1,7 @@
 #include "ui/sdk/container.hpp"
 
 Container::Container(uint32_t width, uint32_t height, vec2 position, Color color, bool isVisible)
-    : m_attributes({isVisible, position, width, height}), m_color(color)
+    : Widget(width, height, position, isVisible), m_color(color)
 {
     m_data.vertices = {position.x,         position.y,          color.r, color.g, color.b, color.a,
                        position.x + width, position.y,          color.r, color.g, color.b, color.a,
@@ -40,14 +40,9 @@ bool Container::handleClick(double x, double y)
     return false;
 }
 
-vec2 Container::getPosition() const
-{
-    return m_attributes.position;
-}
-
 void Container::setPosition(vec2 pos)
 {
-    m_attributes.position = pos;
+    m_position = pos;
 
     m_data.vertices = {pos.x,
                        pos.y,
@@ -55,36 +50,26 @@ void Container::setPosition(vec2 pos)
                        m_color.g,
                        m_color.b,
                        m_color.a,
-                       pos.x + m_attributes.width,
+                       pos.x + m_width,
                        pos.y,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
-                       pos.x + m_attributes.width,
-                       pos.y + m_attributes.height,
+                       pos.x + m_width,
+                       pos.y + m_height,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
                        pos.x,
-                       pos.y + m_attributes.height,
+                       pos.y + m_height,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a};
 
     m_needsLayout = true;
-}
-
-uint32_t Container::getWidth() const
-{
-    return m_attributes.width;
-}
-
-uint32_t Container::getHeight() const
-{
-    return m_attributes.height;
 }
 
 const std::vector<float>& Container::getVertices() const
@@ -97,49 +82,34 @@ const std::vector<unsigned int>& Container::getIndices() const
     return m_data.indices;
 }
 
-bool Container::getVisible() const
-{
-    return m_attributes.isVisible;
-}
-
-void Container::setClickable(bool isClickable)
-{
-    m_attributes.isClickable = isClickable;
-}
-
-bool Container::getClickable() const
-{
-    return m_attributes.isClickable;
-}
-
 void Container::resize(int width, int height)
 {
-    m_attributes.width  = width;
-    m_attributes.height = height;
+    m_width  = width;
+    m_height = height;
 
-    m_data.vertices = {m_attributes.position.x,
-                       m_attributes.position.y,
+    m_data.vertices = {m_position.x,
+                       m_position.y,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
 
-                       m_attributes.position.x + width,
-                       m_attributes.position.y,
+                       m_position.x + width,
+                       m_position.y,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
 
-                       m_attributes.position.x + width,
-                       m_attributes.position.y + height,
+                       m_position.x + width,
+                       m_position.y + height,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
 
-                       m_attributes.position.x,
-                       m_attributes.position.y + height,
+                       m_position.x,
+                       m_position.y + height,
                        m_color.r,
                        m_color.g,
                        m_color.b,
@@ -152,19 +122,6 @@ void Container::handleEvent()
 {
     std::cout << "clicked" << std::endl;
     return; /* stub */
-}
-
-void Container::setAutoExpand(int isExpand)
-{
-    assert(isExpand >= 0 && isExpand <= 3);
-    /* 0 = don't expand, 1 = expand only width, 2 = expand only height, 3 = expand both */ //TODO: make enums/defines
-
-    m_attributes.isExpand = isExpand;
-}
-
-int Container::isExpand()
-{
-    return m_attributes.isExpand;
 }
 
 void Container::addSubWidget(std::unique_ptr<IWidget> widget)
@@ -192,7 +149,7 @@ void Container::updateLayout()
 void Container::setAlignment(int alignment)
 {
     assert(alignment >= 0 && alignment <= 2);
-    /* 0 = from left, 1 = middle, 2 = from right */ //TODO: make enums/defines
+    /* 0 = from left, 1 = middle, 2 = from right */  // TODO: make enums/defines
     if (m_subAlignment != alignment)
     {
         m_subAlignment = alignment;
@@ -208,6 +165,7 @@ void Container::setInterval(int interval)
         m_needsLayout = true;
     }
 }
+
 void Container::setOffset(int offset)
 {
     assert(offset >= 0);
@@ -220,7 +178,7 @@ void Container::setOffset(int offset)
 
 void Container::alignWidget(IWidget* subWidget, int index)
 {
-    //TODO: need optimization
+    // TODO: need optimization
     vec2  newPos;
     float xPos = 0.0f;
 
@@ -251,26 +209,26 @@ void Container::alignWidget(IWidget* subWidget, int index)
     switch (m_subAlignment)
     {
         case 0:
-            xPos = m_attributes.position.x + m_offset + prefixWidth;
+            xPos = m_position.x + m_offset + prefixWidth;
             break;
         case 1:
         {
             float startX =
-                m_attributes.position.x + (m_attributes.width / 2.0f) - (totalWidth / 2.0f);
+                m_position.x + (m_width / 2.0f) - (totalWidth / 2.0f);
             xPos = startX + prefixWidth;
         }
         break;
         case 2:
         {
-            float startX = m_attributes.position.x + m_attributes.width - totalWidth - m_offset;
+            float startX = m_position.x + m_width - totalWidth - m_offset;
             xPos         = startX + prefixWidth;
         }
         break;
         default:
-            xPos = m_attributes.position.x + m_offset + prefixWidth;
+            xPos = m_position.x + m_offset + prefixWidth;
             break;
     }
 
-    newPos = {xPos, m_attributes.position.y};
+    newPos = {xPos, m_position.y};
     subWidget->setPosition(newPos);
 }

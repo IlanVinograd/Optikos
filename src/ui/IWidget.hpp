@@ -18,16 +18,6 @@ struct Color
     float a;
 };
 
-struct Attributes
-{
-    bool                  isVisible;
-    vec2                  position;
-    uint32_t              width;
-    uint32_t              height;
-    std::function<void()> eventCallback = nullptr;
-    int                   isExpand      = 0;
-    bool                  isClickable   = false;
-};
 struct RenderData
 {
     std::vector<float>        vertices;
@@ -37,20 +27,23 @@ struct RenderData
 class IWidget
 {
    public:
-    virtual ~IWidget()                                      = default;
-    virtual vec2                      getPosition() const   = 0;  // return cord of left top corner
-    virtual void                      setPosition(vec2 pos) = 0;  // set cord of left top corner
-    virtual uint32_t                  getWidth() const      = 0;
-    virtual uint32_t                  getHeight() const     = 0;
-    virtual const std::vector<float>& getVertices() const   = 0;
-    virtual bool                      getVisible() const    = 0;
-    virtual bool                      getClickable() const  = 0;
-    virtual void                      setClickable(bool isClickable)     = 0;
-    virtual void                      resize(int width, int height)      = 0;
-    virtual const std::vector<unsigned int>& getIndices() const          = 0;
-    virtual void                             handleEvent()               = 0;
-    virtual void                             setAutoExpand(int isExpand) = 0;
-    virtual int                              isExpand()                  = 0;
+    virtual ~IWidget()                     = default;
+    virtual vec2     getPosition() const   = 0;  // return cord of left top corner
+    virtual void     setPosition(vec2 pos) = 0;  // set cord of left top corner
+    virtual uint32_t getWidth() const      = 0;
+    virtual uint32_t getHeight() const     = 0;
+    virtual bool     getVisible() const    = 0;
+    virtual bool     getClickable() const  = 0;
+
+    virtual void                             resize(int width, int height) = 0;
+    virtual const std::vector<unsigned int>& getIndices() const            = 0;
+    virtual const std::vector<float>&        getVertices() const           = 0;
+
+    virtual void setClickable(bool isClickable) = 0;
+    virtual void setAutoExpand(int isExpand)    = 0;
+    virtual int  isExpand()                     = 0;
+
+    virtual void handleEvent() = 0;
 
     virtual void render(Optikos::IRenderQueue& renderQueue)
     {

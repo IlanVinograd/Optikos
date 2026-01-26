@@ -80,7 +80,7 @@ int main()
     BigRec->addSubWidget(std::move(rec3));
 
     BigRec->setAutoExpand(1);
-    BigRec->setAlignment(0);
+    BigRec->setAlignment(1);
     BigRec->setInterval(120);
     
     boxPtr2->setClickable(true);
