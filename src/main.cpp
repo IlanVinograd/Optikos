@@ -48,6 +48,43 @@ int main()
     container->setAlignment(0);
     container->setInterval(10);
     container->setOffset(10);
+    
+    //
+    
+    auto rec1 = std::make_unique<Container>(150, 40, vec2{0,100}, Color{255.0, 25.0, 25.0, 255.0});
+    auto box1 = std::make_unique<Container>(30, 30, vec2{100,200}, Color{210.0, 135.0, 25.0, 255.0});
+    rec1->setAlignment(1);
+    rec1->addSubWidget(std::move(box1));
+
+    auto rec2 = std::make_unique<Container>(150, 40, vec2{0,100}, Color{255.0, 25.0, 25.0, 255.0});
+    auto box2 = std::make_unique<Container>(30, 30, vec2{100,200}, Color{100.0, 125.0, 25.0, 255.0});
+    auto box3 = std::make_unique<Container>(30, 30, vec2{100,200}, Color{100.0, 125.0, 25.0, 255.0});
+    Container* boxPtr2 = box2.get();
+    rec2->setAlignment(1);
+    rec2->setInterval(20);
+    rec2->addSubWidget(std::move(box2));
+    rec2->addSubWidget(std::move(box3));
+
+    auto rec3 = std::make_unique<Container>(150, 40, vec2{0,100}, Color{255.0, 25.0, 25.0, 255.0});
+    auto box4 = std::make_unique<Container>(30, 30, vec2{100,200}, Color{100.0, 125.0, 225.0, 255.0});
+    auto box5 = std::make_unique<Container>(30, 30, vec2{100,200}, Color{100.0, 125.0, 225.0, 255.0});
+    rec3->setAlignment(2);
+    rec3->setInterval(20);
+    rec3->addSubWidget(std::move(box4));
+    rec3->addSubWidget(std::move(box5));
+
+    auto* BigRec = uiSystem->add_widget(2, 
+    std::make_unique<Container>(800, 40, vec2{0,100}, Color{25.0, 25.0, 255.0, 255.0}));
+    BigRec->addSubWidget(std::move(rec1));
+    BigRec->addSubWidget(std::move(rec2));
+    BigRec->addSubWidget(std::move(rec3));
+
+    BigRec->setAutoExpand(1);
+    BigRec->setAlignment(0);
+    BigRec->setInterval(120);
+    
+    boxPtr2->setClickable(true);
+    //
 
     Optikos::Optikos app(
         std::move(window),

@@ -157,7 +157,7 @@ void Container::handleEvent()
 void Container::setAutoExpand(int isExpand)
 {
     assert(isExpand >= 0 && isExpand <= 3);
-    /* 0 = don't expand, 1 = expand only width, 2 = expand only height, 3 = expand both */
+    /* 0 = don't expand, 1 = expand only width, 2 = expand only height, 3 = expand both */ //TODO: make enums/defines
 
     m_attributes.isExpand = isExpand;
 }
@@ -169,6 +169,7 @@ int Container::isExpand()
 
 void Container::addSubWidget(std::unique_ptr<IWidget> widget)
 {
+    // TODO: return raw ptr with widget.get() to able reuse the widget after adding to subWidgets.
     if (this != widget.get())
     {
         m_subWidgets.push_back(std::move(widget));
@@ -191,7 +192,7 @@ void Container::updateLayout()
 void Container::setAlignment(int alignment)
 {
     assert(alignment >= 0 && alignment <= 2);
-    /* 0 = from left, 1 = middle, 2 = from right */
+    /* 0 = from left, 1 = middle, 2 = from right */ //TODO: make enums/defines
     if (m_subAlignment != alignment)
     {
         m_subAlignment = alignment;
@@ -219,6 +220,7 @@ void Container::setOffset(int offset)
 
 void Container::alignWidget(IWidget* subWidget, int index)
 {
+    //TODO: need optimization
     vec2  newPos;
     float xPos = 0.0f;
 
