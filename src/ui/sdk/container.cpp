@@ -44,30 +44,11 @@ void Container::setPosition(vec2 pos)
 {
     m_position = pos;
 
-    m_data.vertices = {pos.x,
-                       pos.y,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       pos.x + m_width,
-                       pos.y,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       pos.x + m_width,
-                       pos.y + m_height,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       pos.x,
-                       pos.y + m_height,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a};
+    m_data.vertices = {
+        pos.x,     pos.y,     m_color.r, m_color.g, m_color.b, m_color.a,        pos.x + m_width,
+        pos.y,     m_color.r, m_color.g, m_color.b, m_color.a, pos.x + m_width,  pos.y + m_height,
+        m_color.r, m_color.g, m_color.b, m_color.a, pos.x,     pos.y + m_height, m_color.r,
+        m_color.g, m_color.b, m_color.a};
 
     m_needsLayout = true;
 }
@@ -87,40 +68,20 @@ void Container::resize(int width, int height)
     m_width  = width;
     m_height = height;
 
-    m_data.vertices = {m_position.x,
-                       m_position.y,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
+    m_data.vertices = {
+        m_position.x,         m_position.y,          m_color.r, m_color.g, m_color.b, m_color.a,
 
-                       m_position.x + width,
-                       m_position.y,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
+        m_position.x + width, m_position.y,          m_color.r, m_color.g, m_color.b, m_color.a,
 
-                       m_position.x + width,
-                       m_position.y + height,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
+        m_position.x + width, m_position.y + height, m_color.r, m_color.g, m_color.b, m_color.a,
 
-                       m_position.x,
-                       m_position.y + height,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a};
+        m_position.x,         m_position.y + height, m_color.r, m_color.g, m_color.b, m_color.a};
 
     m_needsLayout = true;
 }
 
 void Container::handleEvent()
 {
-    std::cout << "clicked" << std::endl;
     return; /* stub */
 }
 
@@ -213,9 +174,8 @@ void Container::alignWidget(IWidget* subWidget, int index)
             break;
         case 1:
         {
-            float startX =
-                m_position.x + (m_width / 2.0f) - (totalWidth / 2.0f);
-            xPos = startX + prefixWidth;
+            float startX = m_position.x + (m_width / 2.0f) - (totalWidth / 2.0f);
+            xPos         = startX + prefixWidth;
         }
         break;
         case 2:

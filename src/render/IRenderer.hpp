@@ -12,7 +12,7 @@ class IRenderer
     virtual void onWindowResize(int width, int height) = 0;
     virtual void beginFrame()                          = 0;
     virtual void endFrame()                            = 0;
-    virtual void submit(const DrawCommand&& command)    = 0;
+    virtual void submit(const DrawCommand&& command)   = 0;
     virtual void flush()                               = 0;
     virtual void swap_buffer()                         = 0;
 

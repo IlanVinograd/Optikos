@@ -67,7 +67,8 @@ void OpenGLRenderer::flush()
 {
     const auto& commands = m_renderQueue.getCommands();
 
-    //TODO: sort by shader idx to lower draw calls.
+    // TODO: sort by shader idx to lower draw calls (probably will neede BTS + tree created in start
+    // of program and not here).
 
     for (const auto& cmd : commands)
     {
@@ -113,7 +114,8 @@ void OpenGLRenderer::renderBatch(const Batch& batch)
     glUseProgram(batch.shaderId);
 
     unsigned int loc = glGetUniformLocation(batch.shaderId, "uScreenSize");
-    glUniform2f(loc, static_cast<float>(m_window->getWidth()), static_cast<float>(m_window->getHeight()));
+    glUniform2f(loc, static_cast<float>(m_window->getWidth()),
+                static_cast<float>(m_window->getHeight()));
 
     glDrawElements(GL_TRIANGLES, static_cast<int>(batch.indices.size()), GL_UNSIGNED_INT, nullptr);
 }
