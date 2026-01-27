@@ -32,6 +32,19 @@ void UISystem::checkIfClicked(double x, double y)
     }
 }
 
+void UISystem::checkIfHover(double x, double y)
+{
+    for (const auto& [id, widget] : widgets)
+    {
+        if (!widget->wantsHoverEvents()) continue;
+
+        if (widget->isInside(x, y))
+            widget->handleHover(x, y);
+        else
+            widget->resetHover();
+    }
+}
+
 bool UISystem::isInside(const IWidget& widget, double x, double y)
 {
     vec2 widgetPos = widget.getPosition();

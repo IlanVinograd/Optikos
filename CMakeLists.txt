@@ -15,6 +15,7 @@ set(COMMON_SOURCES
     src/input/glfw/GLFWInputSystem.cpp
     src/ui/UISystem.cpp
     src/ui/sdk/container.cpp
+    src/ui/sdk/button.cpp
     src/shader/GLSL/GLShader.cpp
     src/render/RenderQueue.cpp
 )

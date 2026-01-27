@@ -10,10 +10,13 @@ class Container : public Widget
               bool isVisible = true);  // simple rectangle container
 
     void                             render(Optikos::IRenderQueue& renderQueue) override;
+    void                             updateVertices() override;
     const std::vector<float>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
     void                             handleEvent() override;
     bool                             handleClick(double x, double y) override;
+    void                             handleHover(double x, double y) override;
+    bool                             wantsHoverEvents() const override;
     void                             resize(int width, int height) override;
     void                             setPosition(vec2 pos) override;
 

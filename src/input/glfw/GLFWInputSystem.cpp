@@ -8,6 +8,7 @@ GLFWInputSystem::GLFWInputSystem(GLFWwindow* window) : m_window(window)
 {
     glfwSetCursorPosCallback(m_window, cursor_position_callback);
     glfwSetMouseButtonCallback(m_window, mouse_button_callback);
+    glfwSetCursorEnterCallback(m_window, cursor_enter_callback);
 }
 
 Cursor GLFWInputSystem::getCursor()
@@ -35,6 +36,8 @@ void GLFWInputSystem::cursor_position_callback(GLFWwindow* window, double xpos, 
     self->cursor.x = xpos;
     self->cursor.y = ypos;
 
+    glfwWindow->getUiSystem()->checkIfHover(xpos, ypos);
+
     // std::cout << "x: " << self->cursor.x << " y: " << self->cursor.y << std::endl;
 }
 
@@ -59,6 +62,22 @@ void GLFWInputSystem::mouse_button_callback(GLFWwindow* window, int button, int 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
         glfwWindow->getUiSystem()->checkIfClicked(self->cursor.x, self->cursor.y);
+    }
+}
+
+void GLFWInputSystem::cursor_enter_callback(GLFWwindow* window, int entered)
+{
+    (void) window;
+    if (!entered)
+    {
+        auto* glfwWindow = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
+        if (!glfwWindow)
+        {
+            LOG_FATAL("pointer [glfwWindow] inside GLFWInputSystem::mouse_button_callback is NULL",
+                      "log");
+            return;
+        }
+        glfwWindow->getUiSystem()->checkIfHover(0,0);
     }
 }
 

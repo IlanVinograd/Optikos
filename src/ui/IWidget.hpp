@@ -35,6 +35,8 @@ class IWidget
     virtual bool     getVisible() const    = 0;
     virtual bool     getClickable() const  = 0;
 
+    virtual void updateVertices() = 0;
+
     virtual void                             resize(int width, int height) = 0;
     virtual const std::vector<unsigned int>& getIndices() const            = 0;
     virtual const std::vector<float>&        getVertices() const           = 0;
@@ -44,6 +46,16 @@ class IWidget
     virtual int  isExpand()                     = 0;
 
     virtual void handleEvent() = 0;
+    virtual void handleHover(double, double)
+    {
+    }
+    virtual void resetHover()
+    {
+    }
+    virtual bool wantsHoverEvents() const
+    {
+        return false;
+    }
 
     virtual void render(Optikos::IRenderQueue& renderQueue)
     {

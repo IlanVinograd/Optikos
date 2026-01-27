@@ -33,6 +33,8 @@ class UISystem
 
     void checkIfClicked(double x, double y);
 
+    void checkIfHover(double x, double y);
+
     void expandWidgets(int width, int height);
 
     void render(Optikos::IRenderQueue& renderQueue);

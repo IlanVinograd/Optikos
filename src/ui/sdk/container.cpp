@@ -3,10 +3,7 @@
 Container::Container(uint32_t width, uint32_t height, vec2 position, Color color, bool isVisible)
     : Widget(width, height, position, isVisible), m_color(color)
 {
-    m_data.vertices = {position.x,         position.y,          color.r, color.g, color.b, color.a,
-                       position.x + width, position.y,          color.r, color.g, color.b, color.a,
-                       position.x + width, position.y + height, color.r, color.g, color.b, color.a,
-                       position.x,         position.y + height, color.r, color.g, color.b, color.a};
+    updateVertices();
 
     m_data.indices = {0, 1, 2, 2, 3, 0};
 }
@@ -21,6 +18,34 @@ void Container::render(Optikos::IRenderQueue& renderQueue)
     }
 }
 
+void Container::updateVertices()
+{
+    m_data.vertices = {m_position.x,
+                       m_position.y,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+                       m_position.x + m_width,
+                       m_position.y,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+                       m_position.x + m_width,
+                       m_position.y + m_height,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+                       m_position.x,
+                       m_position.y + m_height,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a};
+}
+
 bool Container::handleClick(double x, double y)
 {
     for (auto it = m_subWidgets.rbegin(); it != m_subWidgets.rend(); ++it)
@@ -33,7 +58,7 @@ bool Container::handleClick(double x, double y)
 
     if (getClickable() && isInside(x, y))
     {
-        handleEvent();
+        handleEvent();  // Currently Container don't have any events like drag etc...
         return true;
     }
 
@@ -44,11 +69,7 @@ void Container::setPosition(vec2 pos)
 {
     m_position = pos;
 
-    m_data.vertices = {
-        pos.x,     pos.y,     m_color.r, m_color.g, m_color.b, m_color.a,        pos.x + m_width,
-        pos.y,     m_color.r, m_color.g, m_color.b, m_color.a, pos.x + m_width,  pos.y + m_height,
-        m_color.r, m_color.g, m_color.b, m_color.a, pos.x,     pos.y + m_height, m_color.r,
-        m_color.g, m_color.b, m_color.a};
+    updateVertices();
 
     m_needsLayout = true;
 }
@@ -68,14 +89,7 @@ void Container::resize(int width, int height)
     m_width  = width;
     m_height = height;
 
-    m_data.vertices = {
-        m_position.x,         m_position.y,          m_color.r, m_color.g, m_color.b, m_color.a,
-
-        m_position.x + width, m_position.y,          m_color.r, m_color.g, m_color.b, m_color.a,
-
-        m_position.x + width, m_position.y + height, m_color.r, m_color.g, m_color.b, m_color.a,
-
-        m_position.x,         m_position.y + height, m_color.r, m_color.g, m_color.b, m_color.a};
+    updateVertices();
 
     m_needsLayout = true;
 }
@@ -191,4 +205,33 @@ void Container::alignWidget(IWidget* subWidget, int index)
 
     newPos = {xPos, m_position.y};
     subWidget->setPosition(newPos);
+}
+
+bool Container::wantsHoverEvents() const
+{
+    for (const auto& widget : m_subWidgets)
+    {
+        if (widget->wantsHoverEvents()) return true;
+    }
+    return false;
+}
+
+void Container::handleHover(double x, double y)
+{
+    for (auto& subWidget : m_subWidgets)
+    {
+        if (!subWidget->wantsHoverEvents())
+        {
+            subWidget->resetHover();
+            continue;
+        }
+
+        if (subWidget->isInside(x, y))
+        {
+            subWidget->handleHover(x, y);
+            return;
+        }
+        else
+            subWidget->resetHover();
+    }
 }

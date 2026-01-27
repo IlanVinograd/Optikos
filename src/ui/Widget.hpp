@@ -55,8 +55,13 @@ class Widget : public IWidget
     inline void setAutoExpand(int isExpand) override
     {
         assert(isExpand >= 0 && isExpand <= 3);
-        /* 0 = don't expand, 1 = expand only width, 2 = expand only height, 3 = expand both */ //TODO: make enums/defines
+        /* 0 = don't expand, 1 = expand only width, 2 = expand only height, 3 = expand both */  // TODO: make enums/defines
         m_isExpand = isExpand;
+    }
+
+    inline void updateVertices() override
+    {
+        return; /* stub */
     }
 
    protected:
