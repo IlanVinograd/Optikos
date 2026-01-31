@@ -57,7 +57,7 @@ class TextFont
         int bearing_x, bearing_y;
         int advance;
     };
-
+    //TODO: create struct with named Atlas that have chars and the atlas;
     std::unordered_map<unsigned char, Character> m_characters;
     Color                               m_textColor{255, 255, 255, 255};
     bool                                m_initialized = false;

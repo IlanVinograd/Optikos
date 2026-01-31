@@ -13,7 +13,7 @@ Button::Button(uint32_t width, uint32_t height, vec2 position, const std::string
 {
     setHoverDimming(0.5);
 
-    updateVertices();
+    updateData();
 
     m_isClickable = true;
 }
@@ -40,8 +40,7 @@ void Button::render(Optikos::IRenderQueue& renderQueue)
     }
 }
 
-// TODO: change function name from updateVertices to updateData
-void Button::updateVertices()
+void Button::updateData()
 {
     m_data.indices  = {0, 1, 2, 2, 3, 0};
     m_data.vertices = {m_position.x,
@@ -96,7 +95,7 @@ void Button::handleHover(double x, double y)
     {
         m_isHover = true;
         m_color   = m_dimmed;
-        updateVertices();
+        updateData();
     }
 }
 
@@ -104,7 +103,7 @@ void Button::resetHover()
 {
     m_isHover = false;
     m_color   = m_originalColor;
-    updateVertices();
+    updateData();
 }
 
 bool Button::wantsHoverEvents() const
@@ -117,7 +116,7 @@ void Button::resize(int width, int height)
     m_width  = width;
     m_height = height;
 
-    updateVertices();
+    updateData();
 }
 
 void Button::setHoverDimming(float dimming)
@@ -153,5 +152,5 @@ void Button::setPosition(vec2 pos)
 {
     m_position = pos;
 
-    updateVertices();
+    updateData();
 }

@@ -1,7 +1,7 @@
 #shader vertex
 #version 330 core
 
-layout(location = 0) in vec2 position;
+layout(location = 0) in vec2 aPosition;
 layout(location = 1) in vec4 aColor;
 layout(location = 2) in vec2 aTexCoord;
 
@@ -13,7 +13,7 @@ out vec4 fsColor;
 void main()
 {
     fsColor     = aColor / 255.0;
-    vec2 ndc    = (position / uScreenSize) * 2.0 - 1.0;
+    vec2 ndc    = (aPosition / uScreenSize) * 2.0 - 1.0;
     gl_Position = vec4(ndc.x, -ndc.y, 0.0, 1.0);
 
     v_TexCoord = aTexCoord;

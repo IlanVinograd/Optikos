@@ -11,10 +11,10 @@ class Button : public Widget
 {
    public:
     Button(uint32_t width, uint32_t height, vec2 position, const std::string& text = "",
-           Color color = {0, 0, 0, 1}, std::function<void()> event = nullptr);
+           Color color = {0, 0, 0, 255}, std::function<void()> event = nullptr);
 
     void render(Optikos::IRenderQueue& renderQueue) override;
-    void updateVertices() override;
+    void updateData() override;
     void handleEvent() override;
     void handleHover(double x, double y) override;
     void resetHover() override;

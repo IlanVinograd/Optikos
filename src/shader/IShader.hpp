@@ -1,6 +1,7 @@
 #ifndef ISHADER_H
 #define ISHADER_H
 
+#include <cassert>
 #include <string>
 
 enum class ShaderType

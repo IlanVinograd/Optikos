@@ -17,7 +17,7 @@ int main()
     
     Optikos::GraphicsConfig config{Optikos::GraphicsAPI::OpenGL, 4, 6};
     auto window = std::make_unique<Optikos::GLFWWindow>(800, 600, "App", config);
-    TextFont::getInstance().loadFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-Black.otf", 16);
+    TextFont::getInstance().loadFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-Light.otf", 18);
     
     auto shader = std::make_unique<GLShader>();
     auto renderer = std::make_unique<Optikos::OpenGLRenderer>(
@@ -30,6 +30,8 @@ int main()
     );
 
     auto uiSystem = std::make_unique<UISystem>();
+
+    renderer->loadTexture(TextFont::getInstance().getAtlasData(), TextFont::getInstance().getAtlasWidth(), TextFont::getInstance().getAtlasHeight());
 
     auto* container = uiSystem->add_widget(1, 
     std::make_unique<Container>(800, 35, vec2{0,0}, Color{25.0, 25.0, 25.0, 255.0}));
@@ -45,8 +47,8 @@ int main()
     container->addSubWidget(std::move(button3));
 
 
-    container->setAutoExpand(1);
-    container->setAlignment(1);
+    container->setAutoExpand(ExpandMode::Width);
+    container->setAlignment(AlignMode::Middle);
     container->setInterval(12);
     container->setOffset(15);
     

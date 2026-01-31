@@ -3,7 +3,7 @@
 Container::Container(uint32_t width, uint32_t height, vec2 position, Color color, bool isVisible)
     : Widget(width, height, position, isVisible), m_color(color)
 {
-    updateVertices();
+    updateData();
 
     m_data.indices = {0, 1, 2, 2, 3, 0};
 }
@@ -18,42 +18,40 @@ void Container::render(Optikos::IRenderQueue& renderQueue)
     }
 }
 
-void Container::updateVertices()
+void Container::updateData()
 {
-    m_data.vertices = {
-        m_position.x,
-        m_position.y,
-        m_color.r,
-        m_color.g,
-        m_color.b,
-        m_color.a,
-        0.0,
-        0.0,
-        m_position.x + m_width,
-        m_position.y,
-        m_color.r,
-        m_color.g,
-        m_color.b,
-        m_color.a,
-        0.0,
-        0.0,
-        m_position.x + m_width,
-        m_position.y + m_height,
-        m_color.r,
-        m_color.g,
-        m_color.b,
-        m_color.a,
-        0.0,
-        0.0,
-        m_position.x,
-        m_position.y + m_height,
-        m_color.r,
-        m_color.g,
-        m_color.b,
-        m_color.a,
-        0.0,
-        0.0
-    };
+    m_data.vertices = {m_position.x,
+                       m_position.y,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+                       0.0,
+                       0.0,
+                       m_position.x + m_width,
+                       m_position.y,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+                       0.0,
+                       0.0,
+                       m_position.x + m_width,
+                       m_position.y + m_height,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+                       0.0,
+                       0.0,
+                       m_position.x,
+                       m_position.y + m_height,
+                       m_color.r,
+                       m_color.g,
+                       m_color.b,
+                       m_color.a,
+                       0.0,
+                       0.0};
 }
 
 bool Container::handleClick(double x, double y)
@@ -79,7 +77,7 @@ void Container::setPosition(vec2 pos)
 {
     m_position = pos;
 
-    updateVertices();
+    updateData();
 
     m_needsLayout = true;
 }
@@ -99,7 +97,7 @@ void Container::resize(int width, int height)
     m_width  = width;
     m_height = height;
 
-    updateVertices();
+    updateData();
 
     m_needsLayout = true;
 }
@@ -131,14 +129,12 @@ void Container::updateLayout()
     m_needsLayout = false;
 }
 
-void Container::setAlignment(int alignment)
+void Container::setAlignment(AlignMode mode)
 {
-    assert(alignment >= 0 && alignment <= 2);
-    /* 0 = from left, 1 = middle, 2 = from right */  // TODO: make enums/defines
-    if (m_subAlignment != alignment)
+    if (m_alignmentMode != mode)
     {
-        m_subAlignment = alignment;
-        m_needsLayout  = true;
+        m_alignmentMode = mode;
+        m_needsLayout   = true;
     }
 }
 
@@ -191,18 +187,18 @@ void Container::alignWidget(IWidget* subWidget, int index)
         prefixWidth += static_cast<float>(m_interval);
     }
 
-    switch (m_subAlignment)
+    switch (m_alignmentMode)
     {
-        case 0:
+        case AlignMode::Left:
             xPos = m_position.x + m_offset + prefixWidth;
             break;
-        case 1:
+        case AlignMode::Middle:
         {
             float startX = m_position.x + (m_width / 2.0f) - (totalWidth / 2.0f);
             xPos         = startX + prefixWidth;
         }
         break;
-        case 2:
+        case AlignMode::Right:
         {
             float startX = m_position.x + m_width - totalWidth - m_offset;
             xPos         = startX + prefixWidth;

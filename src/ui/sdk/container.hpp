@@ -3,6 +3,13 @@
 
 #include "ui/Widget.hpp"
 
+enum class AlignMode : uint8_t
+{
+    Left   = 0,
+    Middle = 1,
+    Right  = 2
+};
+
 class Container : public Widget
 {
    public:
@@ -10,7 +17,7 @@ class Container : public Widget
               bool isVisible = true);  // simple rectangle container
 
     void                             render(Optikos::IRenderQueue& renderQueue) override;
-    void                             updateVertices() override;
+    void                             updateData() override;
     const std::vector<float>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
     void                             handleEvent() override;
@@ -21,7 +28,7 @@ class Container : public Widget
     void                             setPosition(vec2 pos) override;
 
     void addSubWidget(std::unique_ptr<IWidget> widget);
-    void setAlignment(int alignment);
+    void setAlignment(AlignMode mode);
     void setInterval(int interval);
     void setOffset(int offset);
 
@@ -31,10 +38,10 @@ class Container : public Widget
 
     RenderData                            m_data;
     Color                                 m_color;
-    int                                   m_subAlignment = 0;
-    int                                   m_offset       = 0;
-    int                                   m_interval     = 0;
-    bool                                  m_needsLayout  = true;
+    AlignMode                             m_alignmentMode = AlignMode::Left;
+    int                                   m_offset        = 0;
+    int                                   m_interval      = 0;
+    bool                                  m_needsLayout   = true;
     std::vector<std::unique_ptr<IWidget>> m_subWidgets;
 };
 

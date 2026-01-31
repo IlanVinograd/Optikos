@@ -10,6 +10,15 @@
 #include "utilities/logger.hpp"
 #include "utilities/vec.hpp"
 
+enum class ExpandMode : uint8_t
+{
+    None   = 0,
+    Width  = 1,
+    Height = 2,
+    Both   = 3
+};
+
+
 struct Color
 {
     float r;
@@ -35,15 +44,15 @@ class IWidget
     virtual bool     getVisible() const    = 0;
     virtual bool     getClickable() const  = 0;
 
-    virtual void updateVertices() = 0;
+    virtual void updateData() = 0;
 
     virtual void                             resize(int width, int height) = 0;
     virtual const std::vector<unsigned int>& getIndices() const            = 0;
     virtual const std::vector<float>&        getVertices() const           = 0;
 
-    virtual void setClickable(bool isClickable) = 0;
-    virtual void setAutoExpand(int isExpand)    = 0;
-    virtual int  isExpand()                     = 0;
+    virtual void       setClickable(bool isClickable) = 0;
+    virtual void       setAutoExpand(ExpandMode mode) = 0;
+    virtual ExpandMode isExpand()                     = 0;
 
     virtual void handleEvent() = 0;
     virtual void handleHover(double, double)
@@ -62,9 +71,9 @@ class IWidget
         if (getVisible())
         {
             Optikos::DrawCommand cmd;
-            cmd.vertices = getVertices();
-            cmd.indices  = getIndices();
-            cmd.shaderId = 0;
+            cmd.vertices  = getVertices();
+            cmd.indices   = getIndices();
+            cmd.shaderId  = 0;
             cmd.textureId = 0;
             renderQueue.submit(std::move(cmd));
         }

@@ -3,7 +3,10 @@
 unsigned int GLShader::compileShader(unsigned int type, const std::string& source)
 {
     unsigned int id  = glCreateShader(type);
-    const char*  src = source.c_str(); /* can be error src == null */
+    
+    assert(!source.empty());
+    const char*  src = source.c_str();
+    
     glShaderSource(id, 1, &src, nullptr);
     glCompileShader(id);
 

@@ -11,7 +11,7 @@ class Widget : public IWidget
           m_width(width),
           m_height(height),
           m_isVisible(isVisible),
-          m_isExpand(0),
+          m_isExpand(ExpandMode::None),
           m_isClickable(false)
     {
     }
@@ -42,7 +42,7 @@ class Widget : public IWidget
     {
         return m_isClickable;
     }
-    inline int isExpand() override
+    inline ExpandMode isExpand() override
     {
         return m_isExpand;
     }
@@ -52,25 +52,23 @@ class Widget : public IWidget
         m_isClickable = isClickable;
     }
 
-    inline void setAutoExpand(int isExpand) override
+    inline void setAutoExpand(ExpandMode mode) override
     {
-        assert(isExpand >= 0 && isExpand <= 3);
-        /* 0 = don't expand, 1 = expand only width, 2 = expand only height, 3 = expand both */  // TODO: make enums/defines
-        m_isExpand = isExpand;
+        m_isExpand = mode;
     }
 
-    inline void updateVertices() override
+    inline void updateData() override
     {
         return; /* stub */
     }
 
    protected:
-    vec2     m_position;
-    uint32_t m_width;
-    uint32_t m_height;
-    bool     m_isVisible;
-    int      m_isExpand;
-    bool     m_isClickable;
+    vec2       m_position;
+    uint32_t   m_width;
+    uint32_t   m_height;
+    bool       m_isVisible;
+    ExpandMode m_isExpand;
+    bool       m_isClickable;
 };
 
 #endif /* WIDGET_H */

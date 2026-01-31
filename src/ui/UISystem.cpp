@@ -61,20 +61,20 @@ void UISystem::expandWidgets(int width, int height)
     {
         switch (widget->isExpand())
         {
-            case 0:
+            case ExpandMode::None:
                 break;
-            case 1:
+            case ExpandMode::Width:
                 widget->resize(width, widget->getHeight());
                 break;
-            case 2:
+            case ExpandMode::Height:
                 widget->resize(widget->getWidth(), height);
                 break;
-            case 3:
+            case ExpandMode::Both:
                 widget->resize(width, height);
                 break;
             default:
                 LOG_WARN(
-                    "[expandWidgets] Invalid expand mode: " + std::to_string(widget->isExpand()),
+                    "[expandWidgets] Invalid expand mode: " + std::to_string(static_cast<int>(widget->isExpand())),
                     "log");
                 break;
         }
