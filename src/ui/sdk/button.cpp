@@ -1,5 +1,7 @@
 #include "ui/sdk/button.hpp"
 
+#include "ui/text/TextFont.hpp"
+
 Button::Button(uint32_t width, uint32_t height, vec2 position, const std::string& text, Color color,
                std::function<void()> event)
     : Widget(width, height, position),
@@ -10,47 +12,75 @@ Button::Button(uint32_t width, uint32_t height, vec2 position, const std::string
       m_event(event)
 {
     setHoverDimming(0.5);
-    updateVertices();
 
-    m_data.indices = {0, 1, 2, 2, 3, 0};
+    updateVertices();
 
     m_isClickable = true;
 }
 
 void Button::render(Optikos::IRenderQueue& renderQueue)
 {
-    if (m_isClickable)
+    if (!m_isVisible) return;
+
+    Optikos::DrawCommand bgCmd;
+    bgCmd.vertices  = m_data.vertices;
+    bgCmd.indices   = m_data.indices;
+    bgCmd.shaderId  = 0;
+    bgCmd.textureId = 0;
+    renderQueue.submit(std::move(bgCmd));
+
+    if (!m_text.empty())
     {
-        IWidget::render(renderQueue);
+        Optikos::DrawCommand textCmd;
+        textCmd.vertices  = m_textData.vertices;
+        textCmd.indices   = m_textData.indices;
+        textCmd.shaderId  = 0;
+        textCmd.textureId = TextFont::getInstance().getAtlasTextureId();
+        renderQueue.submit(std::move(textCmd));
     }
 }
 
+// TODO: change function name from updateVertices to updateData
 void Button::updateVertices()
 {
+    m_data.indices  = {0, 1, 2, 2, 3, 0};
     m_data.vertices = {m_position.x,
                        m_position.y,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
+                       0.0,
+                       0.0,
                        m_position.x + m_width,
                        m_position.y,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
+                       0.0,
+                       0.0,
                        m_position.x + m_width,
                        m_position.y + m_height,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
+                       0.0,
+                       0.0,
                        m_position.x,
                        m_position.y + m_height,
                        m_color.r,
                        m_color.g,
                        m_color.b,
-                       m_color.a};
+                       m_color.a,
+                       0.0,
+                       0.0};
+
+    if (!m_text.empty())
+    {
+        m_textData = TextFont::getInstance().generateTextQuads(m_text, m_position);
+    }
 }
 
 void Button::handleEvent()

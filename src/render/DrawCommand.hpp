@@ -10,6 +10,7 @@ struct DrawCommand
     std::vector<float>        vertices;
     std::vector<unsigned int> indices;
     unsigned int              shaderId;
+    unsigned int              textureId;
 };
 }  // namespace Optikos
 

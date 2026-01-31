@@ -65,6 +65,7 @@ class IWidget
             cmd.vertices = getVertices();
             cmd.indices  = getIndices();
             cmd.shaderId = 0;
+            cmd.textureId = 0;
             renderQueue.submit(std::move(cmd));
         }
     }

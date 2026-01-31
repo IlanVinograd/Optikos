@@ -7,7 +7,6 @@
 #include "render/IRenderer.hpp"
 #include "render/RenderQueue.hpp"
 #include "shader/IShader.hpp"
-
 #include "utilities/logger.hpp"
 
 #define GLFW_INCLUDE_NONE
@@ -27,22 +26,23 @@ class OpenGLRenderer : public IRenderer
     explicit OpenGLRenderer(IWindow* window, std::unique_ptr<IShader> shader);
     ~OpenGLRenderer() override;
 
-    void onWindowResize(int width, int height) override;
-    void beginFrame() override;
-    void endFrame() override;
-    void submit(const DrawCommand&& command) override;
-    void flush() override;
-    void swap_buffer() override;
+    void         onWindowResize(int width, int height) override;
+    void         beginFrame() override;
+    void         endFrame() override;
+    void         submit(const DrawCommand&& command) override;
+    void         flush() override;
+    void         swap_buffer() override;
 
     IRenderQueue& getRenderQueue() override;
 
    private:
     struct Batch
     {
-        unsigned int              VAO      = 0;
-        unsigned int              VBO      = 0;
-        unsigned int              IBO      = 0;
-        unsigned int              shaderId = 0;
+        unsigned int              VAO       = 0;
+        unsigned int              VBO       = 0;
+        unsigned int              IBO       = 0;
+        unsigned int              shaderId  = 0;
+        unsigned int              textureId = 0;
         std::vector<float>        vertices;
         std::vector<unsigned int> indices;
 
@@ -60,6 +60,8 @@ class OpenGLRenderer : public IRenderer
 
     void initializeBatch(Batch& batch);
     void renderBatch(const Batch& batch);
+    
+    unsigned int loadTexture(const std::vector<unsigned char>& data, int width, int height);
 
     IWindow*                 m_window;
     std::unique_ptr<IShader> m_shader;
@@ -67,6 +69,8 @@ class OpenGLRenderer : public IRenderer
 
     std::unordered_map<std::string, unsigned int> m_shaderCache;
     unsigned int                                  m_defaultShader = 0;
+
+    std::unordered_map<std::string, unsigned int> m_textureCache;
 
     Batch m_currentBatch;
 };

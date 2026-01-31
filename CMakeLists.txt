@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
+find_package(Freetype REQUIRED)
 
 set(COMMON_SOURCES
     src/main.cpp
@@ -18,6 +19,7 @@ set(COMMON_SOURCES
     src/ui/sdk/button.cpp
     src/shader/GLSL/GLShader.cpp
     src/render/RenderQueue.cpp
+    src/ui/text/TextFont.cpp
 )
 
 add_executable(Optikos ${COMMON_SOURCES})
@@ -37,7 +39,7 @@ elseif(UNIX AND NOT APPLE)
     target_compile_definitions(Optikos PRIVATE PLATFORM_LINUX)
 endif()
 
-target_link_libraries(Optikos PRIVATE glad::glad glfw)
+target_link_libraries(Optikos PRIVATE glad::glad glfw Freetype::Freetype)
 
 target_include_directories(Optikos PRIVATE
     "${CMAKE_SOURCE_DIR}/src"

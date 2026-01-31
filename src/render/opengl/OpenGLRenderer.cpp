@@ -1,5 +1,7 @@
 #include "OpenGLRenderer.hpp"
 
+#include "ui/text/TextFont.hpp"
+
 namespace Optikos
 {
 OpenGLRenderer::OpenGLRenderer(IWindow* window, std::unique_ptr<IShader> shader)
@@ -18,6 +20,15 @@ OpenGLRenderer::OpenGLRenderer(IWindow* window, std::unique_ptr<IShader> shader)
     ShaderSouces source = m_shader->parseShader("res/shaders/shader.vert");
     m_defaultShader     = m_shader->createShader(source.vertexSource, source.fragmentSource);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    auto& font = TextFont::getInstance();
+
+    unsigned int atlasId =
+        loadTexture(font.getAtlasData(), font.getAtlasWidth(), font.getAtlasHeight());
+    font.setAtlasTextureId(atlasId);
+
     initializeBatch(m_currentBatch);
 }
 
@@ -32,6 +43,11 @@ OpenGLRenderer::~OpenGLRenderer()
         glDeleteProgram(id);
     }
     if (m_defaultShader) glDeleteProgram(m_defaultShader);
+
+    for (auto& [name, id] : m_textureCache)
+    {
+        glDeleteTextures(1, &id);
+    }
 }
 
 void OpenGLRenderer::initializeBatch(Batch& batch)
@@ -45,11 +61,14 @@ void OpenGLRenderer::initializeBatch(Batch& batch)
     glGenBuffers(1, &batch.IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch.IBO);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) 0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) 0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (2 * sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (2 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 }
 
 void OpenGLRenderer::beginFrame()
@@ -67,22 +86,28 @@ void OpenGLRenderer::flush()
 {
     const auto& commands = m_renderQueue.getCommands();
 
-    // TODO: sort by shader idx to lower draw calls (probably will neede BTS + tree created in start
-    // of program and not here).
+    // TODO: sort by texture idx and then by shader idx to lower draw calls (probably will neede BTS
+    // + tree created in start of program and not here).
 
     for (const auto& cmd : commands)
     {
-        unsigned int shaderId = cmd.shaderId != 0 ? cmd.shaderId : m_defaultShader;
+        unsigned int shaderId  = cmd.shaderId != 0 ? cmd.shaderId : m_defaultShader;
+        unsigned int textureId = cmd.textureId != 0
+                                     ? cmd.textureId
+                                     : 0; /* 0 means default texture which is no texture */
 
-        if (m_currentBatch.shaderId != 0 && m_currentBatch.shaderId != shaderId)
+        if ((m_currentBatch.shaderId != 0 || m_currentBatch.textureId != 0) &&
+                m_currentBatch.shaderId != shaderId ||
+            m_currentBatch.textureId != textureId)
         {
             renderBatch(m_currentBatch);
             m_currentBatch.clear();
         }
 
-        m_currentBatch.shaderId = shaderId;
+        m_currentBatch.shaderId  = shaderId;
+        m_currentBatch.textureId = textureId;
 
-        unsigned int vertexOffset = static_cast<unsigned int>(m_currentBatch.vertices.size()) / 6;
+        unsigned int vertexOffset = static_cast<unsigned int>(m_currentBatch.vertices.size()) / 8;
         m_currentBatch.vertices.insert(m_currentBatch.vertices.end(), cmd.vertices.begin(),
                                        cmd.vertices.end());
 
@@ -113,9 +138,23 @@ void OpenGLRenderer::renderBatch(const Batch& batch)
 
     glUseProgram(batch.shaderId);
 
-    unsigned int loc = glGetUniformLocation(batch.shaderId, "uScreenSize");
-    glUniform2f(loc, static_cast<float>(m_window->getWidth()),
-                static_cast<float>(m_window->getHeight()));
+    int hasTexture = 0;
+    if (batch.textureId != 0)
+    {
+        hasTexture = 1;
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, batch.textureId);
+
+        int texLoc = glGetUniformLocation(batch.shaderId, "uTexture");
+        if (texLoc != -1) glUniform1i(texLoc, 0);
+    }
+
+    int toggleLoc = glGetUniformLocation(batch.shaderId, "uHasTexture");
+    if (toggleLoc != -1) glUniform1i(toggleLoc, hasTexture);
+
+    // TODO: unsigned int loc but is should be int [Shader]
+    int screenLoc = glGetUniformLocation(batch.shaderId, "uScreenSize");
+    glUniform2f(screenLoc, (float) m_window->getWidth(), (float) m_window->getHeight());
 
     glDrawElements(GL_TRIANGLES, static_cast<int>(batch.indices.size()), GL_UNSIGNED_INT, nullptr);
 }
@@ -156,6 +195,21 @@ void GLAPIENTRY OpenGLRenderer::messageCallback(GLenum source, GLenum type, GLui
     }
 
     LOG_ERROR(std::string("OpenGL: ") + message, "log");
+}
+
+unsigned int OpenGLRenderer::loadTexture(const std::vector<unsigned char>& data, int width,
+                                         int height)
+{
+    unsigned int textureId;
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    return textureId;
 }
 
 }  // namespace Optikos

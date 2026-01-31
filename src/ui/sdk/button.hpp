@@ -4,6 +4,8 @@
 #include <functional>
 
 #include "ui/Widget.hpp"
+#include "ui/text/TextFont.hpp"
+
 
 class Button : public Widget
 {
@@ -29,10 +31,11 @@ class Button : public Widget
 
    private:
     RenderData            m_data;
+    RenderData            m_textData;
     Color                 m_color;
     Color                 m_originalColor = m_color;
-    Color                 m_dimmed  = m_color;
-    bool                  m_isHover = false;
+    Color                 m_dimmed        = m_color;
+    bool                  m_isHover       = false;
     std::string           m_text;
     std::function<void()> m_event;
 };

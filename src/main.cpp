@@ -14,16 +14,17 @@
 int main()
 {
     Logger::add_logger();
-
+    
     Optikos::GraphicsConfig config{Optikos::GraphicsAPI::OpenGL, 4, 6};
     auto window = std::make_unique<Optikos::GLFWWindow>(800, 600, "App", config);
-
+    TextFont::getInstance().loadFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-Black.otf", 16);
+    
     auto shader = std::make_unique<GLShader>();
     auto renderer = std::make_unique<Optikos::OpenGLRenderer>(
         window.get(), 
         std::move(shader)
     );
- 
+    
     auto input = std::make_unique<Optikos::GLFWInputSystem>(
         (GLFWwindow*)window->native_handle()
     );
@@ -31,23 +32,23 @@ int main()
     auto uiSystem = std::make_unique<UISystem>();
 
     auto* container = uiSystem->add_widget(1, 
-    std::make_unique<Container>(800, 40, vec2{0,0}, Color{25.0, 25.0, 25.0, 255.0}));
+    std::make_unique<Container>(800, 35, vec2{0,0}, Color{25.0, 25.0, 25.0, 255.0}));
 
-    auto button1 = std::make_unique<Button>(20, 20, vec2{10,10}, "CLICK", Color{50,255,255,255.0}, []() {std::cout << "CLICK 1" << std::endl;});
+    auto button1 = std::make_unique<Button>(30, 30, vec2{10,10}, "File", Color{25,25,25.0,255.0}, []() {std::cout << "CLICK 1" << std::endl;});
+
     container->addSubWidget(std::move(button1));
 
-    auto button2 = std::make_unique<Button>(20, 20, vec2{10,10}, "CLICK", Color{50,255,255,255.0}, []() {std::cout << "CLICK 2" << std::endl;});
+    auto button2 = std::make_unique<Button>(30, 30, vec2{10,10}, "Edit", Color{25,25,25,255.0}, []() {std::cout << "CLICK 2" << std::endl;});
     container->addSubWidget(std::move(button2));
 
-    auto button3 = std::make_unique<Button>(20, 20, vec2{10,10}, "CLICK", Color{50,255,255,255.0}, []() {std::cout << "CLICK 3" << std::endl;});
+    auto button3 = std::make_unique<Button>(60, 30, vec2{10,10}, "Render", Color{25,25,25,255.0}, []() {std::cout << "CLICK 3" << std::endl;});
     container->addSubWidget(std::move(button3));
 
-    uiSystem->add_widget(2, std::make_unique<Button>(20, 20, vec2{100,100}, "CLICK", Color{50,255,255,255.0}, []() {std::cout << "CLICK 1" << std::endl;}));
 
     container->setAutoExpand(1);
-    container->setAlignment(0);
-    container->setInterval(10);
-    container->setOffset(10);
+    container->setAlignment(1);
+    container->setInterval(12);
+    container->setOffset(15);
     
     //
     
