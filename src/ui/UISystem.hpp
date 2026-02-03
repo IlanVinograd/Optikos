@@ -17,7 +17,6 @@ class UISystem
     template <typename T>
     T* add_widget(const uint32_t idx, std::unique_ptr<T> widget)
     {
-        auto* ptr           = widget.get();
         auto [it, inserted] = widgets.try_emplace(idx, std::move(widget));
 
         if (!inserted)
@@ -26,7 +25,7 @@ class UISystem
             return nullptr;
         }
 
-        return ptr;
+        return static_cast<T*>(it->second.get());
     }
 
     bool rem_widget(const uint32_t idx);

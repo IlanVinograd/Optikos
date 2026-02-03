@@ -1,7 +1,7 @@
 #include "ui/sdk/container.hpp"
 
 Container::Container(uint32_t width, uint32_t height, vec2 position, Color color, bool isVisible)
-    : Widget(width, height, position, isVisible), m_color(color)
+    : Widget(width, height, position, isVisible, color)
 {
     updateData();
 

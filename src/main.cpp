@@ -11,13 +11,19 @@
 #include "utilities/logger.hpp"
 #include "utilities/vec.hpp"
 
+void setFont(Optikos::IRenderer* renderer, std::string_view path ,std::string fontName = DEFAULT0_FONT, float fontSize = DEFAULT0_FONTSIZE) {
+    auto& font = TextFont::getInstance();
+    font.loadFont(path, fontName, fontSize);
+    unsigned int id = renderer->loadTexture(font.getAtlasData(fontName), font.getAtlasSize(fontName), font.getAtlasSize(fontName));
+    font.setAtlasTextureId(id, fontName);
+}
+
 int main()
 {
     Logger::add_logger();
     
     Optikos::GraphicsConfig config{Optikos::GraphicsAPI::OpenGL, 4, 6};
     auto window = std::make_unique<Optikos::GLFWWindow>(800, 600, "App", config);
-    TextFont::getInstance().loadFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-Light.otf", 18);
     
     auto shader = std::make_unique<GLShader>();
     auto renderer = std::make_unique<Optikos::OpenGLRenderer>(
@@ -31,22 +37,30 @@ int main()
 
     auto uiSystem = std::make_unique<UISystem>();
 
-    renderer->loadTexture(TextFont::getInstance().getAtlasData(), TextFont::getInstance().getAtlasWidth(), TextFont::getInstance().getAtlasHeight());
+    // i run like Optikos::pushFont(font, fontName or will be set as deafult); and this run this
+    // start
+    setFont(renderer.get(), "C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf");
+    setFont(renderer.get(), "C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf", "LIGHT", 16.0);
+    setFont(renderer.get(), "C:/Users/ilanv/Optikos/res/fonts/Titillium-Black.otf", "BOLD", 12.0);
+    // end
 
     auto* container = uiSystem->add_widget(1, 
     std::make_unique<Container>(800, 35, vec2{0,0}, Color{25.0, 25.0, 25.0, 255.0}));
 
-    auto button1 = std::make_unique<Button>(30, 30, vec2{10,10}, "File", Color{25,25,25.0,255.0}, []() {std::cout << "CLICK 1" << std::endl;});
+    auto button1 = std::make_unique<Button>(40, 30, vec2{10,10});
 
     container->addSubWidget(std::move(button1));
 
-    auto button2 = std::make_unique<Button>(30, 30, vec2{10,10}, "Edit", Color{25,25,25,255.0}, []() {std::cout << "CLICK 2" << std::endl;});
+    auto button2 = std::make_unique<Button>(40, 30, vec2{10,10}, "Move");
+    button2->setFont("BOLD");
+    auto* btn2Ptr = button2.get();
     container->addSubWidget(std::move(button2));
 
-    auto button3 = std::make_unique<Button>(60, 30, vec2{10,10}, "Render", Color{25,25,25,255.0}, []() {std::cout << "CLICK 3" << std::endl;});
+    auto button3 = std::make_unique<Button>(40, 30, vec2{10,10});
     container->addSubWidget(std::move(button3));
 
-
+    auto* boxPtr = uiSystem->add_widget(2, std::make_unique<Container>(40, 40, vec2{100,100}, Color{100,200,100, 255.0}));
+    btn2Ptr->setEvent([&](){ boxPtr->setPosition(vec2{boxPtr->getPosition().x+15, boxPtr->getPosition().y}); });
     container->setAutoExpand(ExpandMode::Width);
     container->setAlignment(AlignMode::Middle);
     container->setInterval(12);

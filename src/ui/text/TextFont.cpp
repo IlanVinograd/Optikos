@@ -2,8 +2,7 @@
 
 TextFont::TextFont()
 {
-    int error = FT_Init_FreeType(&m_library);
-    if (error)
+    if (FT_Init_FreeType(&m_library))
     {
         LOG_DEBUG("inside [FT_Init_FreeType] error occured", "log");
         return;
@@ -12,78 +11,87 @@ TextFont::TextFont()
 
 TextFont::~TextFont()
 {
-    if (m_face)
+    for (auto& [name, atlas] : m_Atlases)
     {
-        FT_Done_Face(m_face);
+        if (atlas.face)
+        {
+            FT_Done_Face(atlas.face);
+            atlas.face = nullptr;
+        }
     }
+
+    m_Atlases.clear();
     FT_Done_FreeType(m_library);
 }
 
-void TextFont::loadFont(std::string_view fontPath, int fontSize)
+void TextFont::loadFont(std::string_view fontPath, std::string fontName, float fontSize)
 {
-    if (fontPath.empty())
+    auto [it, inserted] = m_Atlases.try_emplace(fontName);
+
+    if (!inserted)
     {
-        LOG_DEBUG("Font path is empty", "log");
+        LOG_DEBUG("Font '" + fontName + "' already loaded", "log");
         return;
     }
 
-    if (m_face)
-    {
-        FT_Done_Face(m_face);
-        m_face = nullptr;
-    }
+    Atlas& atlas   = it->second;
+    atlas.fontSize = fontSize;
 
-    int error = FT_New_Face(m_library, std::data(fontPath), 0, &m_face);
-    if (error == FT_Err_Unknown_File_Format)
+    std::string pathStr(fontPath);
+    if (FT_New_Face(m_library, pathStr.c_str(), 0, &atlas.face))
     {
-        LOG_DEBUG("inside [FT_New_Face] unknown file format", "log");
-        return;
-    }
-    if (error)
-    {
-        LOG_DEBUG("inside [FT_New_Face] error occured", "log");
+        LOG_DEBUG("Failed to load font: " + pathStr, "log");
+        m_Atlases.erase(it);
         return;
     }
 
-    m_fontSize = fontSize;
-    generateAtlas(fontSize);
-    m_initialized = true;
+    generateAtlas(fontName, atlas.fontSize);
 }
 
-void TextFont::generateAtlas(int fontSize)
+void TextFont::generateAtlas(std::string fontName, float fontSize)
 {
-    if (!m_face)
+    auto it = m_Atlases.find(fontName);
+    if (it == m_Atlases.end())
+    {
+        LOG_DEBUG("Font '" + fontName + "' not created", "log");
+        return;
+    }
+
+    auto& atlas = it->second;
+    if (!atlas.face)
     {
         LOG_DEBUG("Face not initialized in generateAtlas", "log");
         return;
     }
 
-    FT_Set_Pixel_Sizes(m_face, 0, fontSize);
+    FT_Set_Pixel_Sizes(atlas.face, 0, static_cast<FT_UInt>(fontSize));
 
-    m_atlasData.assign(m_atlasWidth * m_atlasHeight, 0);
-    m_characters.clear();
+    atlas.fontSize  = fontSize;
+    atlas.atlasSize = CalculateAtlasSize(fontSize);
+
+    atlas.atlasData.assign(atlas.atlasSize * atlas.atlasSize, 0);
 
     int xpos         = 0;
     int ypos         = 0;
     int maxRowHeight = 0;
 
-    for (unsigned char c = 32; c < 128; c++)
+    for (unsigned char c = DEFAULT_CHAR_START; c <= DEFAULT_CHAR_END; c++)
     {
-        if (FT_Load_Char(m_face, c, FT_LOAD_RENDER))
+        if (FT_Load_Char(atlas.face, c, FT_LOAD_RENDER))
         {
             continue;
         }
 
-        auto& bitmap = m_face->glyph->bitmap;
+        auto& bitmap = atlas.face->glyph->bitmap;
 
-        if (xpos + (int) bitmap.width >= m_atlasWidth)
+        if (xpos + (int) bitmap.width >= static_cast<int>(atlas.atlasSize))
         {
             xpos = 0;
             ypos += maxRowHeight + 1;
             maxRowHeight = 0;
         }
 
-        if (ypos + (int) bitmap.rows >= m_atlasHeight)
+        if (ypos + (int) bitmap.rows >= static_cast<int>(atlas.atlasSize))
         {
             LOG_ERROR("Font atlas is full! Increase atlas size or decrease font size.", "log");
             break;
@@ -93,9 +101,9 @@ void TextFont::generateAtlas(int fontSize)
         {
             for (int col = 0; col < (int) bitmap.width; ++col)
             {
-                int atlasIdx          = (ypos + row) * m_atlasWidth + (xpos + col);
-                int glyphIdx          = row * bitmap.pitch + col;
-                m_atlasData[atlasIdx] = bitmap.buffer[glyphIdx];
+                int atlasIdx              = (ypos + row) * atlas.atlasSize + (xpos + col);
+                int glyphIdx              = row * bitmap.pitch + col;
+                atlas.atlasData[atlasIdx] = bitmap.buffer[glyphIdx];
             }
         }
 
@@ -103,58 +111,64 @@ void TextFont::generateAtlas(int fontSize)
                             ypos,
                             (int) bitmap.width,
                             (int) bitmap.rows,
-                            m_face->glyph->bitmap_left,
-                            m_face->glyph->bitmap_top,
-                            (int) (m_face->glyph->advance.x >> 6)};
+                            atlas.face->glyph->bitmap_left,
+                            atlas.face->glyph->bitmap_top,
+                            (int) (atlas.face->glyph->advance.x >> 6)};
 
-        m_characters[c] = character;
+        atlas.characters[c] = character;
 
         if ((int) bitmap.rows > maxRowHeight) maxRowHeight = (int) bitmap.rows;
         xpos += bitmap.width + 1;
     }
 }
 
-RenderData TextFont::generateTextQuads(const std::string& text, vec2 position)
+RenderData TextFont::generateTextQuads(const std::string& text, vec2 position, std::string fontName)
 {
     RenderData data;
 
-    if (!m_initialized)
+    auto it = m_Atlases.find(fontName);
+    if (it == m_Atlases.end())
     {
-        LOG_DEBUG("TextFont not initialized, call loadFont() first", "log");
+        LOG_DEBUG("Font '" + fontName + "' not found. Call loadFont() first.", "log");
         return data;
     }
 
+    const Atlas& atlas = it->second;
+
     float        xpos   = position.x;
-    //float        ypos   = position.y;
+    float        ypos   = position.y;
     unsigned int offset = 0;
+
     for (const auto& symbol : text)
     {
-        if (m_characters.find(symbol) == m_characters.end())
+        auto charIt = atlas.characters.find(symbol);
+        if (charIt == atlas.characters.end())
         {
-            LOG_DEBUG("There is no symbol: " + std::to_string(symbol) + "inside atlas", "log");
+            LOG_DEBUG("Character '" + std::string(1, symbol) + "' not found in atlas", "log");
             continue;
         }
 
-        Character ch = m_characters[(unsigned char) symbol];
+        const Character& ch = charIt->second;
 
         float x = xpos + ch.bearing_x;
-        float y = (position.y + (30 / 2) + (m_fontSize / 3)) - ch.bearing_y;
+        float y = (ypos + (30 / 2) + (atlas.fontSize / 3)) - ch.bearing_y;  // TODO: align text.
         float w = static_cast<float>(ch.width);
         float h = static_cast<float>(ch.height);
 
-        float u1 = static_cast<float>(ch.atlasX) / m_atlasWidth;
-        float v1 = static_cast<float>(ch.atlasY) / m_atlasHeight;
-        float u2 = u1 + static_cast<float>(ch.width) / m_atlasWidth;
-        float v2 = v1 + static_cast<float>(ch.height) / m_atlasHeight;
+        float u1 = static_cast<float>(ch.atlasX) / atlas.atlasSize;
+        float v1 = static_cast<float>(ch.atlasY) / atlas.atlasSize;
+        float u2 = u1 + static_cast<float>(ch.width) / atlas.atlasSize;
+        float v2 = v1 + static_cast<float>(ch.height) / atlas.atlasSize;
 
-        data.vertices.insert(data.vertices.end(), {x, y, m_textColor.r, m_textColor.g,
-                                                   m_textColor.b, m_textColor.a, u1, v1});
-        data.vertices.insert(data.vertices.end(), {x + w, y, m_textColor.r, m_textColor.g,
-                                                   m_textColor.b, m_textColor.a, u2, v1});
-        data.vertices.insert(data.vertices.end(), {x, y + h, m_textColor.r, m_textColor.g,
-                                                   m_textColor.b, m_textColor.a, u1, v2});
-        data.vertices.insert(data.vertices.end(), {x + w, y + h, m_textColor.r, m_textColor.g,
-                                                   m_textColor.b, m_textColor.a, u2, v2});
+        data.vertices.insert(data.vertices.end(), {x, y, atlas.textColor.r, atlas.textColor.g,
+                                                   atlas.textColor.b, atlas.textColor.a, u1, v1});
+        data.vertices.insert(data.vertices.end(), {x + w, y, atlas.textColor.r, atlas.textColor.g,
+                                                   atlas.textColor.b, atlas.textColor.a, u2, v1});
+        data.vertices.insert(data.vertices.end(), {x, y + h, atlas.textColor.r, atlas.textColor.g,
+                                                   atlas.textColor.b, atlas.textColor.a, u1, v2});
+        data.vertices.insert(data.vertices.end(),
+                             {x + w, y + h, atlas.textColor.r, atlas.textColor.g, atlas.textColor.b,
+                              atlas.textColor.a, u2, v2});
 
         data.indices.insert(data.indices.end(), {offset + 0, offset + 1, offset + 2, offset + 1,
                                                  offset + 3, offset + 2});
@@ -166,27 +180,51 @@ RenderData TextFont::generateTextQuads(const std::string& text, vec2 position)
     return data;
 }
 
-int TextFont::getAtlasWidth() const
+// TODO: add trace debug
+unsigned int TextFont::getAtlasSize(std::string fontName) const
 {
-    return m_atlasWidth;
+    auto it = m_Atlases.find(fontName);
+    return (it != m_Atlases.end()) ? it->second.atlasSize : 0;
 }
 
-int TextFont::getAtlasHeight() const
+unsigned int TextFont::getAtlasTextureId(std::string fontName) const
 {
-    return m_atlasHeight;
+    auto it = m_Atlases.find(fontName);
+    return (it != m_Atlases.end()) ? it->second.atlasTextureId : 0;
 }
 
-unsigned int TextFont::getAtlasTextureId() const
+void TextFont::setAtlasTextureId(unsigned int id, std::string fontName)
 {
-    return m_atlasTextureId;
+    auto it = m_Atlases.find(fontName);
+    if (it != m_Atlases.end())
+    {
+        it->second.atlasTextureId = id;
+    }
 }
 
-void TextFont::setAtlasTextureId(unsigned int id)
+const std::vector<unsigned char>& TextFont::getAtlasData(std::string fontName) const
 {
-    m_atlasTextureId = id;
+    static const std::vector<unsigned char> empty;
+
+    auto it = m_Atlases.find(fontName);
+    return (it != m_Atlases.end()) ? it->second.atlasData : empty;
 }
 
-const std::vector<unsigned char>& TextFont::getAtlasData() const
+unsigned int TextFont::CalculateAtlasSize(float fontSize)
 {
-    return m_atlasData;
+    /* Calculate texture atlas size for font rendering.
+       Example: 313 pixels → 512 pixels
+          312 in binary:  100111000
+          After filling:  111111111 (= 511)
+          Add 1:          512
+    */
+    unsigned int pixels =
+        static_cast<int>(sqrt(fontSize * fontSize * (DEFAULT_CHAR_END - DEFAULT_CHAR_START)));
+    unsigned int atlasSize = pixels - 1;
+    atlasSize |= atlasSize >> 1;
+    atlasSize |= atlasSize >> 2;
+    atlasSize |= atlasSize >> 4;
+    atlasSize |= atlasSize >> 8;
+    atlasSize |= atlasSize >> 16;
+    return atlasSize + 1;
 }

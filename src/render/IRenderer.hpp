@@ -15,7 +15,7 @@ class IRenderer
     virtual void submit(const DrawCommand&& command)   = 0;
     virtual void flush()                               = 0;
     virtual void swap_buffer()                         = 0;
-    virtual void loadTexture(const std::vector<unsigned char>& data, int width, int height) = 0;
+    virtual unsigned int loadTexture(const std::vector<unsigned char>& data, int width, int height) = 0;
 
     virtual IRenderQueue& getRenderQueue() = 0;
 };

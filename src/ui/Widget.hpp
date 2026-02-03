@@ -6,11 +6,13 @@
 class Widget : public IWidget
 {
    public:
-    Widget(uint32_t width, uint32_t height, vec2 position, bool isVisible = true)
+    Widget(uint32_t width, uint32_t height, vec2 position, bool isVisible = true,
+           Color color = Color{0.0, 50.0, 150.0, 255.0})
         : m_position(position),
           m_width(width),
           m_height(height),
           m_isVisible(isVisible),
+          m_color(color),
           m_isExpand(ExpandMode::None),
           m_isClickable(false)
     {
@@ -38,6 +40,12 @@ class Widget : public IWidget
     {
         return m_isVisible;
     }
+
+    inline Color getColor() const override
+    {
+        return m_color;
+    }
+
     inline bool getClickable() const override
     {
         return m_isClickable;
@@ -57,6 +65,16 @@ class Widget : public IWidget
         m_isExpand = mode;
     }
 
+    inline void setVisible(bool visible) override
+    {
+        m_isVisible = visible;
+    }
+
+    inline void setColor(Color color) override
+    {
+        m_color = color;
+    }
+
     inline void updateData() override
     {
         return; /* stub */
@@ -67,8 +85,9 @@ class Widget : public IWidget
     uint32_t   m_width;
     uint32_t   m_height;
     bool       m_isVisible;
-    ExpandMode m_isExpand;
     bool       m_isClickable;
+    ExpandMode m_isExpand;
+    Color      m_color;
 };
 
 #endif /* WIDGET_H */

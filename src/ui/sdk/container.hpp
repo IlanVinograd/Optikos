@@ -37,7 +37,6 @@ class Container : public Widget
     void updateLayout();
 
     RenderData                            m_data;
-    Color                                 m_color;
     AlignMode                             m_alignmentMode = AlignMode::Left;
     int                                   m_offset        = 0;
     int                                   m_interval      = 0;

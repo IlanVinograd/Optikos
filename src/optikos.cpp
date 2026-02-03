@@ -25,7 +25,7 @@ void Optikos::run()
         m_renderer->beginFrame();
 
         m_uiSystem->render(m_renderer->getRenderQueue());
-
+        
         m_renderer->endFrame();
         m_renderer->swap_buffer();
         m_window->poll_events();

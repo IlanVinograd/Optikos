@@ -45,7 +45,7 @@ class OpenGLRenderer : public IRenderer
     void submit(const DrawCommand&& command) override;
     void flush() override;
     void swap_buffer() override;
-    void loadTexture(const std::vector<unsigned char>& data, int width, int height) override;
+    unsigned int loadTexture(const std::vector<unsigned char>& data, int width, int height) override;
 
     IRenderQueue& getRenderQueue() override;
 

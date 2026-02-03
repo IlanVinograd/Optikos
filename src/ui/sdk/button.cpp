@@ -2,20 +2,26 @@
 
 #include "ui/text/TextFont.hpp"
 
-Button::Button(uint32_t width, uint32_t height, vec2 position, const std::string& text, Color color,
-               std::function<void()> event)
-    : Widget(width, height, position),
-      m_originalColor(color),
-      m_color(color),
-      m_dimmed(color),
-      m_text(text),
-      m_event(event)
+Button::Button(uint32_t width, uint32_t height, vec2 position) : Widget(width, height, position)
 {
     setHoverDimming(0.5);
 
     updateData();
 
     m_isClickable = true;
+}
+
+Button::Button(uint32_t width, uint32_t height, vec2 position, const std::string& text)
+    : Button(width, height, position)
+{
+    m_text = text;
+    updateData();
+}
+
+Button::Button(uint32_t width, uint32_t height, vec2 position, std::function<void()> event)
+    : Button(width, height, position)
+{
+    m_event = event;
 }
 
 void Button::render(Optikos::IRenderQueue& renderQueue)
@@ -35,7 +41,7 @@ void Button::render(Optikos::IRenderQueue& renderQueue)
         textCmd.vertices  = m_textData.vertices;
         textCmd.indices   = m_textData.indices;
         textCmd.shaderId  = 0;
-        textCmd.textureId = TextFont::getInstance().getAtlasTextureId();
+        textCmd.textureId = TextFont::getInstance().getAtlasTextureId(m_fontName);
         renderQueue.submit(std::move(textCmd));
     }
 }
@@ -78,7 +84,7 @@ void Button::updateData()
 
     if (!m_text.empty())
     {
-        m_textData = TextFont::getInstance().generateTextQuads(m_text, m_position);
+        m_textData = TextFont::getInstance().generateTextQuads(m_text, m_position, m_fontName);
     }
 }
 
@@ -146,6 +152,11 @@ const std::vector<unsigned int>& Button::getIndices() const
 void Button::setText(std::string text)
 {
     m_text = text;
+}
+
+void Button::setFont(std::string font)
+{
+    m_fontName = font;
 }
 
 void Button::setPosition(vec2 pos)

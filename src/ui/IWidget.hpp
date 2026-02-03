@@ -18,7 +18,6 @@ enum class ExpandMode : uint8_t
     Both   = 3
 };
 
-
 struct Color
 {
     float r;
@@ -43,6 +42,7 @@ class IWidget
     virtual uint32_t getHeight() const     = 0;
     virtual bool     getVisible() const    = 0;
     virtual bool     getClickable() const  = 0;
+    virtual Color    getColor() const      = 0;
 
     virtual void updateData() = 0;
 
@@ -52,7 +52,9 @@ class IWidget
 
     virtual void       setClickable(bool isClickable) = 0;
     virtual void       setAutoExpand(ExpandMode mode) = 0;
+    virtual void       setVisible(bool visible)       = 0;
     virtual ExpandMode isExpand()                     = 0;
+    virtual void       setColor(Color color)          = 0;
 
     virtual void handleEvent() = 0;
     virtual void handleHover(double, double)

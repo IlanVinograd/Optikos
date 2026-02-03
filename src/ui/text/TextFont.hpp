@@ -1,8 +1,6 @@
 #ifndef TEXTFONT_H
 #define TEXTFONT_H
 
-// TODO: defines for size of atlas
-
 #include <ft2build.h>
 
 #include "ui/IWidget.hpp"
@@ -11,6 +9,14 @@
 
 #include FT_FREETYPE_H
 
+inline constexpr const char* DEFAULT0_FONT = "default0";
+float constexpr DEFAULT0_FONTSIZE          = 16.0;
+
+unsigned int constexpr DEFAULT_CHAR_START = 32;
+unsigned int constexpr DEFAULT_CHAR_END   = 126;
+Color constexpr DEFAULT_COLOR             = Color{255, 255, 255, 255};
+
+// TODO: check if better to use one huge atlas or some small atlases.
 class TextFont
 {
    public:
@@ -25,30 +31,25 @@ class TextFont
 
     ~TextFont();
 
-    void       loadFont(std::string_view fontPath, int fontSize = 16);
-    void       setAtlasTextureId(unsigned int id);
-    RenderData generateTextQuads(const std::string& text, vec2 position);
+    void       loadFont(std::string_view fontPath, std::string fontName = DEFAULT0_FONT,
+                        float fontSize = DEFAULT0_FONTSIZE);
+    RenderData generateTextQuads(const std::string& text, vec2 position,
+                                 std::string fontName = DEFAULT0_FONT);
 
-    unsigned int                      getAtlasTextureId() const;
-    const std::vector<unsigned char>& getAtlasData() const;
+    unsigned int                      getAtlasTextureId(std::string fontName = DEFAULT0_FONT) const;
+    const std::vector<unsigned char>& getAtlasData(std::string fontName = DEFAULT0_FONT) const;
+    unsigned int                      getAtlasSize(std::string fontName = DEFAULT0_FONT) const;
 
-    int getAtlasWidth() const;
-    int getAtlasHeight() const;
+    void setAtlasTextureId(unsigned int id, std::string fontName = DEFAULT0_FONT);
 
    private:
     TextFont();
 
-    void generateAtlas(int fontSize);
+    void         generateAtlas(std::string fontName, float fontSize);
+    unsigned int CalculateAtlasSize(float fontSize);
 
     FT_Library m_library;
     FT_Face    m_face;
-
-    std::vector<unsigned char> m_atlasData;
-    unsigned int               m_atlasTextureId = 0;
-    int                        m_fontSize       = 16;
-
-    int m_atlasWidth  = 1024;
-    int m_atlasHeight = 1024;
 
     struct Character
     {
@@ -57,10 +58,19 @@ class TextFont
         int bearing_x, bearing_y;
         int advance;
     };
-    //TODO: create struct with named Atlas that have chars and the atlas;
-    std::unordered_map<unsigned char, Character> m_characters;
-    Color                               m_textColor{255, 255, 255, 255};
-    bool                                m_initialized = false;
+
+    struct Atlas
+    {
+        std::unordered_map<unsigned char, Character> characters;
+        std::vector<unsigned char>                   atlasData;
+        unsigned int                                 atlasTextureId = 0;
+        Color                                        textColor      = DEFAULT_COLOR;
+        unsigned int                                 atlasSize      = 0;
+        float                                        fontSize       = DEFAULT0_FONTSIZE;
+        FT_Face                                      face;
+    };
+
+    std::unordered_map<std::string, Atlas> m_Atlases;
 };
 
 #endif /* TEXTFONT_H */

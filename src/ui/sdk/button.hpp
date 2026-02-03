@@ -6,12 +6,12 @@
 #include "ui/Widget.hpp"
 #include "ui/text/TextFont.hpp"
 
-
 class Button : public Widget
 {
    public:
-    Button(uint32_t width, uint32_t height, vec2 position, const std::string& text = "",
-           Color color = {0, 0, 0, 255}, std::function<void()> event = nullptr);
+    explicit Button(uint32_t width, uint32_t height, vec2 position);
+    explicit Button(uint32_t width, uint32_t height, vec2 position, const std::string& text);
+    explicit Button(uint32_t width, uint32_t height, vec2 position, std::function<void()> event);
 
     void render(Optikos::IRenderQueue& renderQueue) override;
     void updateData() override;
@@ -24,6 +24,7 @@ class Button : public Widget
     void setHoverDimming(float dimming);  // 0.0 - 255.0
     void setEvent(std::function<void()> event);
     void setText(std::string text);
+    void setFont(std::string font);
     void setPosition(vec2 pos) override;
 
     const std::vector<float>&        getVertices() const override;
@@ -32,12 +33,13 @@ class Button : public Widget
    private:
     RenderData            m_data;
     RenderData            m_textData;
-    Color                 m_color;
     Color                 m_originalColor = m_color;
     Color                 m_dimmed        = m_color;
     bool                  m_isHover       = false;
-    std::string           m_text;
-    std::function<void()> m_event;
+    std::string           m_text          = "";
+    float                 m_fontSize      = DEFAULT0_FONTSIZE;
+    std::string           m_fontName      = DEFAULT0_FONT;
+    std::function<void()> m_event         = nullptr;
 };
 
 #endif /* BUTTON_H */

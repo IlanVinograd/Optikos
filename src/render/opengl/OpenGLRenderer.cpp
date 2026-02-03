@@ -192,10 +192,8 @@ void GLAPIENTRY OpenGLRenderer::messageCallback(GLenum source, GLenum type, GLui
     LOG_ERROR(std::string("OpenGL: ") + message, "log");
 }
 
-void OpenGLRenderer::loadTexture(const std::vector<unsigned char>& data, int width, int height)
+unsigned int OpenGLRenderer::loadTexture(const std::vector<unsigned char>& data, int width, int height)
 {
-    auto& font = TextFont::getInstance();
-
     unsigned int textureId;
     glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
@@ -205,8 +203,7 @@ void OpenGLRenderer::loadTexture(const std::vector<unsigned char>& data, int wid
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    font.setAtlasTextureId(textureId);
+    return textureId;
 }
 
 }  // namespace Optikos
