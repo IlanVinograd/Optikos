@@ -18,18 +18,36 @@ Optikos::Optikos(std::unique_ptr<IWindow> window, std::unique_ptr<IRenderer> ren
     m_window->setWindowTitleBar({25, 25, 25});
 }
 
-void Optikos::run()
+bool Optikos::should_close()
 {
-    while (!m_window->should_close())
-    {
-        m_renderer->beginFrame();
+    return m_window->should_close();
+}
 
-        m_uiSystem->render(m_renderer->getRenderQueue());
-        
-        m_renderer->endFrame();
-        m_renderer->swap_buffer();
-        m_window->poll_events();
-    }
+void Optikos::begin()
+{
+    m_renderer->beginFrame();
+    m_uiSystem->render(m_renderer->getRenderQueue());
+}
+
+void Optikos::end()
+{
+    m_renderer->endFrame();
+    m_renderer->swap_buffer();
+    m_window->poll_events();
+}
+
+void Optikos::pushFont(std::string_view path, std::string fontName, float fontSize)
+{
+    auto& font = TextFont::getInstance();
+    font.loadFont(path, fontName, fontSize);
+    unsigned int id = m_renderer->loadTexture(
+        font.getAtlasData(fontName), font.getAtlasSize(fontName), font.getAtlasSize(fontName));
+    font.setAtlasTextureId(id, fontName);
+}
+
+bool Optikos::removeWidget(uint32_t id)
+{
+    return m_uiSystem->rem_widget(id);
 }
 
 }  // namespace Optikos
