@@ -33,8 +33,8 @@ class TextFont
 
     void       loadFont(std::string_view fontPath, std::string fontName = DEFAULT0_FONT,
                         float fontSize = DEFAULT0_FONTSIZE);
-    RenderData generateTextQuads(const std::string& text, vec2 position,
-                                 std::string fontName = DEFAULT0_FONT);
+    RenderData generateTextQuads(const std::string& text, vec2 position, uint32_t width,
+                                 uint32_t height, std::string fontName = DEFAULT0_FONT);
 
     unsigned int                      getAtlasTextureId(std::string fontName = DEFAULT0_FONT) const;
     const std::vector<unsigned char>& getAtlasData(std::string fontName = DEFAULT0_FONT) const;

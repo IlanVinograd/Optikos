@@ -40,7 +40,7 @@ int main()
     // i run like Optikos::pushFont(font, fontName or will be set as deafult); and this run this
     // start
     setFont(renderer.get(), "C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf");
-    setFont(renderer.get(), "C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf", "LIGHT", 16.0);
+    setFont(renderer.get(), "C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf", "LIGHT", 30.0);
     setFont(renderer.get(), "C:/Users/ilanv/Optikos/res/fonts/Titillium-Black.otf", "BOLD", 12.0);
     // end
 
@@ -66,6 +66,10 @@ int main()
     container->setInterval(12);
     container->setOffset(15);
     
+    auto btn = std::make_unique<Button>(140, 140, vec2(200, 200), "B O");
+    btn->setFont("LIGHT");
+    uiSystem->add_widget(3, std::move(btn));
+
     //
     
     // auto rec1 = std::make_unique<Container>(150, 40, vec2{0,100}, Color{255.0, 25.0, 25.0, 255.0});

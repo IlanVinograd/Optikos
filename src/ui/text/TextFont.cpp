@@ -122,7 +122,8 @@ void TextFont::generateAtlas(std::string fontName, float fontSize)
     }
 }
 
-RenderData TextFont::generateTextQuads(const std::string& text, vec2 position, std::string fontName)
+RenderData TextFont::generateTextQuads(const std::string& text, vec2 position, uint32_t width,
+                                       uint32_t height, std::string fontName)
 {
     RenderData data;
 
@@ -135,8 +136,26 @@ RenderData TextFont::generateTextQuads(const std::string& text, vec2 position, s
 
     const Atlas& atlas = it->second;
 
-    float        xpos   = position.x;
-    float        ypos   = position.y;
+    float textLength = 0;
+    float maxAscent  = 0;
+    float maxDecent  = 0;
+    for (const auto& symbol : text)
+    {
+        auto charIt = atlas.characters.find(symbol);
+        if (charIt != atlas.characters.end())
+        {
+            const Character& ch = charIt->second;
+            textLength += ch.advance;
+
+            maxAscent = std::max(maxAscent, (float) ch.bearing_y);
+            maxDecent = std::max(maxDecent, (float) ch.height - (float) ch.bearing_y);
+        }
+    }
+
+    float textHeight = maxAscent + maxDecent;
+    float xpos       = position.x + (width - textLength) / 2.0f;
+    float yBaseline  = position.y + (height - textHeight) / 2.0f + maxAscent;
+
     unsigned int offset = 0;
 
     for (const auto& symbol : text)
@@ -151,7 +170,7 @@ RenderData TextFont::generateTextQuads(const std::string& text, vec2 position, s
         const Character& ch = charIt->second;
 
         float x = xpos + ch.bearing_x;
-        float y = (ypos + (30 / 2) + (atlas.fontSize / 3)) - ch.bearing_y;  // TODO: align text.
+        float y = yBaseline - ch.bearing_y;
         float w = static_cast<float>(ch.width);
         float h = static_cast<float>(ch.height);
 

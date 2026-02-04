@@ -84,7 +84,7 @@ void Button::updateData()
 
     if (!m_text.empty())
     {
-        m_textData = TextFont::getInstance().generateTextQuads(m_text, m_position, m_fontName);
+        m_textData = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width, m_height, m_fontName);
     }
 }
 
@@ -157,6 +157,8 @@ void Button::setText(std::string text)
 void Button::setFont(std::string font)
 {
     m_fontName = font;
+    
+    updateData();
 }
 
 void Button::setPosition(vec2 pos)
