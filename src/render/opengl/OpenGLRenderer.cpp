@@ -20,9 +20,6 @@ OpenGLRenderer::OpenGLRenderer(IWindow* window, std::unique_ptr<IShader> shader)
     ShaderSouces source = m_shader->parseShader("res/shaders/shader.vert");
     m_defaultShader     = m_shader->createShader(source.vertexSource, source.fragmentSource);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     initializeBatch(m_currentBatch);
 }
 
@@ -72,6 +69,7 @@ void OpenGLRenderer::beginFrame()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     m_renderQueue.clear();
+    m_uiStateSet = false;
 }
 
 void OpenGLRenderer::submit(const DrawCommand&& command)
@@ -121,6 +119,8 @@ void OpenGLRenderer::flush()
 
 void OpenGLRenderer::renderBatch(const Batch& batch)
 {
+    if (!m_uiStateSet) restoreStates();
+
     glBindVertexArray(batch.VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, batch.VBO);
@@ -157,6 +157,7 @@ void OpenGLRenderer::renderBatch(const Batch& batch)
 void OpenGLRenderer::endFrame()
 {
     flush();
+    resetToDefault();
 }
 
 void OpenGLRenderer::swap_buffer()
@@ -192,7 +193,8 @@ void GLAPIENTRY OpenGLRenderer::messageCallback(GLenum source, GLenum type, GLui
     LOG_ERROR(std::string("OpenGL: ") + message, "log");
 }
 
-unsigned int OpenGLRenderer::loadTexture(const std::vector<unsigned char>& data, int width, int height)
+unsigned int OpenGLRenderer::loadTexture(const std::vector<unsigned char>& data, int width,
+                                         int height)
 {
     unsigned int textureId;
     glGenTextures(1, &textureId);
@@ -204,6 +206,86 @@ unsigned int OpenGLRenderer::loadTexture(const std::vector<unsigned char>& data,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     return textureId;
+}
+
+void OpenGLRenderer::resetToDefault()
+{
+    glDisable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ZERO);
+    glBlendEquation(GL_FUNC_ADD);
+
+    glDisable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+
+    glDisable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_STENCIL_TEST);
+    glStencilFunc(GL_ALWAYS, 0, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    glStencilMask(0xFF);
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glViewport(0, 0, m_window->getWidth(), m_window->getHeight());
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glLineWidth(1.0f);
+
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glDisable(GL_POLYGON_OFFSET_LINE);
+    glDisable(GL_POLYGON_OFFSET_POINT);
+    glPolygonOffset(0.0f, 0.0f);
+
+    glDisable(GL_PRIMITIVE_RESTART);
+
+#ifdef GL_CLIP_DISTANCE0
+    for (int i = 0; i < 8; i++)
+    {
+        glDisable(GL_CLIP_DISTANCE0 + i);
+    }
+#endif
+
+    glEnable(GL_MULTISAMPLE);
+
+    glActiveTexture(GL_TEXTURE0);
+
+    glUseProgram(0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    m_uiStateSet = false;
+}
+
+void OpenGLRenderer::restoreStates()
+{
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_STENCIL_TEST);
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glViewport(0, 0, m_window->getWidth(), m_window->getHeight());
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glActiveTexture(GL_TEXTURE0);
+
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glDisable(GL_PRIMITIVE_RESTART);
+#ifdef GL_CLIP_DISTANCE0
+    glDisable(GL_CLIP_DISTANCE0);
+#endif
+
+    m_uiStateSet = true;
 }
 
 }  // namespace Optikos

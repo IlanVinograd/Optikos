@@ -39,13 +39,17 @@ class OpenGLRenderer : public IRenderer
     explicit OpenGLRenderer(IWindow* window, std::unique_ptr<IShader> shader);
     ~OpenGLRenderer() override;
 
-    void onWindowResize(int width, int height) override;
-    void beginFrame() override;
-    void endFrame() override;
-    void submit(const DrawCommand&& command) override;
-    void flush() override;
-    void swap_buffer() override;
-    unsigned int loadTexture(const std::vector<unsigned char>& data, int width, int height) override;
+    void         onWindowResize(int width, int height) override;
+    void         beginFrame() override;
+    void         endFrame() override;
+    void         submit(const DrawCommand&& command) override;
+    void         flush() override;
+    void         swap_buffer() override;
+    unsigned int loadTexture(const std::vector<unsigned char>& data, int width,
+                             int height) override;
+
+    void resetToDefault() override;
+    void restoreStates() override;
 
     IRenderQueue& getRenderQueue() override;
 
@@ -83,6 +87,8 @@ class OpenGLRenderer : public IRenderer
     unsigned int                                  m_defaultShader = DEFAULT_SHADER;
 
     std::unordered_map<std::string, unsigned int> m_textureCache;
+
+    bool m_uiStateSet = false;
 
     Batch m_currentBatch;
 };
