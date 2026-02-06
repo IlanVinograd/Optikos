@@ -23,6 +23,7 @@ class Container : public Widget
     void                             handleEvent() override;
     bool                             handleClick(double x, double y) override;
     void                             handleHover(double x, double y) override;
+    void                             resetHover() override;
     bool                             wantsHoverEvents() const override;
     void                             resize(int width, int height) override;
     void                             setPosition(vec2 pos) override;

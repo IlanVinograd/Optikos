@@ -241,3 +241,11 @@ void Container::handleHover(double x, double y)
             subWidget->resetHover();
     }
 }
+
+void Container::resetHover()
+{
+    for (auto& subWidget : m_subWidgets)
+    {
+        subWidget->resetHover();
+    }
+}
