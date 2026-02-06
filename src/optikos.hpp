@@ -1,6 +1,8 @@
 #ifndef OPTIKOS_H
 #define OPTIKOS_H
 
+#include "optikos_config.hpp"
+
 #include <memory>
 
 #include "input/IInputSystem.hpp"
@@ -9,22 +11,23 @@
 #include "ui/UISystem.hpp"
 #include "ui/text/TextFont.hpp"
 
-//TODO: change to more serious lib
+// TODO: change to more serious lib
 #include "utilities/vec.hpp"
 
-//TODO: wrap to .hpp
+// TODO: wrap to .hpp
 #include "ui/sdk/button.hpp"
 #include "ui/sdk/container.hpp"
 
+unsigned int constexpr DEFAULT_WIDTH  = 800;
+unsigned int constexpr DEFAULT_HEIGHT = 600;
 
 namespace Optikos
 {
 class Optikos
 {
    public:
-    Optikos(std::unique_ptr<IWindow> window, std::unique_ptr<IRenderer> renderer,
-            std::unique_ptr<IInputSystem> inputSystem, std::unique_ptr<UISystem> uiSystem,
-            GraphicsConfig config);
+    Optikos(std::string_view title, unsigned int width = DEFAULT_WIDTH,
+            unsigned int height = DEFAULT_HEIGHT);
 
     bool should_close();
     void begin();
@@ -32,6 +35,7 @@ class Optikos
 
     void pushFont(std::string_view path, std::string fontName = DEFAULT0_FONT,
                   float fontSize = DEFAULT0_FONTSIZE);
+    void setWindowTitleBar(Color color);
 
     template <typename T>
     T* addWidget(const uint32_t idx, std::unique_ptr<T> widget)
@@ -46,8 +50,6 @@ class Optikos
     std::unique_ptr<IWindow>      m_window;
     std::unique_ptr<IInputSystem> m_inputSystem;
     std::unique_ptr<UISystem>     m_uiSystem;
-
-    GraphicsConfig m_config;
 };
 
 }  // namespace Optikos

@@ -25,7 +25,7 @@ namespace Optikos
 class GLFWWindow : public IWindow
 {
    public:
-    explicit GLFWWindow(const int w, const int h, const char* title, GraphicsConfig config);
+    explicit GLFWWindow(const int w, const int h, std::string_view title, GraphicsConfig config);
     ~GLFWWindow() override;
 
     void setWindowTitleBar(Color color) override;

@@ -1,29 +1,15 @@
-#include <memory>
-
-// TODO: builder
-
-#include "input/glfw/GLFWInputSystem.hpp"
+#include "optikos_config.hpp"
 #include "optikos.hpp"
-#include "platform/glfw/GLFWWindow.hpp"
-#include "render/opengl/OpenGLRenderer.hpp"
-#include "shader/GLSL/GLShader.hpp"
-#include "ui/UISystem.hpp"
+
 #include "utilities/logger.hpp"
+
+#include <memory>
 
 int main()
 {
     Logger::add_logger();
-
-    Optikos::GraphicsConfig config{Optikos::GraphicsAPI::OpenGL, 4, 6};
-    auto                    window = std::make_unique<Optikos::GLFWWindow>(800, 600, "App", config);
-
-    auto shader   = std::make_unique<GLShader>();
-    auto renderer = std::make_unique<Optikos::OpenGLRenderer>(window.get(), std::move(shader));
-    auto input = std::make_unique<Optikos::GLFWInputSystem>((GLFWwindow*) window->native_handle());
-    auto uiSystem = std::make_unique<UISystem>();
-
-    Optikos::Optikos app(std::move(window), std::move(renderer), std::move(input),
-                         std::move(uiSystem), config);
+    Optikos::Optikos app("Optikos");
+    app.setWindowTitleBar(Optikos::Color{25,25,25});
 
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf");
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf", "LIGHT", 30.0);

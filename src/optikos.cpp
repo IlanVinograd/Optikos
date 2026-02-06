@@ -1,21 +1,48 @@
 #include "optikos.hpp"
 
+#ifdef OPTIKOS_PLATFORM_GLWF
+#include "platform/glfw/GLFWWindow.hpp"
+#endif
+
+#ifdef OPTIKOS_BACKEND_OPENGL
+#include "render/opengl/OpenGLRenderer.hpp"
+#include "shader/GLSL/GLShader.hpp"
+#endif
+
+#ifdef OPTIKOS_INPUT_GLWF
+#include "input/glfw/GLFWInputSystem.hpp"
+#endif
+
+#include "ui/UISystem.hpp"
+
 namespace Optikos
 {
-Optikos::Optikos(std::unique_ptr<IWindow> window, std::unique_ptr<IRenderer> renderer,
-                 std::unique_ptr<IInputSystem> inputSystem, std::unique_ptr<UISystem> uiSystem,
-                 GraphicsConfig config)
-    : m_renderer(std::move(renderer)),
-      m_window(std::move(window)),
-      m_inputSystem(std::move(inputSystem)),
-      m_uiSystem(std::move(uiSystem)),
-      m_config(config)
+Optikos::Optikos(std::string_view title, unsigned int width, unsigned int height)
 {
+#ifdef OPTIKOS_PLATFORM_GLWF
+#ifdef OPTIKOS_BACKEND_OPENGL
+    m_window = std::make_unique<GLFWWindow>(width, height, title,
+                                            GraphicsConfig{GraphicsAPI::OpenGL, 4, 6});
+#else
+    m_window = std::make_unique<GLFWWindow>(width, height, title,
+                                            GraphicsConfig{GraphicsAPI::None, -1, -1});
+#endif
+#endif
+
+#ifdef OPTIKOS_BACKEND_OPENGL
+    auto shader = std::make_unique<GLShader>();
+    m_renderer  = std::make_unique<OpenGLRenderer>(m_window.get(), std::move(shader));
+#endif
+
+#ifdef OPTIKOS_INPUT_GLWF
+    m_inputSystem = std::make_unique<GLFWInputSystem>((GLFWwindow*) m_window->native_handle());
+#endif
+
+    m_uiSystem = std::make_unique<UISystem>();
+
     m_window->setRenderer(m_renderer.get());
     m_window->setInputSystem(m_inputSystem.get());
     m_window->setUiSystem(m_uiSystem.get());
-
-    m_window->setWindowTitleBar({25, 25, 25});
 }
 
 bool Optikos::should_close()
@@ -43,6 +70,11 @@ void Optikos::pushFont(std::string_view path, std::string fontName, float fontSi
     unsigned int id = m_renderer->loadTexture(
         font.getAtlasData(fontName), font.getAtlasSize(fontName), font.getAtlasSize(fontName));
     font.setAtlasTextureId(id, fontName);
+}
+
+void Optikos::setWindowTitleBar(Color color)
+{
+    m_window->setWindowTitleBar(color);
 }
 
 bool Optikos::removeWidget(uint32_t id)

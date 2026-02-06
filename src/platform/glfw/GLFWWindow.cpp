@@ -4,7 +4,7 @@
 
 namespace Optikos
 {
-GLFWWindow::GLFWWindow(const int w, const int h, const char* title, GraphicsConfig config)
+GLFWWindow::GLFWWindow(const int w, const int h, std::string_view title, GraphicsConfig config)
     : m_window(nullptr),
       m_renderer(nullptr),
       m_inputSystem(nullptr),
@@ -28,7 +28,7 @@ GLFWWindow::GLFWWindow(const int w, const int h, const char* title, GraphicsConf
     else
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    m_window = glfwCreateWindow(w, h, title, NULL, NULL);
+    m_window = glfwCreateWindow(w, h, title.data(), NULL, NULL);
 
     if (!m_window)
     {
