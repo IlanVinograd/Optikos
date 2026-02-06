@@ -152,6 +152,8 @@ const std::vector<unsigned int>& Button::getIndices() const
 void Button::setText(std::string text)
 {
     m_text = text;
+
+    updateData();
 }
 
 void Button::setFont(std::string font)

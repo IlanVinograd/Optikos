@@ -1,6 +1,5 @@
 #ifndef OPTIKOS_H
 #define OPTIKOS_H
-
 #include "optikos_config.hpp"
 
 #include <memory>
@@ -27,7 +26,7 @@ class Optikos
 {
    public:
     Optikos(std::string_view title, unsigned int width = DEFAULT_WIDTH,
-            unsigned int height = DEFAULT_HEIGHT);
+                     unsigned int height = DEFAULT_HEIGHT);
 
     bool should_close();
     void begin();
