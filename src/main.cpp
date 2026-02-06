@@ -1,7 +1,6 @@
 #include <memory>
 
 // TODO: builder
-// TODO: add MACRO stamps with glBeginQuery / glEndQuery and GL_TIME_ELAPSED to profile
 
 #include "input/glfw/GLFWInputSystem.hpp"
 #include "optikos.hpp"

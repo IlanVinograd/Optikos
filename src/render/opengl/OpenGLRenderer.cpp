@@ -39,6 +39,10 @@ OpenGLRenderer::~OpenGLRenderer()
     {
         glDeleteTextures(1, &id);
     }
+
+#ifdef ENABLE_GPU_PROFILING
+    glDeleteQueries(1, &queryID);
+#endif
 }
 
 void OpenGLRenderer::initializeBatch(Batch& batch)
@@ -63,10 +67,18 @@ void OpenGLRenderer::initializeBatch(Batch& batch)
     glVertexAttribPointer(2, UV_SIZE, GL_FLOAT, GL_FALSE, VERTEX_SIZE * sizeof(float),
                           (void*) (UV_POS * sizeof(float)));
     glEnableVertexAttribArray(2);
+
+#ifdef ENABLE_GPU_PROFILING
+    glGenQueries(1, &queryID);
+#endif
 }
 
 void OpenGLRenderer::beginFrame()
 {
+#ifdef ENABLE_GPU_PROFILING
+    glBeginQuery(GL_TIME_ELAPSED, queryID);
+#endif
+
     glClear(GL_COLOR_BUFFER_BIT);
     m_renderQueue.clear();
     m_uiStateSet = false;
@@ -158,6 +170,14 @@ void OpenGLRenderer::endFrame()
 {
     flush();
     resetToDefault();
+
+#ifdef ENABLE_GPU_PROFILING
+    glEndQuery(GL_TIME_ELAPSED);
+    unsigned int result;
+    glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &result);
+    maxGpuTime = std::max(result, maxGpuTime);
+    std::cout << "Max time from begin to end in ms: " << (maxGpuTime / 1e+6) << std::endl;
+#endif
 }
 
 void OpenGLRenderer::swap_buffer()

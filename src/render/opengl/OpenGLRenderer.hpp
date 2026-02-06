@@ -91,6 +91,11 @@ class OpenGLRenderer : public IRenderer
     bool m_uiStateSet = false;
 
     Batch m_currentBatch;
+
+#ifdef ENABLE_GPU_PROFILING
+    unsigned int queryID;
+    unsigned int maxGpuTime = 0;
+#endif
 };
 
 }  // namespace Optikos

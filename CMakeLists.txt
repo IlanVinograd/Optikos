@@ -24,6 +24,12 @@ set(COMMON_SOURCES
 
 add_executable(Optikos ${COMMON_SOURCES})
 
+option(ENABLE_GPU_PROFILING "Enable GPU profiler" OFF)
+
+if(ENABLE_GPU_PROFILING)
+    target_compile_definitions(Optikos PRIVATE ENABLE_GPU_PROFILING)
+endif()
+
 if (WIN32)
     set(WIN_SOURCES
         src/platform/glfw/GLFWWindow.cpp
