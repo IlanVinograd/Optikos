@@ -1,6 +1,8 @@
 #ifndef CONTAINER_H
 #define CONTAINER_H
 
+#include <type_traits>
+
 #include "ui/Widget.hpp"
 
 enum class AlignMode : uint8_t
@@ -28,7 +30,27 @@ class Container : public Widget
     void                             resize(int width, int height) override;
     void                             setPosition(vec2 pos) override;
 
-    void addSubWidget(std::unique_ptr<IWidget> widget);
+    template <typename T>
+    T* addSubWidget(std::unique_ptr<T> widget)
+    {
+        T* subWidget = widget.get();
+        if constexpr (std::is_same_v<T, Container>)
+        {
+            if (this != subWidget)
+            {
+                m_subWidgets.push_back(std::move(widget));
+                m_needsLayout = true;
+            }
+            else
+                LOG_DEBUG("addSubWidget add [this] to [this]", "log");
+        }
+        else
+        {
+            m_subWidgets.push_back(std::move(widget));
+            m_needsLayout = true;
+        }
+        return subWidget;
+    }
     void setAlignment(AlignMode mode);
     void setInterval(int interval);
     void setOffset(int offset);

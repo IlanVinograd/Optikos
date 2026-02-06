@@ -1,15 +1,15 @@
-#include "optikos_config.hpp"
-#include "optikos.hpp"
+#include <memory>
 
+#include "optikos.hpp"
+#include "optikos_config.hpp"
 #include "utilities/logger.hpp"
 
-#include <memory>
 
 int main()
 {
     Logger::add_logger();
     Optikos::Optikos app("Optikos");
-    app.setWindowTitleBar(Optikos::Color{25,25,25});
+    app.setWindowTitleBar(Optikos::Color{25, 25, 25});
 
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf");
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf", "LIGHT", 30.0);
@@ -44,14 +44,39 @@ int main()
     // auto* btn = app.addWidget(3, std::make_unique<Button>(140, 140, vec2{200, 200}, "B O"));
     // btn->setFont("LIGHT");
 
-    auto* container = app.addWidget(1, std::make_unique<Container>(500,200, vec2{200, 200}, Color{100,50,150,255}));
-    auto btn1 = std::make_unique<Button>(60, 20, vec2{20,20}, [container](){ container->addSubWidget(std::make_unique<Button>(50,50, vec2{100,100})); });
-    btn1->setText("Add");
-    btn1->setFont("BOLD");
-    container->setAlignment(AlignMode::Middle);
-    container->setInterval(10);
+    //
 
-    app.addWidget(2, std::move(btn1));
+    auto* container = app.addWidget(
+        1, std::make_unique<Container>(500, 200, vec2{200, 200}, Color{100, 50, 150, 255}));
+
+    Button* createdBtn = nullptr;
+
+    auto addBtn = std::make_unique<Button>(60, 20, vec2{20, 20}, [&]() {
+        auto btn = std::make_unique<Button>(50, 50, vec2{100, 100});
+        btn->setText("New");
+        createdBtn = container->addSubWidget(std::move(btn));
+    });
+
+    addBtn->setText("Add");
+
+    auto changeTextBtn = std::make_unique<Button>(100, 20, vec2{20, 50}, [&]() {
+        if (createdBtn) createdBtn->setText("Changed");
+    });
+
+    changeTextBtn->setText("Change");
+
+    app.addWidget(2, std::move(addBtn));
+    app.addWidget(3, std::move(changeTextBtn));
+
+    // auto* container = app.addWidget(1, std::make_unique<Container>(500,200, vec2{200, 200},
+    // Color{100,50,150,255})); auto btn1 = std::make_unique<Button>(60, 20, vec2{20,20},
+    // [container](){ container->addSubWidget(std::make_unique<Button>(50,50, vec2{100,100})); });
+    // btn1->setText("Add");
+    // btn1->setFont("BOLD");
+    // container->setAlignment(AlignMode::Middle);
+    // container->setInterval(10);
+
+    // app.addWidget(2, std::move(btn1));
 
     while (!app.should_close())
     {

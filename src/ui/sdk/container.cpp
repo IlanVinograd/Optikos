@@ -107,18 +107,6 @@ void Container::handleEvent()
     return; /* stub */
 }
 
-void Container::addSubWidget(std::unique_ptr<IWidget> widget)
-{
-    // TODO: return raw ptr with widget.get() to able reuse the widget after adding to subWidgets.
-    if (this != widget.get())
-    {
-        m_subWidgets.push_back(std::move(widget));
-        m_needsLayout = true;
-    }
-    else
-        LOG_DEBUG("addSubWidget add [this] to [this]", "log");
-}
-
 void Container::updateLayout()
 {
     if (!m_needsLayout) return;
