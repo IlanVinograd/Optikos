@@ -11,6 +11,8 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+namespace Optikos
+{
 class GLShader : public IShader
 {
    public:
@@ -22,5 +24,7 @@ class GLShader : public IShader
 
    private:
 };
+
+}  // namespace Optikos
 
 #endif /* GLSHADER_H */

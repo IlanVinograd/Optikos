@@ -1,5 +1,7 @@
 #include "ui/UISystem.hpp"
 
+namespace Optikos
+{
 bool UISystem::rem_widget(const uint32_t idx)
 {
     auto it = widgets.find(idx);
@@ -47,7 +49,7 @@ void UISystem::checkIfHover(double x, double y)
 
 bool UISystem::isInside(const IWidget& widget, double x, double y)
 {
-    vec2 widgetPos = widget.getPosition();
+    Vec2 widgetPos = widget.getPosition();
     if (widgetPos.x <= x && x <= widgetPos.x + widget.getWidth() && widgetPos.y <= y &&
         y <= widgetPos.y + widget.getHeight())
         return true;
@@ -73,10 +75,12 @@ void UISystem::expandWidgets(int width, int height)
                 widget->resize(width, height);
                 break;
             default:
-                LOG_WARN(
-                    "[expandWidgets] Invalid expand mode: " + std::to_string(static_cast<int>(widget->isExpand())),
-                    "log");
+                LOG_WARN("[expandWidgets] Invalid expand mode: " +
+                             std::to_string(static_cast<int>(widget->isExpand())),
+                         "log");
                 break;
         }
     }
 }
+
+}  // namespace Optikos

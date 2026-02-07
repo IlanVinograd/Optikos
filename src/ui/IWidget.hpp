@@ -9,21 +9,16 @@
 #include "render/IRenderQueue.hpp"
 #include "utilities/logger.hpp"
 #include "utilities/vec.hpp"
+#include "utilities/color.hpp"
 
+namespace Optikos
+{
 enum class ExpandMode : uint8_t
 {
     None   = 0,
     Width  = 1,
     Height = 2,
     Both   = 3
-};
-
-struct Color
-{
-    float r;
-    float g;
-    float b;
-    float a;
 };
 
 struct RenderData
@@ -36,8 +31,8 @@ class IWidget
 {
    public:
     virtual ~IWidget()                     = default;
-    virtual vec2     getPosition() const   = 0;  // return cord of left top corner
-    virtual void     setPosition(vec2 pos) = 0;  // set cord of left top corner
+    virtual Vec2     getPosition() const   = 0;  // return cord of left top corner
+    virtual void     setPosition(Vec2 pos) = 0;  // set cord of left top corner
     virtual uint32_t getWidth() const      = 0;
     virtual uint32_t getHeight() const     = 0;
     virtual bool     getVisible() const    = 0;
@@ -68,11 +63,11 @@ class IWidget
         return false;
     }
 
-    virtual void render(Optikos::IRenderQueue& renderQueue)
+    virtual void render(IRenderQueue& renderQueue)
     {
         if (getVisible())
         {
-            Optikos::DrawCommand cmd;
+            DrawCommand cmd;
             cmd.vertices  = getVertices();
             cmd.indices   = getIndices();
             cmd.shaderId  = 0;
@@ -93,11 +88,13 @@ class IWidget
 
     bool isInside(double x, double y) const
     {
-        vec2 pos = getPosition();
+        Vec2 pos = getPosition();
         return (pos.x <= x && x <= pos.x + getWidth() && pos.y <= y && y <= pos.y + getHeight());
     }
 
    private:
 };
+
+}  // namespace Optikos
 
 #endif /* IWIDGET_H */

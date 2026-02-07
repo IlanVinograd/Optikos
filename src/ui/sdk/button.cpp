@@ -2,7 +2,10 @@
 
 #include "ui/text/TextFont.hpp"
 
-Button::Button(uint32_t width, uint32_t height, vec2 position) : Widget(width, height, position)
+
+namespace Optikos
+{
+Button::Button(uint32_t width, uint32_t height, Vec2 position) : Widget(width, height, position)
 {
     setHoverDimming(0.5);
 
@@ -11,14 +14,14 @@ Button::Button(uint32_t width, uint32_t height, vec2 position) : Widget(width, h
     m_isClickable = true;
 }
 
-Button::Button(uint32_t width, uint32_t height, vec2 position, const std::string& text)
+Button::Button(uint32_t width, uint32_t height, Vec2 position, const std::string& text)
     : Button(width, height, position)
 {
     m_text = text;
     updateData();
 }
 
-Button::Button(uint32_t width, uint32_t height, vec2 position, std::function<void()> event)
+Button::Button(uint32_t width, uint32_t height, Vec2 position, std::function<void()> event)
     : Button(width, height, position)
 {
     m_event = event;
@@ -84,7 +87,8 @@ void Button::updateData()
 
     if (!m_text.empty())
     {
-        m_textData = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width, m_height, m_fontName);
+        m_textData = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width,
+                                                               m_height, m_fontName);
     }
 }
 
@@ -159,13 +163,15 @@ void Button::setText(std::string text)
 void Button::setFont(std::string font)
 {
     m_fontName = font;
-    
+
     updateData();
 }
 
-void Button::setPosition(vec2 pos)
+void Button::setPosition(Vec2 pos)
 {
     m_position = pos;
 
     updateData();
 }
+
+}  // namespace Optikos

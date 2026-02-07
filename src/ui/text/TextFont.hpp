@@ -9,6 +9,8 @@
 
 #include FT_FREETYPE_H
 
+namespace Optikos
+{
 inline constexpr const char* DEFAULT0_FONT = "default0";
 float constexpr DEFAULT0_FONTSIZE          = 16.0;
 
@@ -33,7 +35,7 @@ class TextFont
 
     void       loadFont(std::string_view fontPath, std::string fontName = DEFAULT0_FONT,
                         float fontSize = DEFAULT0_FONTSIZE);
-    RenderData generateTextQuads(const std::string& text, vec2 position, uint32_t width,
+    RenderData generateTextQuads(const std::string& text, Vec2 position, uint32_t width,
                                  uint32_t height, std::string fontName = DEFAULT0_FONT);
 
     unsigned int                      getAtlasTextureId(std::string fontName = DEFAULT0_FONT) const;
@@ -72,5 +74,7 @@ class TextFont
 
     std::unordered_map<std::string, Atlas> m_Atlases;
 };
+
+}  // namespace Optikos
 
 #endif /* TEXTFONT_H */

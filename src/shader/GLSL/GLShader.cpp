@@ -1,12 +1,14 @@
 #include "shader/GLSL/GLShader.hpp"
 
+namespace Optikos
+{
 unsigned int GLShader::compileShader(unsigned int type, const std::string& source)
 {
-    unsigned int id  = glCreateShader(type);
-    
+    unsigned int id = glCreateShader(type);
+
     assert(!source.empty());
-    const char*  src = source.c_str();
-    
+    const char* src = source.c_str();
+
     glShaderSource(id, 1, &src, nullptr);
     glCompileShader(id);
 
@@ -76,3 +78,5 @@ ShaderSouces GLShader::parseShader(const std::string& file)
     }
     return {ss[0].str(), ss[1].str()};
 }
+
+}  // namespace Optikos

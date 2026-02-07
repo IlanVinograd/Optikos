@@ -3,10 +3,12 @@
 
 #include "ui/IWidget.hpp"
 
+namespace Optikos
+{
 class Widget : public IWidget
 {
    public:
-    Widget(uint32_t width, uint32_t height, vec2 position, bool isVisible = true,
+    Widget(uint32_t width, uint32_t height, Vec2 position, bool isVisible = true,
            Color color = Color{0.0, 50.0, 150.0, 255.0})
         : m_position(position),
           m_width(width),
@@ -20,11 +22,11 @@ class Widget : public IWidget
 
     virtual ~Widget() = default;
 
-    inline vec2 getPosition() const override
+    inline Vec2 getPosition() const override
     {
         return m_position;
     }
-    inline void setPosition(vec2 pos) override
+    inline void setPosition(Vec2 pos) override
     {
         m_position = pos;
     }
@@ -81,7 +83,7 @@ class Widget : public IWidget
     }
 
    protected:
-    vec2       m_position;
+    Vec2     m_position;
     uint32_t   m_width;
     uint32_t   m_height;
     bool       m_isVisible;
@@ -89,5 +91,7 @@ class Widget : public IWidget
     ExpandMode m_isExpand;
     Color      m_color;
 };
+
+}  // namespace Optikos
 
 #endif /* WIDGET_H */

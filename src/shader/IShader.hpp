@@ -4,6 +4,8 @@
 #include <cassert>
 #include <string>
 
+namespace Optikos
+{
 enum class ShaderType
 {
     NONE     = -1,
@@ -26,5 +28,6 @@ class IShader
                                       const std::string& fragmentShader)             = 0;
     virtual ShaderSouces parseShader(const std::string& file)                        = 0;
 };
+}  // namespace Optikos
 
 #endif /* ISHADER_H */

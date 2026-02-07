@@ -5,6 +5,8 @@
 
 #include "ui/Widget.hpp"
 
+namespace Optikos
+{
 enum class AlignMode : uint8_t
 {
     Left   = 0,
@@ -15,10 +17,10 @@ enum class AlignMode : uint8_t
 class Container : public Widget
 {
    public:
-    Container(uint32_t width, uint32_t height, vec2 position, Color color = {0, 0, 0, 1},
+    Container(uint32_t width, uint32_t height, Vec2 position, Color color = {0, 0, 0, 1},
               bool isVisible = true);  // simple rectangle container
 
-    void                             render(Optikos::IRenderQueue& renderQueue) override;
+    void                             render(IRenderQueue& renderQueue) override;
     void                             updateData() override;
     const std::vector<float>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
@@ -28,7 +30,7 @@ class Container : public Widget
     void                             resetHover() override;
     bool                             wantsHoverEvents() const override;
     void                             resize(int width, int height) override;
-    void                             setPosition(vec2 pos) override;
+    void                             setPosition(Vec2 pos) override;
 
     template <typename T>
     T* addSubWidget(std::unique_ptr<T> widget)
@@ -66,5 +68,7 @@ class Container : public Widget
     bool                                  m_needsLayout   = true;
     std::vector<std::unique_ptr<IWidget>> m_subWidgets;
 };
+
+}  // namespace Optikos
 
 #endif /* CONTAINER_H */

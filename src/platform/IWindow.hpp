@@ -7,6 +7,7 @@
 #include <functional>
 
 #include "ui/UISystem.hpp"
+#include "utilities/color.hpp"
 
 namespace Optikos
 {
@@ -26,13 +27,6 @@ struct GraphicsConfig
     GraphicsAPI api          = GraphicsAPI::OpenGL;
     int         versionMajor = GL_DEFAULT_MAJOR_LVL;
     int         versionMinor = GL_DEFAULT_MINOR_LVL;
-};
-
-struct Color
-{
-    float r;
-    float g;
-    float b;
 };
 
 struct Window

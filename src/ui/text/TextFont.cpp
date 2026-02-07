@@ -1,5 +1,7 @@
 #include "ui/text/TextFont.hpp"
 
+namespace Optikos
+{
 TextFont::TextFont()
 {
     if (FT_Init_FreeType(&m_library))
@@ -122,7 +124,7 @@ void TextFont::generateAtlas(std::string fontName, float fontSize)
     }
 }
 
-RenderData TextFont::generateTextQuads(const std::string& text, vec2 position, uint32_t width,
+RenderData TextFont::generateTextQuads(const std::string& text, Vec2 position, uint32_t width,
                                        uint32_t height, std::string fontName)
 {
     RenderData data;
@@ -247,3 +249,5 @@ unsigned int TextFont::CalculateAtlasSize(float fontSize)
     atlasSize |= atlasSize >> 16;
     return atlasSize + 1;
 }
+
+}  // namespace Optikos

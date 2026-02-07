@@ -10,7 +10,6 @@
 #include "ui/UISystem.hpp"
 #include "ui/text/TextFont.hpp"
 
-// TODO: change to more serious lib
 #include "utilities/vec.hpp"
 
 // TODO: wrap to .hpp

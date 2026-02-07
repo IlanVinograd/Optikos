@@ -6,14 +6,16 @@
 #include "ui/Widget.hpp"
 #include "ui/text/TextFont.hpp"
 
+namespace Optikos
+{
 class Button : public Widget
 {
    public:
-    explicit Button(uint32_t width, uint32_t height, vec2 position);
-    explicit Button(uint32_t width, uint32_t height, vec2 position, const std::string& text);
-    explicit Button(uint32_t width, uint32_t height, vec2 position, std::function<void()> event);
+    explicit Button(uint32_t width, uint32_t height, Vec2 position);
+    explicit Button(uint32_t width, uint32_t height, Vec2 position, const std::string& text);
+    explicit Button(uint32_t width, uint32_t height, Vec2 position, std::function<void()> event);
 
-    void render(Optikos::IRenderQueue& renderQueue) override;
+    void render(IRenderQueue& renderQueue) override;
     void updateData() override;
     void handleEvent() override;
     void handleHover(double x, double y) override;
@@ -25,7 +27,7 @@ class Button : public Widget
     void setEvent(std::function<void()> event);
     void setText(std::string text);
     void setFont(std::string font);
-    void setPosition(vec2 pos) override;
+    void setPosition(Vec2 pos) override;
 
     const std::vector<float>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
@@ -41,5 +43,7 @@ class Button : public Widget
     std::string           m_fontName      = DEFAULT0_FONT;
     std::function<void()> m_event         = nullptr;
 };
+
+}  // namespace Optikos
 
 #endif /* BUTTON_H */

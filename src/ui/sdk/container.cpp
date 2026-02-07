@@ -1,6 +1,8 @@
 #include "ui/sdk/container.hpp"
 
-Container::Container(uint32_t width, uint32_t height, vec2 position, Color color, bool isVisible)
+namespace Optikos
+{
+Container::Container(uint32_t width, uint32_t height, Vec2 position, Color color, bool isVisible)
     : Widget(width, height, position, isVisible, color)
 {
     updateData();
@@ -73,7 +75,7 @@ bool Container::handleClick(double x, double y)
     return false;
 }
 
-void Container::setPosition(vec2 pos)
+void Container::setPosition(Vec2 pos)
 {
     m_position = pos;
 
@@ -148,7 +150,7 @@ void Container::setOffset(int offset)
 void Container::alignWidget(IWidget* subWidget, int index)
 {
     // TODO: need optimization
-    vec2  newPos;
+    Vec2  newPos;
     float xPos = 0.0f;
 
     float totalWidth = 0.0f;
@@ -237,3 +239,5 @@ void Container::resetHover()
         subWidget->resetHover();
     }
 }
+
+}  // namespace Optikos

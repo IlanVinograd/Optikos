@@ -8,7 +8,8 @@
 #include "ui/IWidget.hpp"
 #include "utilities/logger.hpp"
 
-
+namespace Optikos
+{
 class UISystem
 {
    public:
@@ -36,12 +37,14 @@ class UISystem
 
     void expandWidgets(int width, int height);
 
-    void render(Optikos::IRenderQueue& renderQueue);
+    void render(IRenderQueue& renderQueue);
 
    private:
     std::unordered_map<uint32_t, std::unique_ptr<IWidget>> widgets;
 
     bool isInside(const IWidget& widget, double x, double y);
 };
+
+}  // namespace Optikos
 
 #endif /* UISYSTEM_H */
