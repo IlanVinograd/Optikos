@@ -136,7 +136,7 @@ RenderData TextFont::generateTextQuads(const std::string& text, Vec2 position, u
         return data;
     }
 
-    const Atlas& atlas = it->second;
+    Atlas& atlas = it->second;
 
     float textLength = 0;
     float maxAscent  = 0;
@@ -153,7 +153,7 @@ RenderData TextFont::generateTextQuads(const std::string& text, Vec2 position, u
             maxDecent = std::max(maxDecent, (float) ch.height - (float) ch.bearing_y);
         }
     }
-
+    
     float textHeight = maxAscent + maxDecent;
     float xpos       = position.x + (width - textLength) / 2.0f;
     float yBaseline  = position.y + (height - textHeight) / 2.0f + maxAscent;
@@ -206,6 +206,35 @@ unsigned int TextFont::getAtlasSize(std::string fontName) const
 {
     auto it = m_Atlases.find(fontName);
     return (it != m_Atlases.end()) ? it->second.atlasSize : 0;
+}
+
+Vec2 TextFont::getSizeText(const std::string& text, std::string fontName)
+{
+    auto it = m_Atlases.find(fontName);
+    if (it == m_Atlases.end())
+    {
+        LOG_DEBUG("Font '" + fontName + "' not found. Call loadFont() first.", "log");
+        return {-1, -1}; // Not found -1
+    }
+    
+    Atlas& atlas = it->second;
+    float textLength = 0;
+    float maxAscent  = 0;
+    float maxDecent  = 0;
+    for (const auto& symbol : text)
+    {
+        auto charIt = atlas.characters.find(symbol);
+        if (charIt != atlas.characters.end())
+        {
+            const Character& ch = charIt->second;
+           textLength += ch.advance;
+
+            maxAscent = std::max(maxAscent, (float) ch.bearing_y);
+            maxDecent = std::max(maxDecent, (float) ch.height - (float) ch.bearing_y);
+        }
+    }
+    
+    return {textLength, maxAscent + maxDecent};
 }
 
 unsigned int TextFont::getAtlasTextureId(std::string fontName) const

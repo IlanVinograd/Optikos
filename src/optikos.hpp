@@ -15,6 +15,7 @@
 // TODO: wrap to .hpp
 #include "ui/sdk/button.hpp"
 #include "ui/sdk/container.hpp"
+#include "ui/sdk/label.hpp"
 
 unsigned int constexpr DEFAULT_WIDTH  = 800;
 unsigned int constexpr DEFAULT_HEIGHT = 600;

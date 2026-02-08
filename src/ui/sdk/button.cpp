@@ -31,7 +31,7 @@ void Button::render(Optikos::IRenderQueue& renderQueue)
 {
     if (!m_isVisible) return;
 
-    Optikos::DrawCommand bgCmd;
+    DrawCommand bgCmd;
     bgCmd.vertices  = m_data.vertices;
     bgCmd.indices   = m_data.indices;
     bgCmd.shaderId  = 0;
@@ -40,7 +40,7 @@ void Button::render(Optikos::IRenderQueue& renderQueue)
 
     if (!m_text.empty())
     {
-        Optikos::DrawCommand textCmd;
+        DrawCommand textCmd;
         textCmd.vertices  = m_textData.vertices;
         textCmd.indices   = m_textData.indices;
         textCmd.shaderId  = 0;

@@ -83,7 +83,7 @@ class Widget : public IWidget
     }
 
    protected:
-    Vec2     m_position;
+    Vec2       m_position;
     uint32_t   m_width;
     uint32_t   m_height;
     bool       m_isVisible;

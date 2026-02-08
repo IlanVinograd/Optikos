@@ -41,6 +41,7 @@ class TextFont
     unsigned int                      getAtlasTextureId(std::string fontName = DEFAULT0_FONT) const;
     const std::vector<unsigned char>& getAtlasData(std::string fontName = DEFAULT0_FONT) const;
     unsigned int                      getAtlasSize(std::string fontName = DEFAULT0_FONT) const;
+    Vec2 getSizeText(const std::string& text, std::string fontName = DEFAULT0_FONT);
 
     void setAtlasTextureId(unsigned int id, std::string fontName = DEFAULT0_FONT);
 
@@ -70,6 +71,8 @@ class TextFont
         unsigned int                                 atlasSize      = 0;
         float                                        fontSize       = DEFAULT0_FONTSIZE;
         FT_Face                                      face;
+        float                                        textHeight = 0;
+        float                                        textLength = 0;
     };
 
     std::unordered_map<std::string, Atlas> m_Atlases;
