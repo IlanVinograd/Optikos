@@ -35,8 +35,10 @@ class TextFont
 
     void       loadFont(std::string_view fontPath, std::string fontName = DEFAULT0_FONT,
                         float fontSize = DEFAULT0_FONTSIZE);
-    RenderData generateTextQuads(const std::string& text, Vec2 position, uint32_t width,
-                                 uint32_t height, std::string fontName = DEFAULT0_FONT);
+    RenderData generateTextQuads(const std::string& text, const Vec2& position,
+                                 const uint32_t& width, const uint32_t& height,
+                                 const std::string& fontName  = DEFAULT0_FONT,
+                                 const Color&       textColor = DEFAULT_COLOR);
 
     unsigned int                      getAtlasTextureId(std::string fontName = DEFAULT0_FONT) const;
     const std::vector<unsigned char>& getAtlasData(std::string fontName = DEFAULT0_FONT) const;
@@ -67,7 +69,6 @@ class TextFont
         std::unordered_map<unsigned char, Character> characters;
         std::vector<unsigned char>                   atlasData;
         unsigned int                                 atlasTextureId = 0;
-        Color                                        textColor      = DEFAULT_COLOR;
         unsigned int                                 atlasSize      = 0;
         float                                        fontSize       = DEFAULT0_FONTSIZE;
         FT_Face                                      face;

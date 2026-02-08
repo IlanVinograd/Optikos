@@ -124,8 +124,9 @@ void TextFont::generateAtlas(std::string fontName, float fontSize)
     }
 }
 
-RenderData TextFont::generateTextQuads(const std::string& text, Vec2 position, uint32_t width,
-                                       uint32_t height, std::string fontName)
+RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& position,
+                                       const uint32_t& width, const uint32_t& height,
+                                       const std::string& fontName, const Color& textColor)
 {
     RenderData data;
 
@@ -153,7 +154,7 @@ RenderData TextFont::generateTextQuads(const std::string& text, Vec2 position, u
             maxDecent = std::max(maxDecent, (float) ch.height - (float) ch.bearing_y);
         }
     }
-    
+
     float textHeight = maxAscent + maxDecent;
     float xpos       = position.x + (width - textLength) / 2.0f;
     float yBaseline  = position.y + (height - textHeight) / 2.0f + maxAscent;
@@ -181,15 +182,14 @@ RenderData TextFont::generateTextQuads(const std::string& text, Vec2 position, u
         float u2 = u1 + static_cast<float>(ch.width) / atlas.atlasSize;
         float v2 = v1 + static_cast<float>(ch.height) / atlas.atlasSize;
 
-        data.vertices.insert(data.vertices.end(), {x, y, atlas.textColor.r, atlas.textColor.g,
-                                                   atlas.textColor.b, atlas.textColor.a, u1, v1});
-        data.vertices.insert(data.vertices.end(), {x + w, y, atlas.textColor.r, atlas.textColor.g,
-                                                   atlas.textColor.b, atlas.textColor.a, u2, v1});
-        data.vertices.insert(data.vertices.end(), {x, y + h, atlas.textColor.r, atlas.textColor.g,
-                                                   atlas.textColor.b, atlas.textColor.a, u1, v2});
         data.vertices.insert(data.vertices.end(),
-                             {x + w, y + h, atlas.textColor.r, atlas.textColor.g, atlas.textColor.b,
-                              atlas.textColor.a, u2, v2});
+                             {x, y, textColor.r, textColor.g, textColor.b, textColor.a, u1, v1});
+        data.vertices.insert(data.vertices.end(), {x + w, y, textColor.r, textColor.g, textColor.b,
+                                                   textColor.a, u2, v1});
+        data.vertices.insert(data.vertices.end(), {x, y + h, textColor.r, textColor.g, textColor.b,
+                                                   textColor.a, u1, v2});
+        data.vertices.insert(data.vertices.end(), {x + w, y + h, textColor.r, textColor.g,
+                                                   textColor.b, textColor.a, u2, v2});
 
         data.indices.insert(data.indices.end(), {offset + 0, offset + 1, offset + 2, offset + 1,
                                                  offset + 3, offset + 2});
@@ -214,26 +214,26 @@ Vec2 TextFont::getSizeText(const std::string& text, std::string fontName)
     if (it == m_Atlases.end())
     {
         LOG_DEBUG("Font '" + fontName + "' not found. Call loadFont() first.", "log");
-        return {-1, -1}; // Not found -1
+        return {-1, -1};  // Not found -1
     }
-    
-    Atlas& atlas = it->second;
-    float textLength = 0;
-    float maxAscent  = 0;
-    float maxDecent  = 0;
+
+    Atlas& atlas      = it->second;
+    float  textLength = 0;
+    float  maxAscent  = 0;
+    float  maxDecent  = 0;
     for (const auto& symbol : text)
     {
         auto charIt = atlas.characters.find(symbol);
         if (charIt != atlas.characters.end())
         {
             const Character& ch = charIt->second;
-           textLength += ch.advance;
+            textLength += ch.advance;
 
             maxAscent = std::max(maxAscent, (float) ch.bearing_y);
             maxDecent = std::max(maxDecent, (float) ch.height - (float) ch.bearing_y);
         }
     }
-    
+
     return {textLength, maxAscent + maxDecent};
 }
 

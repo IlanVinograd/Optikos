@@ -27,7 +27,7 @@ void Label::render(IRenderQueue& renderQueue)
 void Label::updateData()
 {
     m_data = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width, m_height,
-                                                       m_fontName);
+                                                       m_fontName, m_color);
 }
 
 const std::vector<float>& Label::getVertices() const

@@ -69,9 +69,9 @@ int main()
     app.addWidget(2, std::move(addBtn));
     app.addWidget(3, std::move(changeTextBtn));
 
-    app.addWidget(4, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(300, 150)));
-    app.addWidget(5, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(100, 400)));
-    app.addWidget(6, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(150, 500)));
+    app.addWidget(4, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(300, 150), Optikos::Color(200, 100, 200, 255.0)));
+    app.addWidget(5, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(100, 400), Optikos::Color(10, 130, 230, 255.0)));
+    app.addWidget(6, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(150, 500), Optikos::Color(10, 250, 100, 255.0)));
 
     // auto* container = app.addWidget(1, std::make_unique<Container>(500,200, Vec2{200, 200},
     // Color{100,50,150,255})); auto btn1 = std::make_unique<Button>(60, 20, Vec2{20,20},
