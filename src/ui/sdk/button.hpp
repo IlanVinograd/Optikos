@@ -39,7 +39,6 @@ class Button : public Widget
     Color                 m_dimmed        = m_color;
     bool                  m_isHover       = false;
     std::string           m_text          = "";
-    float                 m_fontSize      = DEFAULT0_FONTSIZE;
     std::string           m_fontName      = DEFAULT0_FONT;
     std::function<void()> m_event         = nullptr;
 };
