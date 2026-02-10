@@ -13,6 +13,8 @@ class Label : public Widget
 {
    public:
     Label(std::string text, Vec2 position, Color color = {255.0, 255.0, 255.0, 255.0});
+    Label(std::string text, Vec2 position, uint32_t width, uint32_t height,
+          Color color = {255.0, 255.0, 255.0, 255.0});
 
     void                             render(IRenderQueue& renderQueue) override;
     void                             updateData() override;
@@ -25,6 +27,10 @@ class Label : public Widget
     bool                             wantsHoverEvents() const override;
     void                             resize(int width, int height) override;
     void                             setPosition(Vec2 pos) override;
+
+    void setText(const std::string& text);
+    void setFont(const std::string& font);
+    void setColor(const Color& color);
 
    private:
     RenderData  m_data;

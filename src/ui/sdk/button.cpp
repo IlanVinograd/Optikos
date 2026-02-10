@@ -2,10 +2,10 @@
 
 #include "ui/text/TextFont.hpp"
 
-
 namespace Optikos
 {
-Button::Button(uint32_t width, uint32_t height, Vec2 position) : Widget(width, height, position)
+Button::Button(uint32_t width, uint32_t height, Vec2 position)
+    : Widget(width, height, position), m_originalColor(m_color), m_dimmed(m_color)
 {
     setHoverDimming(0.5);
 
@@ -17,8 +17,7 @@ Button::Button(uint32_t width, uint32_t height, Vec2 position) : Widget(width, h
 Button::Button(uint32_t width, uint32_t height, Vec2 position, const std::string& text)
     : Button(width, height, position)
 {
-    m_text = text;
-    updateData();
+    setText(text);
 }
 
 Button::Button(uint32_t width, uint32_t height, Vec2 position, std::function<void()> event)
@@ -38,14 +37,9 @@ void Button::render(Optikos::IRenderQueue& renderQueue)
     bgCmd.textureId = 0;
     renderQueue.submit(std::move(bgCmd));
 
-    if (!m_text.empty())
+    if (m_label)
     {
-        DrawCommand textCmd;
-        textCmd.vertices  = m_textData.vertices;
-        textCmd.indices   = m_textData.indices;
-        textCmd.shaderId  = 0;
-        textCmd.textureId = TextFont::getInstance().getAtlasTextureId(m_fontName);
-        renderQueue.submit(std::move(textCmd));
+        m_label->render(renderQueue);
     }
 }
 
@@ -85,10 +79,10 @@ void Button::updateData()
                        0.0,
                        0.0};
 
-    if (!m_text.empty())
+    if (m_label)
     {
-        m_textData = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width,
-                                                               m_height, m_fontName);
+        m_label->setPosition(m_position);
+        m_label->resize(m_width, m_height);
     }
 }
 
@@ -155,14 +149,42 @@ const std::vector<unsigned int>& Button::getIndices() const
 
 void Button::setText(std::string text)
 {
-    m_text = text;
+    if (text.empty())
+    {
+        m_label.reset();
+        return;
+    }
 
-    updateData();
+    if (!m_label)
+        m_label = std::make_unique<Label>(text, m_position, m_width, m_height, m_textColor);
+    else
+        m_label->setText(text);
 }
 
 void Button::setFont(std::string font)
 {
-    m_fontName = font;
+    if (m_label)
+    {
+        m_label->setFont(font);
+    }
+}
+
+void Button::setTextColor(Color color)
+{
+    m_textColor = color;
+
+    if (m_label)
+    {
+        m_label->setColor(color);
+    }
+}
+
+void Button::setColor(Color color)
+{
+    m_color         = color;
+    m_originalColor = color;
+
+    setHoverDimming(0.5);
 
     updateData();
 }

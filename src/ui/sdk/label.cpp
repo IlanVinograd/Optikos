@@ -1,5 +1,5 @@
 #include "ui/sdk/label.hpp"
-// TODO: set text
+
 namespace Optikos
 {
 Label::Label(std::string text, Vec2 position, Color color)
@@ -10,6 +10,18 @@ Label::Label(std::string text, Vec2 position, Color color)
     Vec2 size = TextFont::getInstance().getSizeText(m_text, m_fontName);
     m_width   = static_cast<uint32_t>(size.x);
     m_height  = static_cast<uint32_t>(size.y);
+
+    updateData();
+}
+
+Label::Label(std::string text, Vec2 position, uint32_t width, uint32_t height, Color color)
+    : Widget(DEFAULT_LABEL_WIDTH, DEFAULT_LABEL_HEIGHT, position, true, color)
+{
+    m_text = text;
+
+    Vec2 size = TextFont::getInstance().getSizeText(m_text, m_fontName);
+    m_width   = width;
+    m_height  = height;
 
     updateData();
 }
@@ -74,6 +86,24 @@ void Label::resize(int width, int height)
 {
     m_width  = width;
     m_height = height;
+    updateData();
+}
+
+void Label::setText(const std::string& text)
+{
+    m_text = text;
+    updateData();
+}
+
+void Label::setFont(const std::string& font)
+{
+    m_fontName = font;
+    updateData();
+}
+
+void Label::setColor(const Color& color)
+{
+    m_color = color;
     updateData();
 }
 

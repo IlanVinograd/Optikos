@@ -59,9 +59,16 @@ int main()
     });
 
     addBtn->setText("Add");
+    addBtn->setFont("BOLD");
+    addBtn->setColor(Optikos::Color(255,0,0,255));
+    addBtn->setTextColor(Optikos::Color(0,255,0,255));
 
     auto changeTextBtn = std::make_unique<Optikos::Button>(100, 20, Optikos::Vec2{20, 50}, [&]() {
-        if (createdBtn) createdBtn->setText("Changed");
+        if (createdBtn) {
+            createdBtn->setText("Changed");
+            createdBtn->setColor(Optikos::Color(255.0, 0.0, 0.0, 255.0));
+            createdBtn->setTextColor(Optikos::Color(0.0, 255.0, 0.0, 255.0));
+        }
     });
 
     changeTextBtn->setText("Change");

@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "ui/Widget.hpp"
+#include "ui/sdk/label.hpp"
 #include "ui/text/TextFont.hpp"
 
 namespace Optikos
@@ -22,25 +23,27 @@ class Button : public Widget
     void resetHover() override;
     bool wantsHoverEvents() const override;
     void resize(int width, int height) override;
+    void setPosition(Vec2 pos) override;
+    void setColor(Color color) override;
 
     void setHoverDimming(float dimming);  // 0.0 - 255.0
     void setEvent(std::function<void()> event);
     void setText(std::string text);
     void setFont(std::string font);
-    void setPosition(Vec2 pos) override;
+    void setTextColor(Color color);
 
     const std::vector<float>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
 
    private:
-    RenderData            m_data;
-    RenderData            m_textData;
-    Color                 m_originalColor = m_color;
-    Color                 m_dimmed        = m_color;
-    bool                  m_isHover       = false;
-    std::string           m_text          = "";
-    std::string           m_fontName      = DEFAULT0_FONT;
-    std::function<void()> m_event         = nullptr;
+    RenderData m_data;
+    Color      m_originalColor;
+    Color      m_dimmed;
+    bool       m_isHover   = false;
+    Color      m_textColor = DEFAULT_COLOR;
+
+    std::unique_ptr<Label> m_label;
+    std::function<void()>  m_event = nullptr;
 };
 
 }  // namespace Optikos
