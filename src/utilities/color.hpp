@@ -3,29 +3,32 @@
 
 namespace Optikos
 {
-
 struct Color
 {
-    float r;
-    float g;
-    float b;
-    float a;
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
 
-    constexpr Color(float r, float g, float b, float a = 255.0f)
-        : r(r), g(g), b(b), a(a) {}
+    constexpr Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255)
+        : r(r), g(g), b(b), a(a)
+    {
+    }
 };
 
 struct Color3
 {
-    float r;
-    float g;
-    float b;
-    
-    constexpr Color3(float r, float g, float b)
-        : r(r), g(g), b(b) {}
-    
-    constexpr Color3(const Color& c)
-        : r(c.r), g(c.g), b(c.b) {}
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+
+    constexpr Color3(unsigned char r, unsigned char g, unsigned char b) : r(r), g(g), b(b)
+    {
+    }
+
+    constexpr Color3(const Color& c) : r(c.r), g(c.g), b(c.b)
+    {
+    }
 };
 
 }  // namespace Optikos

@@ -22,38 +22,38 @@ void Container::render(Optikos::IRenderQueue& renderQueue)
 
 void Container::updateData()
 {
-    m_data.vertices = {m_position.x,
+    m_data.vertices = {{m_position.x,
                        m_position.y,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
-                       0.0,
-                       0.0,
-                       m_position.x + m_width,
+                       0,
+                       0},
+                       {m_position.x + m_width,
                        m_position.y,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
-                       0.0,
-                       0.0,
-                       m_position.x + m_width,
+                       0,
+                       0},
+                       {m_position.x + m_width,
                        m_position.y + m_height,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
-                       0.0,
-                       0.0,
-                       m_position.x,
+                       0,
+                       0},
+                       {m_position.x,
                        m_position.y + m_height,
                        m_color.r,
                        m_color.g,
                        m_color.b,
                        m_color.a,
-                       0.0,
-                       0.0};
+                       0,
+                       0}};
 }
 
 bool Container::handleClick(double x, double y)
@@ -81,7 +81,7 @@ void Container::setPosition(Vec2 pos)
     m_needsLayout = true;
 }
 
-const std::vector<float>& Container::getVertices() const
+const std::vector<Vertex>& Container::getVertices() const
 {
     return m_data.vertices;
 }

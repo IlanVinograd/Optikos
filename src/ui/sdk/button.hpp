@@ -32,7 +32,7 @@ class Button : public Widget
     void setFont(std::string font);
     void setTextColor(Color color);
 
-    const std::vector<float>&        getVertices() const override;
+    const std::vector<Vertex>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
 
    private:

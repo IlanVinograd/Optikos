@@ -6,10 +6,12 @@ TextBox::TextBox(uint32_t width, uint32_t height, Vec2 position, Color bgColor, 
     : Container(width, height, position, bgColor, true),
       m_textColor(textColor),
       m_bgColor(bgColor),
-      m_focusedBgColor(std::min(bgColor.r * 1.2f, 255.0f), std::min(bgColor.g * 1.2f, 255.0f),
-                       std::min(bgColor.b * 1.2f, 255.0f), bgColor.a),
-      m_hoverBgColor(std::min(bgColor.r * 1.1f, 255.0f), std::min(bgColor.g * 1.1f, 255.0f),
-                     std::min(bgColor.b * 1.1f, 255.0f), bgColor.a)
+      m_focusedBgColor((unsigned char) std::min((float) bgColor.r * 1.2f, 255.0f),
+                       (unsigned char) std::min((float) bgColor.g * 1.2f, 255.0f),
+                       (unsigned char) std::min((float) bgColor.b * 1.2f, 255.0f), bgColor.a),
+      m_hoverBgColor((unsigned char) std::min((float) bgColor.r * 1.1f, 255.0f),
+                     (unsigned char) std::min((float) bgColor.g * 1.1f, 255.0f),
+                     (unsigned char) std::min((float) bgColor.b * 1.1f, 255.0f), bgColor.a)
 {
     m_label = addSubWidget(std::make_unique<Label>("", Vec2(0, 0), 0, 0, m_textColor));
 
@@ -56,41 +58,17 @@ void TextBox::updateData()
         currentColor = m_hoverBgColor;
 
     m_data.indices  = {0, 1, 2, 2, 3, 0};
-    m_data.vertices = {m_position.x,
-                       m_position.y,
-                       currentColor.r,
-                       currentColor.g,
-                       currentColor.b,
-                       currentColor.a,
-                       0.0f,
-                       0.0f,
+    m_data.vertices = {{m_position.x, m_position.y, currentColor.r, currentColor.g, currentColor.b,
+                        currentColor.a, 0, 0},
 
-                       m_position.x + m_width,
-                       m_position.y,
-                       currentColor.r,
-                       currentColor.g,
-                       currentColor.b,
-                       currentColor.a,
-                       0.0f,
-                       0.0f,
+                       {m_position.x + m_width, m_position.y, currentColor.r, currentColor.g,
+                        currentColor.b, currentColor.a, 0, 0},
 
-                       m_position.x + m_width,
-                       m_position.y + m_height,
-                       currentColor.r,
-                       currentColor.g,
-                       currentColor.b,
-                       currentColor.a,
-                       0.0f,
-                       0.0f,
+                       {m_position.x + m_width, m_position.y + m_height, currentColor.r,
+                        currentColor.g, currentColor.b, currentColor.a, 0, 0},
 
-                       m_position.x,
-                       m_position.y + m_height,
-                       currentColor.r,
-                       currentColor.g,
-                       currentColor.b,
-                       currentColor.a,
-                       0.0f,
-                       0.0f};
+                       {m_position.x, m_position.y + m_height, currentColor.r, currentColor.g,
+                        currentColor.b, currentColor.a, 0, 0}};
 
     if (m_label)
     {
@@ -208,7 +186,7 @@ void TextBox::setPosition(Vec2 pos)
     updateData();
 }
 
-const std::vector<float>& TextBox::getVertices() const
+const std::vector<Vertex>& TextBox::getVertices() const
 {
     return m_data.vertices;
 }

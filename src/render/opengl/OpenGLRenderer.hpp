@@ -27,11 +27,11 @@ int constexpr DEFAULT_TEXTURE_UNIT = 0;
 int constexpr POSITION_SIZE = 2;
 int constexpr COLOR_SIZE    = 4;
 int constexpr UV_SIZE       = 2;
-int constexpr VERTEX_SIZE   = POSITION_SIZE + COLOR_SIZE + UV_SIZE;
+int constexpr VERTEX_SIZE   = sizeof(Vertex);
 
-int constexpr POSITION_POS = 0;
-int constexpr COLOR_POS    = 2;
-int constexpr UV_POS       = 6;
+constexpr size_t POSITION_POS = offsetof(Vertex, x);
+constexpr size_t COLOR_POS    = offsetof(Vertex, r);
+constexpr size_t UV_POS       = offsetof(Vertex, u);
 
 class OpenGLRenderer : public IRenderer
 {
@@ -61,7 +61,7 @@ class OpenGLRenderer : public IRenderer
         unsigned int              IBO       = 0;
         unsigned int              shaderId  = 0;
         unsigned int              textureId = 0;
-        std::vector<float>        vertices;
+        std::vector<Vertex>       vertices;
         std::vector<unsigned int> indices;
 
         void clear()

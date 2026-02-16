@@ -17,8 +17,8 @@ class TextBox : public Container
 {
    public:
     TextBox(uint32_t width, uint32_t height, Vec2 position,
-            Color bgColor   = {50.0, 50.0, 50.0, 255.0},
-            Color textColor = {255.0, 255.0, 255.0, 255.0});
+            Color bgColor   = {50, 50, 50, 255},
+            Color textColor = {255, 255, 255, 255});
 
     void render(IRenderQueue& renderQueue) override;
     void updateData() override;
@@ -32,7 +32,7 @@ class TextBox : public Container
     void resize(int width, int height) override;
     void setPosition(Vec2 pos) override;
 
-    const std::vector<float>&        getVertices() const override;
+    const std::vector<Vertex>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
 
     void        setText(const std::string& text);

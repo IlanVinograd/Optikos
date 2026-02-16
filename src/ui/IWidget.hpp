@@ -21,16 +21,9 @@ enum class ExpandMode : uint8_t
     Both   = 3
 };
 
-struct Vertex
-{
-    float         x, y;
-    unsigned char r, g, b, a;
-    float         u, v;
-};
-
 struct RenderData
 {
-    std::vector<float>        vertices;
+    std::vector<Vertex>       vertices;
     std::vector<unsigned int> indices;
 };
 
@@ -50,7 +43,7 @@ class IWidget
 
     virtual void                             resize(int width, int height) = 0;
     virtual const std::vector<unsigned int>& getIndices() const            = 0;
-    virtual const std::vector<float>&        getVertices() const           = 0;
+    virtual const std::vector<Vertex>&       getVertices() const           = 0;
 
     virtual void       setClickable(bool isClickable) = 0;
     virtual void       setAutoExpand(ExpandMode mode) = 0;

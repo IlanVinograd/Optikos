@@ -46,38 +46,12 @@ void Button::render(Optikos::IRenderQueue& renderQueue)
 void Button::updateData()
 {
     m_data.indices  = {0, 1, 2, 2, 3, 0};
-    m_data.vertices = {m_position.x,
-                       m_position.y,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       0.0,
-                       0.0,
-                       m_position.x + m_width,
-                       m_position.y,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       0.0,
-                       0.0,
-                       m_position.x + m_width,
-                       m_position.y + m_height,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       0.0,
-                       0.0,
-                       m_position.x,
-                       m_position.y + m_height,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       0.0,
-                       0.0};
+    m_data.vertices = {
+        {m_position.x, m_position.y, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0},
+        {m_position.x + m_width, m_position.y, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0},
+        {m_position.x + m_width, m_position.y + m_height, m_color.r, m_color.g, m_color.b,
+         m_color.a, 0, 0},
+        {m_position.x, m_position.y + m_height, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0}};
 
     if (m_label)
     {
@@ -126,9 +100,9 @@ void Button::resize(int width, int height)
 void Button::setHoverDimming(float dimming)
 {
     assert(0.0f <= dimming && dimming <= 1.0f);
-    m_dimmed.r = m_originalColor.r * dimming;
-    m_dimmed.g = m_originalColor.g * dimming;
-    m_dimmed.b = m_originalColor.b * dimming;
+    m_dimmed.r = static_cast<unsigned char>(std::min(m_originalColor.r * dimming, 255.0f));
+    m_dimmed.g = static_cast<unsigned char>(std::min(m_originalColor.g * dimming, 255.0f));
+    m_dimmed.b = static_cast<unsigned char>(std::min(m_originalColor.b * dimming, 255.0f));
     m_dimmed.a = m_originalColor.a;
 }
 
@@ -138,7 +112,7 @@ void Button::setEvent(std::function<void()> event)
     m_event = event;
 }
 
-const std::vector<float>& Button::getVertices() const
+const std::vector<Vertex>& Button::getVertices() const
 {
     return m_data.vertices;
 }

@@ -182,17 +182,17 @@ RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& posi
         float u2 = u1 + static_cast<float>(ch.width) / atlas.atlasSize;
         float v2 = v1 + static_cast<float>(ch.height) / atlas.atlasSize;
 
-        data.vertices.insert(data.vertices.end(),
-                             {x, y, textColor.r, textColor.g, textColor.b, textColor.a, u1, v1});
-        data.vertices.insert(data.vertices.end(), {x + w, y, textColor.r, textColor.g, textColor.b,
-                                                   textColor.a, u2, v1});
-        data.vertices.insert(data.vertices.end(), {x, y + h, textColor.r, textColor.g, textColor.b,
-                                                   textColor.a, u1, v2});
-        data.vertices.insert(data.vertices.end(), {x + w, y + h, textColor.r, textColor.g,
-                                                   textColor.b, textColor.a, u2, v2});
+        data.vertices.insert(data.vertices.end(), Vertex{x, y, textColor.r, textColor.g,
+                                                         textColor.b, textColor.a, u1, v1});
+        data.vertices.insert(data.vertices.end(), Vertex{x + w, y, textColor.r, textColor.g,
+                                                         textColor.b, textColor.a, u2, v1});
+        data.vertices.insert(data.vertices.end(), Vertex{x, y + h, textColor.r, textColor.g,
+                                                         textColor.b, textColor.a, u1, v2});
+        data.vertices.insert(data.vertices.end(), Vertex{x + w, y + h, textColor.r, textColor.g,
+                                                         textColor.b, textColor.a, u2, v2});
 
-        data.indices.insert(data.indices.end(), {offset + 0, offset + 1, offset + 2, offset + 1,
-                                                 offset + 3, offset + 2});
+        data.indices.insert(data.indices.end(), {offset + 0, offset + 1, offset + 2,
+                                                       offset + 1, offset + 3, offset + 2});
         offset += 4;
 
         xpos += ch.advance;
@@ -239,7 +239,7 @@ Vec2 TextFont::getSizeText(const std::string& text, std::string fontName)
 
 int TextFont::getPosText(double startText, const std::string& text, std::string fontName)
 {
-    if(startText <= 0) return 0;
+    if (startText <= 0) return 0;
 
     auto it = m_Atlases.find(fontName);
     if (it == m_Atlases.end())
@@ -248,9 +248,9 @@ int TextFont::getPosText(double startText, const std::string& text, std::string 
         return -1;  // Not found -1
     }
 
-    Atlas& atlas      = it->second;
-    float  textLength = 0;
-    int newPosition = 0;
+    Atlas& atlas       = it->second;
+    float  textLength  = 0;
+    int    newPosition = 0;
     for (const auto& symbol : text)
     {
         auto charIt = atlas.characters.find(symbol);
@@ -259,7 +259,7 @@ int TextFont::getPosText(double startText, const std::string& text, std::string 
             const Character& ch = charIt->second;
             textLength += ch.advance;
 
-            if(startText <= textLength - ch.advance / 2) return newPosition;
+            if (startText <= textLength - ch.advance / 2) return newPosition;
             newPosition++;
         }
     }

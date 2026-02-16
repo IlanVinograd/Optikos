@@ -9,7 +9,7 @@ class Widget : public IWidget
 {
    public:
     Widget(uint32_t width, uint32_t height, Vec2 position, bool isVisible = true,
-           Color color = Color{0.0, 50.0, 150.0, 255.0})
+           Color color = Color{0, 50, 150, 255})
         : m_position(position),
           m_width(width),
           m_height(height),

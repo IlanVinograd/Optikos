@@ -12,13 +12,13 @@ namespace Optikos
 class Label : public Widget
 {
    public:
-    Label(std::string text, Vec2 position, Color color = {255.0, 255.0, 255.0, 255.0});
+    Label(std::string text, Vec2 position, Color color = {255, 255, 255, 255});
     Label(std::string text, Vec2 position, uint32_t width, uint32_t height,
-          Color color = {255.0, 255.0, 255.0, 255.0});
+          Color color = {255, 255, 255, 255});
 
     void                             render(IRenderQueue& renderQueue) override;
     void                             updateData() override;
-    const std::vector<float>&        getVertices() const override;
+    const std::vector<Vertex>&       getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
     void                             handleEvent() override;
     bool                             handleClick(double x, double y) override;

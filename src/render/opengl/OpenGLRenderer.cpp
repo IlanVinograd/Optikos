@@ -56,16 +56,15 @@ void OpenGLRenderer::initializeBatch(Batch& batch)
     glGenBuffers(1, &batch.IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch.IBO);
 
-    glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, VERTEX_SIZE * sizeof(float),
-                          (void*) (POSITION_POS * sizeof(float)));
+    glVertexAttribPointer(0, POSITION_SIZE, GL_FLOAT, GL_FALSE, VERTEX_SIZE,
+                          (void*) (POSITION_POS));
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, COLOR_SIZE, GL_FLOAT, GL_FALSE, VERTEX_SIZE * sizeof(float),
-                          (void*) (COLOR_POS * sizeof(float)));
+    glVertexAttribPointer(1, COLOR_SIZE, GL_UNSIGNED_BYTE, GL_TRUE, VERTEX_SIZE,
+                          (void*) (COLOR_POS));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, UV_SIZE, GL_FLOAT, GL_FALSE, VERTEX_SIZE * sizeof(float),
-                          (void*) (UV_POS * sizeof(float)));
+    glVertexAttribPointer(2, UV_SIZE, GL_FLOAT, GL_FALSE, VERTEX_SIZE, (void*) (UV_POS));
     glEnableVertexAttribArray(2);
 
 #ifdef ENABLE_GPU_PROFILING
@@ -111,8 +110,7 @@ void OpenGLRenderer::flush()
         m_currentBatch.shaderId  = shaderId;
         m_currentBatch.textureId = textureId;
 
-        unsigned int vertexOffset =
-            static_cast<unsigned int>(m_currentBatch.vertices.size()) / VERTEX_SIZE;
+        unsigned int vertexOffset = static_cast<unsigned int>(m_currentBatch.vertices.size());
         m_currentBatch.vertices.insert(m_currentBatch.vertices.end(), cmd.vertices.begin(),
                                        cmd.vertices.end());
 
@@ -136,7 +134,7 @@ void OpenGLRenderer::renderBatch(const Batch& batch)
     glBindVertexArray(batch.VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, batch.VBO);
-    glBufferData(GL_ARRAY_BUFFER, batch.vertices.size() * sizeof(float), batch.vertices.data(),
+    glBufferData(GL_ARRAY_BUFFER, batch.vertices.size() * VERTEX_SIZE, batch.vertices.data(),
                  GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch.IBO);

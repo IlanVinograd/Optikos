@@ -42,7 +42,7 @@ void Label::updateData()
                                                        m_fontName, m_color);
 }
 
-const std::vector<float>& Label::getVertices() const
+const std::vector<Vertex>& Label::getVertices() const
 {
     return m_data.vertices;
 }

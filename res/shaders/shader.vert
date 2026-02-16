@@ -12,7 +12,7 @@ out vec4 fsColor;
 
 void main()
 {
-    fsColor     = aColor / 255.0;
+    fsColor     = aColor;
     vec2 ndc    = (aPosition / uScreenSize) * 2.0 - 1.0;
     gl_Position = vec4(ndc.x, -ndc.y, 0.0, 1.0);
 

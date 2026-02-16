@@ -66,8 +66,8 @@ int main()
     auto changeTextBtn = std::make_unique<Optikos::Button>(100, 20, Optikos::Vec2{20, 50}, [&]() {
         if (createdBtn) {
             createdBtn->setText("Changed");
-            createdBtn->setColor(Optikos::Color(255.0, 0.0, 0.0, 255.0));
-            createdBtn->setTextColor(Optikos::Color(0.0, 255.0, 0.0, 255.0));
+            createdBtn->setColor(Optikos::Color(255, 0, 0, 255));
+            createdBtn->setTextColor(Optikos::Color(0, 255, 0, 255));
         }
     });
 
@@ -76,9 +76,9 @@ int main()
     app.addWidget(2, std::move(addBtn));
     app.addWidget(3, std::move(changeTextBtn));
 
-    app.addWidget(4, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(300, 150), Optikos::Color(200, 100, 200, 255.0)));
-    app.addWidget(5, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(100, 400), Optikos::Color(10, 130, 230, 255.0)));
-    app.addWidget(6, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(150, 500), Optikos::Color(10, 250, 100, 255.0)));
+    app.addWidget(4, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(300, 150), Optikos::Color(200, 100, 200, 255)));
+    app.addWidget(5, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(100, 400), Optikos::Color(10, 130, 230, 255)));
+    app.addWidget(6, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(150, 500), Optikos::Color(10, 250, 100, 255)));
 
     app.addWidget(7, std::make_unique<Optikos::TextBox>(100, 35, Optikos::Vec2(90, 430)));
     app.addWidget(8, std::make_unique<Optikos::TextBox>(100, 35, Optikos::Vec2(190, 430)));

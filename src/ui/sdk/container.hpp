@@ -22,7 +22,7 @@ class Container : public Widget
 
     void                             render(IRenderQueue& renderQueue) override;
     void                             updateData() override;
-    const std::vector<float>&        getVertices() const override;
+    const std::vector<Vertex>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
     void                             handleEvent() override;
     bool                             handleClick(double x, double y) override;
