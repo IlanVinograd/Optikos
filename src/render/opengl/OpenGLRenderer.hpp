@@ -95,6 +95,9 @@ class OpenGLRenderer : public IRenderer
 #ifdef ENABLE_GPU_PROFILING
     unsigned int queryID;
     unsigned int maxGpuTime = 0;
+    unsigned int minGpuTime = 0;
+    unsigned int avg        = 0;
+    unsigned int calls      = 0;
 #endif
 };
 

@@ -237,6 +237,35 @@ Vec2 TextFont::getSizeText(const std::string& text, std::string fontName)
     return {textLength, maxAscent + maxDecent};
 }
 
+int TextFont::getPosText(double startText, const std::string& text, std::string fontName)
+{
+    if(startText <= 0) return 0;
+
+    auto it = m_Atlases.find(fontName);
+    if (it == m_Atlases.end())
+    {
+        LOG_DEBUG("Font '" + fontName + "' not found. Call loadFont() first.", "log");
+        return -1;  // Not found -1
+    }
+
+    Atlas& atlas      = it->second;
+    float  textLength = 0;
+    int newPosition = 0;
+    for (const auto& symbol : text)
+    {
+        auto charIt = atlas.characters.find(symbol);
+        if (charIt != atlas.characters.end())
+        {
+            const Character& ch = charIt->second;
+            textLength += ch.advance;
+
+            if(startText <= textLength - ch.advance / 2) return newPosition;
+            newPosition++;
+        }
+    }
+    return newPosition;
+}
+
 unsigned int TextFont::getAtlasTextureId(std::string fontName) const
 {
     auto it = m_Atlases.find(fontName);

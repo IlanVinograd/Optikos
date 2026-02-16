@@ -50,11 +50,11 @@ int main()
                                                               Optikos::Color{100, 50, 150, 255}));
     container->setAlignment(Optikos::AlignMode::Middle);
 
-    Optikos::Button* createdBtn = nullptr;
+    Optikos::TextBox* createdBtn = nullptr;
 
     auto addBtn = std::make_unique<Optikos::Button>(60, 20, Optikos::Vec2{20, 20}, [&]() {
-        auto btn = std::make_unique<Optikos::Button>(50, 50, Optikos::Vec2{100, 100});
-        btn->setText("New");
+        auto btn = std::make_unique<Optikos::TextBox>(100, 35, Optikos::Vec2(100, 430));
+        //btn->setText("New");
         createdBtn = container->addSubWidget(std::move(btn));
     });
 
@@ -62,7 +62,7 @@ int main()
     addBtn->setFont("BOLD");
     addBtn->setColor(Optikos::Color(255,0,0,255));
     addBtn->setTextColor(Optikos::Color(0,255,0,255));
-
+    
     auto changeTextBtn = std::make_unique<Optikos::Button>(100, 20, Optikos::Vec2{20, 50}, [&]() {
         if (createdBtn) {
             createdBtn->setText("Changed");
@@ -79,6 +79,14 @@ int main()
     app.addWidget(4, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(300, 150), Optikos::Color(200, 100, 200, 255.0)));
     app.addWidget(5, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(100, 400), Optikos::Color(10, 130, 230, 255.0)));
     app.addWidget(6, std::make_unique<Optikos::Label>("TEXT CLICK HERE", Optikos::Vec2(150, 500), Optikos::Color(10, 250, 100, 255.0)));
+
+    app.addWidget(7, std::make_unique<Optikos::TextBox>(100, 35, Optikos::Vec2(90, 430)));
+    app.addWidget(8, std::make_unique<Optikos::TextBox>(100, 35, Optikos::Vec2(190, 430)));
+
+    app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf", "BOX", 48.0);
+    auto textBox = std::make_unique<Optikos::TextBox>(200, 80, Optikos::Vec2(20, 70));
+    textBox->setFont("BOX");
+    app.addWidget(9, std::move(textBox));
 
     // auto* container = app.addWidget(1, std::make_unique<Container>(500,200, Vec2{200, 200},
     // Color{100,50,150,255})); auto btn1 = std::make_unique<Button>(60, 20, Vec2{20,20},

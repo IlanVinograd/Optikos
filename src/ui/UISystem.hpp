@@ -39,6 +39,8 @@ class UISystem
 
     void render(IRenderQueue& renderQueue);
 
+    void passInput(unsigned int codepoint);
+
    private:
     std::unordered_map<uint32_t, std::unique_ptr<IWidget>> widgets;
 

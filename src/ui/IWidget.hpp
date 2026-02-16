@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "render/IRenderQueue.hpp"
+#include "utilities/color.hpp"
 #include "utilities/logger.hpp"
 #include "utilities/vec.hpp"
-#include "utilities/color.hpp"
 
 namespace Optikos
 {
@@ -19,6 +19,13 @@ enum class ExpandMode : uint8_t
     Width  = 1,
     Height = 2,
     Both   = 3
+};
+
+struct Vertex
+{
+    float         x, y;
+    unsigned char r, g, b, a;
+    float         u, v;
 };
 
 struct RenderData
@@ -61,6 +68,16 @@ class IWidget
     virtual bool wantsHoverEvents() const
     {
         return false;
+    }
+
+    virtual bool wantsGetInput() const
+    {
+        return false;
+    }
+
+    virtual void passInput(unsigned int codepoint)
+    {
+        (void) codepoint;
     }
 
     virtual void render(IRenderQueue& renderQueue)

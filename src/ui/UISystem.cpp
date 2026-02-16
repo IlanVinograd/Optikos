@@ -27,10 +27,7 @@ void UISystem::checkIfClicked(double x, double y)
 {
     for (const auto& [id, widget] : widgets)
     {
-        if (widget->handleClick(x, y))
-        {
-            return;
-        }
+       widget->handleClick(x, y); /* stub we check all clicks so can be overhead*/
     }
 }
 
@@ -82,5 +79,20 @@ void UISystem::expandWidgets(int width, int height)
         }
     }
 }
+
+void UISystem::passInput(unsigned int codepoint)
+{
+    for (const auto& [id, widget] : widgets)
+    {
+        if (!widget->wantsGetInput()) continue;
+        
+        widget->passInput(codepoint);
+    }
+}
+//TODO: Scissor Test / Shader Clipping
+//TODO: keep the label inside the container bounds.
+//TODO: add selection option with blue coloring using pivot.
+//TODO: color blocks of texts with blue.
+//TODO: change all magic number by creating special constructor specialy in TextBox.
 
 }  // namespace Optikos

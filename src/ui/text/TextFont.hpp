@@ -19,6 +19,8 @@ unsigned int constexpr DEFAULT_CHAR_END   = 126;
 Color constexpr DEFAULT_COLOR             = Color{255, 255, 255, 255};
 
 // TODO: check if better to use one huge atlas or some small atlases.
+//TODO: SDF Fonts
+
 class TextFont
 {
    public:
@@ -44,6 +46,7 @@ class TextFont
     const std::vector<unsigned char>& getAtlasData(std::string fontName = DEFAULT0_FONT) const;
     unsigned int                      getAtlasSize(std::string fontName = DEFAULT0_FONT) const;
     Vec2 getSizeText(const std::string& text, std::string fontName = DEFAULT0_FONT);
+    int getPosText(double startText, const std::string& text, std::string fontName = DEFAULT0_FONT);
 
     void setAtlasTextureId(unsigned int id, std::string fontName = DEFAULT0_FONT);
 

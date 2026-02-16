@@ -9,6 +9,8 @@ GLFWInputSystem::GLFWInputSystem(GLFWwindow* window) : m_window(window)
     glfwSetCursorPosCallback(m_window, cursor_position_callback);
     glfwSetMouseButtonCallback(m_window, mouse_button_callback);
     glfwSetCursorEnterCallback(m_window, cursor_enter_callback);
+    glfwSetCharCallback(m_window, character_callback);
+    glfwSetKeyCallback(m_window, key_callback);
 }
 
 Cursor GLFWInputSystem::getCursor()
@@ -67,7 +69,6 @@ void GLFWInputSystem::mouse_button_callback(GLFWwindow* window, int button, int 
 
 void GLFWInputSystem::cursor_enter_callback(GLFWwindow* window, int entered)
 {
-    (void) window;
     if (!entered)
     {
         auto* glfwWindow = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
@@ -77,8 +78,38 @@ void GLFWInputSystem::cursor_enter_callback(GLFWwindow* window, int entered)
                       "log");
             return;
         }
-        glfwWindow->getUiSystem()->checkIfHover(0,0);
+        glfwWindow->getUiSystem()->checkIfHover(0, 0);
     }
+}
+
+void GLFWInputSystem::character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+    auto* glfwWindow = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
+    if (!glfwWindow)
+    {
+        LOG_FATAL("pointer [glfwWindow] inside GLFWInputSystem::key_callback is NULL", "log");
+        return;
+    }
+    glfwWindow->getUiSystem()->passInput(codepoint);
+}
+
+void GLFWInputSystem::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    auto* glfwWindow = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
+    if (!glfwWindow)
+    {
+        LOG_FATAL("pointer [glfwWindow] inside GLFWInputSystem::key_callback is NULL", "log");
+        return;
+    }
+    (void) scancode;
+    (void) mods;
+    if ((key == GLFW_KEY_BACKSPACE || key == GLFW_KEY_DELETE) &&
+        (action == GLFW_PRESS || action == GLFW_REPEAT))
+        glfwWindow->getUiSystem()->passInput(key);
+
+    if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) &&
+        (action == GLFW_PRESS || action == GLFW_REPEAT))
+        glfwWindow->getUiSystem()->passInput(key);
 }
 
 }  // namespace Optikos

@@ -175,8 +175,20 @@ void OpenGLRenderer::endFrame()
     glEndQuery(GL_TIME_ELAPSED);
     unsigned int result;
     glGetQueryObjectuiv(queryID, GL_QUERY_RESULT, &result);
+
     maxGpuTime = std::max(result, maxGpuTime);
-    std::cout << "Max time from begin to end in ms: " << (maxGpuTime / 1e+6) << std::endl;
+    minGpuTime = (calls == 0) ? result : std::min(result, minGpuTime);
+    avg += result;
+    calls++;
+
+    if (calls % 60 == 0)
+    {
+        std::cout << "=== GPU Profiling (after " << calls << " frames) ===" << std::endl;
+        std::cout << "Max: " << (maxGpuTime / 1e+6) << " ms" << std::endl;
+        std::cout << "Min: " << (minGpuTime / 1e+6) << " ms" << std::endl;
+        std::cout << "Avg: " << (avg / calls) / 1e+6 << " ms" << std::endl;
+        std::cout << "Avg FPS: " << 1000.0 / ((avg / calls) / 1e+6) << std::endl;
+    }
 #endif
 }
 

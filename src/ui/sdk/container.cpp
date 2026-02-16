@@ -60,10 +60,7 @@ bool Container::handleClick(double x, double y)
 {
     for (auto it = m_subWidgets.rbegin(); it != m_subWidgets.rend(); ++it)
     {
-        if ((*it)->handleClick(x, y))
-        {
-            return true;
-        }
+        (*it)->handleClick(x, y);
     }
 
     if (getClickable() && isInside(x, y))
@@ -212,8 +209,29 @@ bool Container::wantsHoverEvents() const
     return false;
 }
 
+bool Container::wantsGetInput() const
+{
+    for (const auto& widget : m_subWidgets)
+    {
+        if (widget->wantsGetInput()) return true;
+    }
+    return false;
+}
+
+void Container::passInput(unsigned int codepoint)
+{
+    for (auto& subWidget : m_subWidgets)
+    {
+        if (!subWidget->wantsGetInput()) continue;
+
+        subWidget->passInput(codepoint);
+    }
+}
+
 void Container::handleHover(double x, double y)
 {
+    bool foundHover = false;
+
     for (auto& subWidget : m_subWidgets)
     {
         if (!subWidget->wantsHoverEvents())
@@ -222,13 +240,15 @@ void Container::handleHover(double x, double y)
             continue;
         }
 
-        if (subWidget->isInside(x, y))
+        if (!foundHover && subWidget->isInside(x, y))
         {
             subWidget->handleHover(x, y);
-            return;
+            foundHover = true;
         }
         else
+        {
             subWidget->resetHover();
+        }
     }
 }
 

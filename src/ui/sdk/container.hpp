@@ -29,6 +29,8 @@ class Container : public Widget
     void                             handleHover(double x, double y) override;
     void                             resetHover() override;
     bool                             wantsHoverEvents() const override;
+    bool                             wantsGetInput() const override;
+    void                             passInput(unsigned int codepoint) override;
     void                             resize(int width, int height) override;
     void                             setPosition(Vec2 pos) override;
 
