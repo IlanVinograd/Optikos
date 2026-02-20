@@ -90,6 +90,4 @@ void UISystem::passInput(unsigned int codepoint)
     }
 }
 
-//TODO: change all magic number by creating special constructor specialy in TextBox.
-
 }  // namespace Optikos

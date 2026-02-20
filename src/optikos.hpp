@@ -1,16 +1,15 @@
 #ifndef OPTIKOS_H
 #define OPTIKOS_H
-#include "optikos_config.hpp"
-
 #include <memory>
 
 #include "input/IInputSystem.hpp"
+#include "optikos_config.hpp"
 #include "platform/IWindow.hpp"
 #include "render/IRenderer.hpp"
 #include "ui/UISystem.hpp"
 #include "ui/text/TextFont.hpp"
-
 #include "utilities/vec.hpp"
+
 
 // TODO: wrap to .hpp
 #include "ui/sdk/button.hpp"
@@ -21,13 +20,19 @@
 unsigned int constexpr DEFAULT_WIDTH  = 800;
 unsigned int constexpr DEFAULT_HEIGHT = 600;
 
+//TODO: Slider.
+//TODO: Scroller.
+//TODO: add widgets to container verticaly or horizontal by default horizontal.
+//TODO: Image widget.
+//TODO: Drop down widget.
+
 namespace Optikos
 {
 class Optikos
 {
    public:
     Optikos(std::string_view title, unsigned int width = DEFAULT_WIDTH,
-                     unsigned int height = DEFAULT_HEIGHT);
+            unsigned int height = DEFAULT_HEIGHT);
 
     bool should_close();
     void begin();
@@ -44,6 +49,12 @@ class Optikos
     }
 
     bool removeWidget(uint32_t id);
+
+    inline Vec2 getCursor()
+    {
+        Cursor cursor = m_inputSystem->getCursor();
+        return Vec2{static_cast<float>(cursor.x), static_cast<float>(cursor.y)};
+    }
 
    private:
     std::unique_ptr<IRenderer>    m_renderer;

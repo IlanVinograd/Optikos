@@ -265,6 +265,11 @@ void TextBox::manageCursor(unsigned int codepoint)
     {
         /* stub */
     }
+
+    if (m_onTextChanged)
+    {
+        m_onTextChanged(m_placeholder);
+    }
 }
 
 }  // namespace Optikos

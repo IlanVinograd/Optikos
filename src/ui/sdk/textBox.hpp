@@ -20,8 +20,7 @@ namespace Optikos
 class TextBox : public Container
 {
    public:
-    TextBox(uint32_t width, uint32_t height, Vec2 position,
-            Color bgColor   = {50, 50, 50, 255},
+    TextBox(uint32_t width, uint32_t height, Vec2 position, Color bgColor = {50, 50, 50, 255},
             Color textColor = {255, 255, 255, 255});
 
     void render(IRenderQueue& renderQueue) override;
@@ -36,7 +35,12 @@ class TextBox : public Container
     void resize(int width, int height) override;
     void setPosition(Vec2 pos) override;
 
-    const std::vector<Vertex>&        getVertices() const override;
+    inline void setOnTextChanged(std::function<void(const std::string&)> callback)
+    {
+        m_onTextChanged = callback;
+    }
+
+    const std::vector<Vertex>&       getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
 
     void        setText(const std::string& text);
@@ -51,19 +55,20 @@ class TextBox : public Container
     void handleCursor(double x, double y);
     void manageCursor(unsigned int codepoint);
 
-    RenderData  m_data;
-    int         m_cursorEnd;
-    int         m_cursorPivot;
-    std::string m_text;
-    std::string m_placeholder;
-    std::string m_fontName = DEFAULT0_FONT;
-    Color       m_textColor;
-    Color       m_bgColor;
-    Color       m_focusedBgColor;
-    Color       m_hoverBgColor;
-    Label*      m_label   = nullptr;
-    bool        m_focused = false;
-    bool        m_isHover = false;
+    RenderData                              m_data;
+    int                                     m_cursorEnd;
+    int                                     m_cursorPivot;
+    std::string                             m_text;
+    std::string                             m_placeholder;
+    std::string                             m_fontName = DEFAULT0_FONT;
+    Color                                   m_textColor;
+    Color                                   m_bgColor;
+    Color                                   m_focusedBgColor;
+    Color                                   m_hoverBgColor;
+    Label*                                  m_label         = nullptr;
+    bool                                    m_focused       = false;
+    bool                                    m_isHover       = false;
+    std::function<void(const std::string&)> m_onTextChanged = nullptr;
 };
 
 }  // namespace Optikos

@@ -8,41 +8,47 @@ int main()
 {
     Logger::add_logger();
     Optikos::Optikos app = Optikos::Optikos("Optikos");
-    app.setWindowTitleBar(Optikos::Color{25, 25, 25});
+    app.setWindowTitleBar(Optikos::Color{20, 20, 20});
 
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf");
-    app.pushFont("C:/Users/ilanv/Optikos/res/fonts/BitcountGridDouble_Cursive-Light.ttf", "LIGHT", 30.0);
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-Black.otf", "BOLD", 12.0);
 
     auto* container = app.addWidget(
-        1, std::make_unique<Optikos::Container>(800, 35, Optikos::Vec2{0, 0}, Optikos::Color{25, 25, 25, 255}));
+        1, std::make_unique<Optikos::Container>(800, 25, Optikos::Vec2{0, 0}, Optikos::Color{20, 20, 20, 255}));
 
     container->setAutoExpand(Optikos::ExpandMode::Width);
-    container->setAlignment(Optikos::AlignMode::Middle);
-    container->setInterval(12);
-    container->setOffset(15);
+    container->setAlignment(Optikos::AlignMode::Left);
+    container->setInterval(2);
+    container->setOffset(30);
 
-    auto button1 = std::make_unique<Optikos::Button>(40, 30, Optikos::Vec2{10, 10});
-    container->addSubWidget(std::move(button1));
+    auto button1 = std::make_unique<Optikos::Button>(35, 20, Optikos::Vec2{0, 0}, "File");
+    button1->setColor(Optikos::Color(20, 20, 20));
+    auto* btnPtr1 = container->addSubWidget(std::move(button1));
 
-    auto button2 = std::make_unique<Optikos::Button>(40, 30, Optikos::Vec2{10, 10}, "Move");
-    button2->setFont("BOLD");
-    auto* btn2Ptr = button2.get();
+    auto button2 = std::make_unique<Optikos::Button>(35, 20, Optikos::Vec2{0, 0}, "Edit");
+    button2->setColor(Optikos::Color(20, 20, 20));
     container->addSubWidget(std::move(button2));
 
-    auto button3 = std::make_unique<Optikos::Button>(40, 30, Optikos::Vec2{10, 10});
+    auto button3 = std::make_unique<Optikos::Button>(65, 20, Optikos::Vec2{0, 0}, "Render");
+    button3->setColor(Optikos::Color(20, 20, 20));
     container->addSubWidget(std::move(button3));
 
-    auto* boxPtr = app.addWidget(
-        2, std::make_unique<Optikos::Container>(40, 40, Optikos::Vec2{100, 100}, Optikos::Color{100, 200, 100, 255}));
-    boxPtr->addSubWidget(std::make_unique<Optikos::TextBox>(20, 20, Optikos::Vec2(0,0), Optikos::Color(100, 100, 100, 255)));
+    auto container2 = std::make_unique<Optikos::Container>(100, 100, Optikos::Vec2(30, 25), Optikos::Color(40, 40, 40));
+    auto* cnBtn1 = container2->addSubWidget(std::make_unique<Optikos::Button>(60, 20, Optikos::Vec2{0, 0}, "Add"));
+    cnBtn1->setColor(Optikos::Color(40, 40, 40));
+    container2->setVisible(false);
+    auto* cnPtr2 = app.addWidget(2, std::move(container2));
 
-    btn2Ptr->setEvent([boxPtr]() {
-        boxPtr->setPosition(Optikos::Vec2{boxPtr->getPosition().x + 15, boxPtr->getPosition().y});
+    btnPtr1->setEvent([&](){
+        cnPtr2->setVisible(!cnPtr2->getVisible());
     });
 
-    auto* btn = app.addWidget(3, std::make_unique<Optikos::Button>(140, 140, Optikos::Vec2{200, 200}, "B O"));
-    btn->setFont("LIGHT");
+    auto* labelPtr = app.addWidget(3, std::make_unique<Optikos::Label>("", Optikos::Vec2(60, 100), 280, 20));
+    auto* textBoxPtr = app.addWidget(4, std::make_unique<Optikos::TextBox>(200, 30, Optikos::Vec2(180, 180)));
+
+    textBoxPtr->setOnTextChanged([labelPtr](const std::string& newText) {
+        labelPtr->setText(newText);
+    });
 
     //
 
@@ -94,6 +100,7 @@ int main()
     {
         app.begin();
 
+        
         app.end();
     }
 }

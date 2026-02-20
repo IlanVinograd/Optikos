@@ -86,6 +86,7 @@ void Button::handleHover(double x, double y)
         m_isHover = true;
         m_color   = m_dimmed;
         updateData();
+        if (m_hoverEvent != nullptr) m_hoverEvent();
     }
 }
 
@@ -94,6 +95,7 @@ void Button::resetHover()
     m_isHover = false;
     m_color   = m_originalColor;
     updateData();
+    if (m_hoverEvent != nullptr) m_hoverEvent();
 }
 
 bool Button::wantsHoverEvents() const
@@ -182,6 +184,17 @@ void Button::setPosition(Vec2 pos)
     m_position = pos;
 
     updateData();
+}
+
+void Button::setHoverEvent(std::function<void()> event)
+{
+    assert(event != nullptr);
+    m_hoverEvent = event;
+}
+
+bool Button::isHover() const
+{
+    return m_isHover;
 }
 
 }  // namespace Optikos

@@ -257,4 +257,14 @@ void Container::resetHover()
     }
 }
 
+void Container::setVisible(bool visible)
+{
+    for (auto& subWidget : m_subWidgets)
+    {
+        subWidget->setVisible(visible);
+    }
+    
+    m_isVisible = visible;
+}
+
 }  // namespace Optikos

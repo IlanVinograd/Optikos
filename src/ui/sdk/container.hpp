@@ -22,7 +22,7 @@ class Container : public Widget
 
     void                             render(IRenderQueue& renderQueue) override;
     void                             updateData() override;
-    const std::vector<Vertex>&        getVertices() const override;
+    const std::vector<Vertex>&       getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
     void                             handleEvent() override;
     bool                             handleClick(double x, double y) override;
@@ -33,6 +33,7 @@ class Container : public Widget
     void                             passInput(unsigned int codepoint) override;
     void                             resize(int width, int height) override;
     void                             setPosition(Vec2 pos) override;
+    void                             setVisible(bool visible) override;
 
     template <typename T>
     T* addSubWidget(std::unique_ptr<T> widget)

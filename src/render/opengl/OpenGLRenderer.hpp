@@ -13,7 +13,7 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-//TODO: __debugbreak depeneds on MSVC add #ifdef for MSVC
+/* __debugbreak depends on MSVC add #ifdef for MSVC */
 #define call(x) \
     x;          \
     if (error) __debugbreak();

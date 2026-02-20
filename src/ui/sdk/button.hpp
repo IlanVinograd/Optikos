@@ -28,6 +28,7 @@ class Button : public Widget
 
     void setHoverDimming(float dimming);  // 0.0 - 255.0
     void setEvent(std::function<void()> event);
+    void setHoverEvent(std::function<void()> event);
     void setText(std::string text);
     void setFont(std::string font);
     void setTextColor(Color color);
@@ -35,6 +36,8 @@ class Button : public Widget
     const std::vector<Vertex>&        getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
 
+    bool isHover() const;
+    
    private:
     RenderData m_data;
     Color      m_originalColor;
@@ -44,6 +47,7 @@ class Button : public Widget
 
     std::unique_ptr<Label> m_label;
     std::function<void()>  m_event = nullptr;
+    std::function<void()>  m_hoverEvent = nullptr;
 };
 
 }  // namespace Optikos
