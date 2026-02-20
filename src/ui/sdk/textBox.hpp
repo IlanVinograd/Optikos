@@ -11,6 +11,10 @@
 #define KEY_LEFT 263
 #define DELETE 261
 
+// ASCII printable character range: space (' ') to tilde ('~')
+#define KEY_CODE_FROM 32
+#define KEY_CODE_TO 126
+
 namespace Optikos
 {
 class TextBox : public Container
@@ -45,6 +49,7 @@ class TextBox : public Container
 
    private:
     void handleCursor(double x, double y);
+    void manageCursor(unsigned int codepoint);
 
     RenderData  m_data;
     int         m_cursorEnd;

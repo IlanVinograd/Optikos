@@ -16,7 +16,8 @@ class Widget : public IWidget
           m_isVisible(isVisible),
           m_color(color),
           m_isExpand(ExpandMode::None),
-          m_isClickable(false)
+          m_isClickable(false),
+          m_clip({position.x, position.x + width, position.y, position.y + height})
     {
     }
 
@@ -82,10 +83,21 @@ class Widget : public IWidget
         return; /* stub */
     }
 
+    inline void setClip(Clip clip) override
+    {
+        m_clip = clip;
+    }
+
+    inline Clip getClip() const override
+    {
+        return m_clip;
+    }
+
    protected:
     Vec2       m_position;
     uint32_t   m_width;
     uint32_t   m_height;
+    Clip       m_clip;
     bool       m_isVisible;
     bool       m_isClickable;
     ExpandMode m_isExpand;

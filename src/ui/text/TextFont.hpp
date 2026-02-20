@@ -19,7 +19,7 @@ unsigned int constexpr DEFAULT_CHAR_END   = 126;
 Color constexpr DEFAULT_COLOR             = Color{255, 255, 255, 255};
 
 // TODO: check if better to use one huge atlas or some small atlases.
-//TODO: SDF Fonts
+// TODO: SDF Fonts
 
 class TextFont
 {
@@ -38,7 +38,7 @@ class TextFont
     void       loadFont(std::string_view fontPath, std::string fontName = DEFAULT0_FONT,
                         float fontSize = DEFAULT0_FONTSIZE);
     RenderData generateTextQuads(const std::string& text, const Vec2& position,
-                                 const uint32_t& width, const uint32_t& height,
+                                 const uint32_t& width, const uint32_t& height, const Clip& clip,
                                  const std::string& fontName  = DEFAULT0_FONT,
                                  const Color&       textColor = DEFAULT_COLOR);
 

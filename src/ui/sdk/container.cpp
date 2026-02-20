@@ -6,7 +6,6 @@ Container::Container(uint32_t width, uint32_t height, Vec2 position, Color color
     : Widget(width, height, position, isVisible, color)
 {
     updateData();
-
     m_data.indices = {0, 1, 2, 2, 3, 0};
 }
 
@@ -22,42 +21,28 @@ void Container::render(Optikos::IRenderQueue& renderQueue)
 
 void Container::updateData()
 {
-    m_data.vertices = {{m_position.x,
-                       m_position.y,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       0,
-                       0},
-                       {m_position.x + m_width,
-                       m_position.y,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       0,
-                       0},
-                       {m_position.x + m_width,
-                       m_position.y + m_height,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       0,
-                       0},
-                       {m_position.x,
-                       m_position.y + m_height,
-                       m_color.r,
-                       m_color.g,
-                       m_color.b,
-                       m_color.a,
-                       0,
-                       0}};
+    Clip containerClip = {m_position.x, m_position.x + m_width, m_position.y,
+                          m_position.y + m_height};
+    setClip(containerClip);
+
+    m_data.vertices = {
+        {m_position.x, m_position.y, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0, m_clip.xMin,
+         m_clip.xMax, m_clip.yMin, m_clip.yMax},
+        {m_position.x + m_width, m_position.y, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0,
+         m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax},
+        {m_position.x + m_width, m_position.y + m_height, m_color.r, m_color.g, m_color.b,
+         m_color.a, 0, 0, m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax},
+        {m_position.x, m_position.y + m_height, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0,
+         m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax}};
 }
 
 bool Container::handleClick(double x, double y)
 {
+    // if (x < m_clip.xMin || x > m_clip.xMax || y < m_clip.yMin || y > m_clip.yMax)
+    // {
+    //     return false;
+    // }
+
     for (auto it = m_subWidgets.rbegin(); it != m_subWidgets.rend(); ++it)
     {
         (*it)->handleClick(x, y);
@@ -198,6 +183,18 @@ void Container::alignWidget(IWidget* subWidget, int index)
 
     newPos = {xPos, m_position.y};
     subWidget->setPosition(newPos);
+
+    Clip containerClip = {m_position.x, m_position.x + m_width, m_position.y,
+                          m_position.y + m_height};
+
+    Clip finalClip;
+    finalClip.xMin = std::max(containerClip.xMin, m_clip.xMin);
+    finalClip.xMax = std::min(containerClip.xMax, m_clip.xMax);
+    finalClip.yMin = std::max(containerClip.yMin, m_clip.yMin);
+    finalClip.yMax = std::min(containerClip.yMax, m_clip.yMax);
+
+    subWidget->setClip(finalClip);
+    subWidget->updateData();
 }
 
 bool Container::wantsHoverEvents() const

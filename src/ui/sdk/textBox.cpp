@@ -58,20 +58,31 @@ void TextBox::updateData()
         currentColor = m_hoverBgColor;
 
     m_data.indices  = {0, 1, 2, 2, 3, 0};
-    m_data.vertices = {{m_position.x, m_position.y, currentColor.r, currentColor.g, currentColor.b,
-                        currentColor.a, 0, 0},
+    m_data.vertices = {
+        {m_position.x, m_position.y, currentColor.r, currentColor.g, currentColor.b, currentColor.a,
+         0, 0, m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax},
 
-                       {m_position.x + m_width, m_position.y, currentColor.r, currentColor.g,
-                        currentColor.b, currentColor.a, 0, 0},
+        {m_position.x + m_width, m_position.y, currentColor.r, currentColor.g, currentColor.b,
+         currentColor.a, 0, 0, m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax},
 
-                       {m_position.x + m_width, m_position.y + m_height, currentColor.r,
-                        currentColor.g, currentColor.b, currentColor.a, 0, 0},
+        {m_position.x + m_width, m_position.y + m_height, currentColor.r, currentColor.g,
+         currentColor.b, currentColor.a, 0, 0, m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax},
 
-                       {m_position.x, m_position.y + m_height, currentColor.r, currentColor.g,
-                        currentColor.b, currentColor.a, 0, 0}};
+        {m_position.x, m_position.y + m_height, currentColor.r, currentColor.g, currentColor.b,
+         currentColor.a, 0, 0, m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax}};
 
     if (m_label)
     {
+        Clip textBoxClip = {m_position.x, m_position.x + m_width, m_position.y,
+                            m_position.y + m_height};
+
+        Clip finalClip;
+        finalClip.xMin = std::max(textBoxClip.xMin, m_clip.xMin);
+        finalClip.xMax = std::min(textBoxClip.xMax, m_clip.xMax);
+        finalClip.yMin = std::max(textBoxClip.yMin, m_clip.yMin);
+        finalClip.yMax = std::min(textBoxClip.yMax, m_clip.yMax);
+        m_label->setClip(finalClip);
+
         m_label->setPosition(Vec2{m_position.x + 5, m_position.y});
         m_label->resize(m_width - 10, m_height);
         m_label->setText(m_text);
@@ -93,6 +104,7 @@ bool TextBox::handleClick(double x, double y)
 {
     if (m_isClickable && isInside(x, y))
     {
+
         handleEvent();
         if (m_focused) handleCursor(x, y);
         return true;
@@ -139,36 +151,7 @@ bool TextBox::wantsGetInput() const
 
 void TextBox::passInput(unsigned int codepoint)
 {
-    // TODO: to seperate func for manageCursor
-    // TODO: Add define for range
-    if (32 <= codepoint && codepoint <= 126)
-    {
-        m_placeholder.insert(m_cursorEnd, 1, static_cast<unsigned char>(codepoint));
-        m_cursorEnd++;
-    }
-    else if (m_cursorEnd > 0 && codepoint == BACKSPACE)
-    {
-        m_cursorEnd--;
-        m_placeholder.erase(m_cursorEnd, 1);
-    }
-    else if (m_cursorEnd < m_placeholder.length() && codepoint == DELETE)
-    {
-        m_placeholder.erase(m_cursorEnd, 1);
-    }
-    else if (m_cursorEnd > 0 && codepoint == KEY_LEFT)
-    {
-        m_cursorEnd--;
-    }
-    else if (m_cursorEnd < m_placeholder.length() && codepoint == KEY_RIGHT)
-    {
-        m_cursorEnd++;
-    }
-    else
-    {
-        /* stub */
-    }
-    std::cout << m_placeholder.length() << std::endl;
-    std::cout << m_cursorEnd << std::endl;
+    manageCursor(codepoint);
 
     updateData();
 }
@@ -241,19 +224,47 @@ bool TextBox::isFocused() const
     return m_focused;
 }
 
-void TextBox::handleCursor(double x, double y)  // ABCD = 4 -> AB CD , if m_focused true only
+void TextBox::handleCursor(double x, double y)
 {
     // TODO: OPTIMIZE CURSOR CLICK POSITION
-    Vec2   textSize = TextFont::getInstance().getSizeText(m_placeholder, m_fontName);
+    auto&  font     = TextFont::getInstance();
+    Vec2   textSize = font.getSizeText(m_placeholder, m_fontName);
     double xTextPos = (m_width / 2) - (textSize.x / 2) + m_position.x;
-    m_cursorEnd     = TextFont::getInstance().getPosText(x - xTextPos, m_placeholder, m_fontName);
-
-    std::cout << x - xTextPos << std::endl;
-    std::cout << textSize.x << " " << x << " " << xTextPos << " " << m_cursorEnd << std::endl;
+    m_cursorEnd     = font.getPosText(x - xTextPos, m_placeholder, m_fontName);
 
     (void) xTextPos;
     (void) x;
     (void) y;
+}
+
+void TextBox::manageCursor(unsigned int codepoint)
+{
+    if (KEY_CODE_FROM <= codepoint && codepoint <= KEY_CODE_TO)
+    {
+        m_placeholder.insert(m_cursorEnd, 1, static_cast<unsigned char>(codepoint));
+        m_cursorEnd++;
+    }
+    else if (m_cursorEnd > 0 && codepoint == BACKSPACE)
+    {
+        m_cursorEnd--;
+        m_placeholder.erase(m_cursorEnd, 1);
+    }
+    else if (m_cursorEnd < m_placeholder.length() && codepoint == DELETE)
+    {
+        m_placeholder.erase(m_cursorEnd, 1);
+    }
+    else if (m_cursorEnd > 0 && codepoint == KEY_LEFT)
+    {
+        m_cursorEnd--;
+    }
+    else if (m_cursorEnd < m_placeholder.length() && codepoint == KEY_RIGHT)
+    {
+        m_cursorEnd++;
+    }
+    else
+    {
+        /* stub */
+    }
 }
 
 }  // namespace Optikos

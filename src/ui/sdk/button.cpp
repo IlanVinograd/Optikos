@@ -47,14 +47,26 @@ void Button::updateData()
 {
     m_data.indices  = {0, 1, 2, 2, 3, 0};
     m_data.vertices = {
-        {m_position.x, m_position.y, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0},
-        {m_position.x + m_width, m_position.y, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0},
+        {m_position.x, m_position.y, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0, m_clip.xMin,
+         m_clip.xMax, m_clip.yMin, m_clip.yMax},
+        {m_position.x + m_width, m_position.y, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0,
+         m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax},
         {m_position.x + m_width, m_position.y + m_height, m_color.r, m_color.g, m_color.b,
-         m_color.a, 0, 0},
-        {m_position.x, m_position.y + m_height, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0}};
+         m_color.a, 0, 0, m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax},
+        {m_position.x, m_position.y + m_height, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0,
+         m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax}};
 
     if (m_label)
     {
+        Clip buttonClip = {m_position.x, m_position.x + m_width, m_position.y,
+                           m_position.y + m_height};
+        Clip finalClip;
+        finalClip.xMin = std::max(buttonClip.xMin, m_clip.xMin);
+        finalClip.xMax = std::min(buttonClip.xMax, m_clip.xMax);
+        finalClip.yMin = std::max(buttonClip.yMin, m_clip.yMin);
+        finalClip.yMax = std::min(buttonClip.yMax, m_clip.yMax);
+
+        m_label->setClip(finalClip);
         m_label->setPosition(m_position);
         m_label->resize(m_width, m_height);
     }
@@ -133,6 +145,8 @@ void Button::setText(std::string text)
         m_label = std::make_unique<Label>(text, m_position, m_width, m_height, m_textColor);
     else
         m_label->setText(text);
+
+    updateData();
 }
 
 void Button::setFont(std::string font)

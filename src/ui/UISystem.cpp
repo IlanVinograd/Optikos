@@ -89,10 +89,7 @@ void UISystem::passInput(unsigned int codepoint)
         widget->passInput(codepoint);
     }
 }
-//TODO: Scissor Test / Shader Clipping
-//TODO: keep the label inside the container bounds.
-//TODO: add selection option with blue coloring using pivot.
-//TODO: color blocks of texts with blue.
+
 //TODO: change all magic number by creating special constructor specialy in TextBox.
 
 }  // namespace Optikos

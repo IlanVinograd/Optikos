@@ -27,6 +27,11 @@ struct RenderData
     std::vector<unsigned int> indices;
 };
 
+struct Clip
+{
+    float xMin, xMax, yMin, yMax;
+};
+
 class IWidget
 {
    public:
@@ -38,6 +43,7 @@ class IWidget
     virtual bool     getVisible() const    = 0;
     virtual bool     getClickable() const  = 0;
     virtual Color    getColor() const      = 0;
+    virtual Clip     getClip() const       = 0;
 
     virtual void updateData() = 0;
 
@@ -50,6 +56,7 @@ class IWidget
     virtual void       setVisible(bool visible)       = 0;
     virtual ExpandMode isExpand()                     = 0;
     virtual void       setColor(Color color)          = 0;
+    virtual void       setClip(Clip clip)             = 0;
 
     virtual void handleEvent() = 0;
     virtual void handleHover(double, double)
@@ -98,8 +105,15 @@ class IWidget
 
     bool isInside(double x, double y) const
     {
-        Vec2 pos = getPosition();
-        return (pos.x <= x && x <= pos.x + getWidth() && pos.y <= y && y <= pos.y + getHeight());
+        Vec2 pos  = getPosition();
+        Clip clip = getClip();
+
+        bool inWidget =
+            (pos.x <= x && x <= pos.x + getWidth() && pos.y <= y && y <= pos.y + getHeight());
+
+        bool inClip = (clip.xMin <= x && x <= clip.xMax && clip.yMin <= y && y <= clip.yMax);
+
+        return inWidget && inClip;
     }
 
    private:

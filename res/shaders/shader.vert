@@ -4,10 +4,13 @@
 layout(location = 0) in vec2 aPosition;
 layout(location = 1) in vec4 aColor;
 layout(location = 2) in vec2 aTexCoord;
+layout(location = 3) in vec4 aSize;
 
 uniform vec2 uScreenSize;
 
 out vec2 v_TexCoord;
+out vec4 v_Size;
+out vec2 v_Position;
 out vec4 fsColor;
 
 void main()
@@ -17,22 +20,31 @@ void main()
     gl_Position = vec4(ndc.x, -ndc.y, 0.0, 1.0);
 
     v_TexCoord = aTexCoord;
-};
+    v_Position = aPosition;
+    v_Size     = aSize;
+}
 
 #shader fragment
 #version 330 core
 
-uniform int uHasTexture;
+uniform int       uHasTexture;
 uniform sampler2D uTexture;
 
-in vec4  fsColor;
+in vec4 fsColor;
 in vec2 v_TexCoord;
+in vec4 v_Size;
+in vec2 v_Position;
 
 out vec4 color;
 
 void main()
 {
-    if (uHasTexture == 1)
+    if (v_Position.x < v_Size.x || v_Position.x > v_Size.y || 
+        v_Position.y < v_Size.z || v_Position.y > v_Size.w)
+    {
+        color = vec4(0.0, 0.0, 0.0, 0.0);
+    }
+    else if (uHasTexture == 1)
     {
         float sampledAlpha = texture(uTexture, v_TexCoord).r;
         color = vec4(fsColor.rgb, fsColor.a * sampledAlpha);
@@ -41,4 +53,4 @@ void main()
     {
         color = fsColor;
     }
-};
+}

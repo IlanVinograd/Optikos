@@ -42,6 +42,7 @@ class Container : public Widget
         {
             if (this != subWidget)
             {
+                subWidget->setClip(this->getClip());
                 m_subWidgets.push_back(std::move(widget));
                 m_needsLayout = true;
             }
@@ -50,6 +51,7 @@ class Container : public Widget
         }
         else
         {
+            subWidget->setClip(this->getClip());
             m_subWidgets.push_back(std::move(widget));
             m_needsLayout = true;
         }

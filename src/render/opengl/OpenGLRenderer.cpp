@@ -67,6 +67,9 @@ void OpenGLRenderer::initializeBatch(Batch& batch)
     glVertexAttribPointer(2, UV_SIZE, GL_FLOAT, GL_FALSE, VERTEX_SIZE, (void*) (UV_POS));
     glEnableVertexAttribArray(2);
 
+    glVertexAttribPointer(3, WH_SIZE, GL_FLOAT, GL_FALSE, VERTEX_SIZE, (void*) (WH_POS));
+    glEnableVertexAttribArray(3);
+
 #ifdef ENABLE_GPU_PROFILING
     glGenQueries(1, &queryID);
 #endif

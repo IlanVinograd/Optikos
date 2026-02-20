@@ -13,7 +13,7 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
-/* __debugbreak depeneds on MSVC TODO: add #ifdef for MSVC */
+//TODO: __debugbreak depeneds on MSVC add #ifdef for MSVC
 #define call(x) \
     x;          \
     if (error) __debugbreak();
@@ -27,11 +27,13 @@ int constexpr DEFAULT_TEXTURE_UNIT = 0;
 int constexpr POSITION_SIZE = 2;
 int constexpr COLOR_SIZE    = 4;
 int constexpr UV_SIZE       = 2;
+int constexpr WH_SIZE       = 4;
 int constexpr VERTEX_SIZE   = sizeof(Vertex);
 
-constexpr size_t POSITION_POS = offsetof(Vertex, x);
-constexpr size_t COLOR_POS    = offsetof(Vertex, r);
-constexpr size_t UV_POS       = offsetof(Vertex, u);
+size_t constexpr POSITION_POS = offsetof(Vertex, x);
+size_t constexpr COLOR_POS    = offsetof(Vertex, r);
+size_t constexpr UV_POS       = offsetof(Vertex, u);
+size_t constexpr WH_POS       = offsetof(Vertex, fw);
 
 class OpenGLRenderer : public IRenderer
 {

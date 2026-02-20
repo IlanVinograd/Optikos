@@ -126,7 +126,8 @@ void TextFont::generateAtlas(std::string fontName, float fontSize)
 
 RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& position,
                                        const uint32_t& width, const uint32_t& height,
-                                       const std::string& fontName, const Color& textColor)
+                                       const Clip& clip, const std::string& fontName,
+                                       const Color& textColor)
 {
     RenderData data;
 
@@ -182,17 +183,22 @@ RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& posi
         float u2 = u1 + static_cast<float>(ch.width) / atlas.atlasSize;
         float v2 = v1 + static_cast<float>(ch.height) / atlas.atlasSize;
 
-        data.vertices.insert(data.vertices.end(), Vertex{x, y, textColor.r, textColor.g,
-                                                         textColor.b, textColor.a, u1, v1});
-        data.vertices.insert(data.vertices.end(), Vertex{x + w, y, textColor.r, textColor.g,
-                                                         textColor.b, textColor.a, u2, v1});
-        data.vertices.insert(data.vertices.end(), Vertex{x, y + h, textColor.r, textColor.g,
-                                                         textColor.b, textColor.a, u1, v2});
-        data.vertices.insert(data.vertices.end(), Vertex{x + w, y + h, textColor.r, textColor.g,
-                                                         textColor.b, textColor.a, u2, v2});
+        data.vertices.insert(data.vertices.end(),
+                             Vertex{x, y, textColor.r, textColor.g, textColor.b, textColor.a, u1,
+                                    v1, clip.xMin, clip.xMax, clip.yMin, clip.yMax});
+        data.vertices.insert(data.vertices.end(),
+                             Vertex{x + w, y, textColor.r, textColor.g, textColor.b, textColor.a,
+                                    u2, v1, clip.xMin, clip.xMax, clip.yMin, clip.yMax});
+        data.vertices.insert(data.vertices.end(),
+                             Vertex{x, y + h, textColor.r, textColor.g, textColor.b, textColor.a,
+                                    u1, v2, clip.xMin, clip.xMax, clip.yMin, clip.yMax});
+        data.vertices.insert(
+            data.vertices.end(),
+            Vertex{x + w, y + h, textColor.r, textColor.g, textColor.b, textColor.a, u2, v2,
+                   clip.xMin, clip.xMax, clip.yMin, clip.yMax});
 
-        data.indices.insert(data.indices.end(), {offset + 0, offset + 1, offset + 2,
-                                                       offset + 1, offset + 3, offset + 2});
+        data.indices.insert(data.indices.end(), {offset + 0, offset + 1, offset + 2, offset + 1,
+                                                 offset + 3, offset + 2});
         offset += 4;
 
         xpos += ch.advance;

@@ -38,7 +38,7 @@ void Label::render(IRenderQueue& renderQueue)
 
 void Label::updateData()
 {
-    m_data = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width, m_height,
+    m_data = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width, m_height, m_clip,
                                                        m_fontName, m_color);
 }
 
