@@ -19,6 +19,7 @@ set(COMMON_SOURCES
     src/ui/sdk/label.cpp
     src/ui/sdk/button.cpp
     src/ui/sdk/textBox.cpp
+    src/ui/sdk/slider.cpp
     src/shader/GLSL/GLShader.cpp
     src/render/RenderQueue.cpp
     src/ui/text/TextFont.cpp

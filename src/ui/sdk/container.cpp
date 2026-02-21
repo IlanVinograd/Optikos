@@ -36,7 +36,7 @@ void Container::updateData()
          m_clip.xMin, m_clip.xMax, m_clip.yMin, m_clip.yMax}};
 }
 
-bool Container::handleClick(double x, double y)
+bool Container::handleClick(double x, double y, int action)
 {
     // if (x < m_clip.xMin || x > m_clip.xMax || y < m_clip.yMin || y > m_clip.yMax)
     // {
@@ -45,7 +45,7 @@ bool Container::handleClick(double x, double y)
 
     for (auto it = m_subWidgets.rbegin(); it != m_subWidgets.rend(); ++it)
     {
-        (*it)->handleClick(x, y);
+        (*it)->handleClick(x, y, action);
     }
 
     if (getClickable() && isInside(x, y))
@@ -263,8 +263,16 @@ void Container::setVisible(bool visible)
     {
         subWidget->setVisible(visible);
     }
-    
+
     m_isVisible = visible;
+}
+
+void Container::handleDrag(double x, double y)
+{
+    for (auto& subWidget : m_subWidgets)
+    {
+        subWidget->handleDrag(x, y);
+    }
 }
 
 }  // namespace Optikos

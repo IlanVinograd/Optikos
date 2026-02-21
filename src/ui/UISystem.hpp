@@ -31,7 +31,7 @@ class UISystem
 
     bool rem_widget(const uint32_t idx);
 
-    void checkIfClicked(double x, double y);
+    void checkIfClicked(double x, double y, int action);
 
     void checkIfHover(double x, double y);
 

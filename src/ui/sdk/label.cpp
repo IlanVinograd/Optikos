@@ -36,8 +36,8 @@ void Label::render(IRenderQueue& renderQueue)
 
 void Label::updateData()
 {
-    m_data = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width, m_height, m_clip,
-                                                       m_fontName, m_color);
+    m_data = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width, m_height,
+                                                       m_clip, m_fontName, m_color);
 }
 
 const std::vector<Vertex>& Label::getVertices() const
@@ -60,12 +60,14 @@ void Label::handleEvent()
 {
     return; /* stub */
 }
-bool Label::handleClick(double x, double y)
+bool Label::handleClick(double x, double y, int action)
 {
+    (void) action;
     (void) x;
     (void) y;
     return false; /* stub */
 }
+
 void Label::handleHover(double x, double y)
 {
     (void) x;

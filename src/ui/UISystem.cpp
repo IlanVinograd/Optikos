@@ -23,11 +23,11 @@ void UISystem::render(Optikos::IRenderQueue& renderQueue)
     }
 }
 
-void UISystem::checkIfClicked(double x, double y)
+void UISystem::checkIfClicked(double x, double y, int action)
 {
     for (const auto& [id, widget] : widgets)
     {
-       widget->handleClick(x, y); /* stub we check all clicks so can be overhead*/
+       widget->handleClick(x, y, action); /* stub we check all clicks so can be overhead*/
     }
 }
 
@@ -41,6 +41,8 @@ void UISystem::checkIfHover(double x, double y)
             widget->handleHover(x, y);
         else
             widget->resetHover();
+
+        widget->handleDrag(x, y);
     }
 }
 

@@ -100,13 +100,13 @@ void TextBox::handleEvent()
     }
 }
 
-bool TextBox::handleClick(double x, double y)
+bool TextBox::handleClick(double x, double y, int action)
 {
     if (m_isClickable && isInside(x, y))
     {
 
         handleEvent();
-        if (m_focused) handleCursor(x, y);
+        if (m_focused && action == LEFT_CLICK) handleCursor(x, y);
         return true;
     }
     else if (m_focused)

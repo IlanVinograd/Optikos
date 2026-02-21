@@ -16,15 +16,16 @@
 #include "ui/sdk/container.hpp"
 #include "ui/sdk/label.hpp"
 #include "ui/sdk/textBox.hpp"
+#include "ui/sdk/slider.hpp"
 
 unsigned int constexpr DEFAULT_WIDTH  = 800;
 unsigned int constexpr DEFAULT_HEIGHT = 600;
 
-//TODO: Slider.
 //TODO: Scroller.
 //TODO: add widgets to container verticaly or horizontal by default horizontal.
 //TODO: Image widget.
 //TODO: Drop down widget.
+//TODO: Documention.
 
 namespace Optikos
 {

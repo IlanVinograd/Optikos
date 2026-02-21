@@ -33,11 +33,11 @@ class Button : public Widget
     void setFont(std::string font);
     void setTextColor(Color color);
 
-    const std::vector<Vertex>&        getVertices() const override;
+    const std::vector<Vertex>&       getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
 
     bool isHover() const;
-    
+
    private:
     RenderData m_data;
     Color      m_originalColor;
@@ -46,7 +46,7 @@ class Button : public Widget
     Color      m_textColor = DEFAULT_COLOR;
 
     std::unique_ptr<Label> m_label;
-    std::function<void()>  m_event = nullptr;
+    std::function<void()>  m_event      = nullptr;
     std::function<void()>  m_hoverEvent = nullptr;
 };
 

@@ -21,7 +21,7 @@ class Label : public Widget
     const std::vector<Vertex>&       getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
     void                             handleEvent() override;
-    bool                             handleClick(double x, double y) override;
+    bool                             handleClick(double x, double y, int action) override;
     void                             handleHover(double x, double y) override;
     void                             resetHover() override;
     bool                             wantsHoverEvents() const override;

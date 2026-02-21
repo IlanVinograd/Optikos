@@ -26,7 +26,7 @@ class TextBox : public Container
     void render(IRenderQueue& renderQueue) override;
     void updateData() override;
     void handleEvent() override;
-    bool handleClick(double x, double y) override;
+    bool handleClick(double x, double y, int action) override;
     void handleHover(double x, double y) override;
     void resetHover() override;
     bool wantsHoverEvents() const override;

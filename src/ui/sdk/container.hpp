@@ -25,7 +25,7 @@ class Container : public Widget
     const std::vector<Vertex>&       getVertices() const override;
     const std::vector<unsigned int>& getIndices() const override;
     void                             handleEvent() override;
-    bool                             handleClick(double x, double y) override;
+    bool                             handleClick(double x, double y, int action) override;
     void                             handleHover(double x, double y) override;
     void                             resetHover() override;
     bool                             wantsHoverEvents() const override;
@@ -34,6 +34,7 @@ class Container : public Widget
     void                             resize(int width, int height) override;
     void                             setPosition(Vec2 pos) override;
     void                             setVisible(bool visible) override;
+    void                             handleDrag(double x, double y) override;
 
     template <typename T>
     T* addSubWidget(std::unique_ptr<T> widget)

@@ -61,9 +61,9 @@ void GLFWInputSystem::mouse_button_callback(GLFWwindow* window, int button, int 
         return;
     }
 
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    if (button == GLFW_MOUSE_BUTTON_LEFT && (action == GLFW_PRESS || action == GLFW_RELEASE))
     {
-        glfwWindow->getUiSystem()->checkIfClicked(self->cursor.x, self->cursor.y);
+        glfwWindow->getUiSystem()->checkIfClicked(self->cursor.x, self->cursor.y, action);
     }
 }
 

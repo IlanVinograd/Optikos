@@ -11,6 +11,9 @@
 #include "utilities/logger.hpp"
 #include "utilities/vec.hpp"
 
+inline constexpr std::uint8_t LEFT_CLICK = 1;
+inline constexpr std::uint8_t RELEASE    = 0;
+
 namespace Optikos
 {
 enum class ExpandMode : uint8_t
@@ -93,14 +96,20 @@ class IWidget
         }
     }
 
-    virtual bool handleClick(double x, double y)
+    virtual bool handleClick(double x, double y, int action)
     {
-        if (getClickable() && isInside(x, y))
+        if (getClickable() && isInside(x, y) && action == LEFT_CLICK)
         {
             handleEvent();
             return true;
         }
         return false;
+    }
+
+    virtual void handleDrag(double x, double y)
+    {
+        (void) x;
+        (void) y;
     }
 
     bool isInside(double x, double y) const

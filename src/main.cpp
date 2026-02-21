@@ -50,6 +50,15 @@ int main()
         labelPtr->setText(newText);
     });
 
+    float value = 35.0f;
+    float minValue = 20.0f;
+    float maxValue = 100.0f;
+    auto slider1 = std::make_unique<Optikos::Slider>(200, 20, Optikos::Vec2(50, 50), Optikos::OptikosType::OPTIKOS_FLOAT, &value, &minValue, &maxValue);
+    auto container3 = std::make_unique<Optikos::Container>(300, 100, Optikos::Vec2(20, 300), Optikos::Color(40, 90, 90));
+    container3->addSubWidget(std::move(slider1));
+    app.addWidget(5, std::move(container3));
+    auto* ptrLabel = app.addWidget(6, std::make_unique<Optikos::Label>(std::to_string(value), Optikos::Vec2(240, 52)));
+
     //
 
     // auto* container =
@@ -100,7 +109,8 @@ int main()
     {
         app.begin();
 
-        
+        ptrLabel->setText(std::to_string((int)value));
+
         app.end();
     }
 }
