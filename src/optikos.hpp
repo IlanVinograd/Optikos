@@ -22,9 +22,9 @@ unsigned int constexpr DEFAULT_WIDTH  = 800;
 unsigned int constexpr DEFAULT_HEIGHT = 600;
 
 //TODO: Scroller.
-//TODO: add widgets to container verticaly or horizontal by default horizontal.
 //TODO: Image widget.
 //TODO: Drop down widget.
+//TODO: RenderQueue sorting optimization.
 //TODO: Documention.
 
 namespace Optikos

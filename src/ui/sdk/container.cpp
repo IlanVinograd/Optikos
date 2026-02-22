@@ -131,57 +131,102 @@ void Container::setOffset(int offset)
 
 void Container::alignWidget(IWidget* subWidget, int index)
 {
-    // TODO: need optimization
     Vec2  newPos;
-    float xPos = 0.0f;
+    float primaryPos = 0.0f;
+    float secondaryPos = 0.0f;
 
-    float totalWidth = 0.0f;
+    float totalSize = 0.0f;
     for (const auto& widget : m_subWidgets)
     {
-        totalWidth += static_cast<float>(widget->getWidth());
+        totalSize +=
+            static_cast<float>(m_useVerticalLayout ? widget->getHeight() : widget->getWidth());
     }
     if (m_subWidgets.size() > 1)
     {
-        totalWidth += static_cast<float>((m_subWidgets.size() - 1) * m_interval);
+        totalSize += static_cast<float>((m_subWidgets.size() - 1) * m_interval);
     }
 
-    float prefixWidth = 0.0f;
+    float prefixSize = 0.0f;
     for (int i = 0; i < index; ++i)
     {
-        prefixWidth += static_cast<float>(m_subWidgets[i]->getWidth());
+        prefixSize += static_cast<float>(m_useVerticalLayout ? m_subWidgets[i]->getHeight()
+                                                             : m_subWidgets[i]->getWidth());
         if (i > 0)
         {
-            prefixWidth += static_cast<float>(m_interval);
+            prefixSize += static_cast<float>(m_interval);
         }
     }
     if (index > 0)
     {
-        prefixWidth += static_cast<float>(m_interval);
+        prefixSize += static_cast<float>(m_interval);
     }
+
+    float containerSize  = static_cast<float>(m_useVerticalLayout ? m_height : m_width);
+    float containerStart = m_useVerticalLayout ? m_position.y : m_position.x;
 
     switch (m_alignmentMode)
     {
         case AlignMode::Left:
-            xPos = m_position.x + m_offset + prefixWidth;
+            primaryPos = containerStart + m_offset + prefixSize;
             break;
         case AlignMode::Middle:
         {
-            float startX = m_position.x + (m_width / 2.0f) - (totalWidth / 2.0f);
-            xPos         = startX + prefixWidth;
+            float startPos = containerStart + (containerSize / 2.0f) - (totalSize / 2.0f);
+            primaryPos     = startPos + prefixSize;
         }
         break;
         case AlignMode::Right:
         {
-            float startX = m_position.x + m_width - totalWidth - m_offset;
-            xPos         = startX + prefixWidth;
+            float startPos = containerStart + containerSize - totalSize - m_offset;
+            primaryPos     = startPos + prefixSize;
         }
         break;
         default:
-            xPos = m_position.x + m_offset + prefixWidth;
+            primaryPos = containerStart + m_offset + prefixSize;
             break;
     }
 
-    newPos = {xPos, m_position.y};
+    if (m_useVerticalLayout)
+    {
+        float widgetWidth = static_cast<float>(subWidget->getWidth());
+        switch (m_alignmentMode)
+        {
+            case AlignMode::Left:
+                secondaryPos = m_position.x + m_offset;
+                break;
+            case AlignMode::Middle:
+                secondaryPos = m_position.x + (m_width / 2.0f) - (widgetWidth / 2.0f);
+                break;
+            case AlignMode::Right:
+                secondaryPos = m_position.x + m_width - widgetWidth - m_offset;
+                break;
+            default:
+                secondaryPos = m_position.x + m_offset;
+                break;
+        }
+        newPos = {secondaryPos, primaryPos};
+    }
+    else
+    {
+        float widgetHeight = static_cast<float>(subWidget->getHeight());
+        switch (m_alignmentMode)
+        {
+            case AlignMode::Left:
+                secondaryPos = m_position.y + m_offset;
+                break;
+            case AlignMode::Middle:
+                secondaryPos = m_position.y + (m_height / 2.0f) - (widgetHeight / 2.0f);
+                break;
+            case AlignMode::Right:
+                secondaryPos = m_position.y + m_height - widgetHeight - m_offset;
+                break;
+            default:
+                secondaryPos = m_position.y + m_offset;
+                break;
+        }
+        newPos = {primaryPos, secondaryPos};
+    }
+
     subWidget->setPosition(newPos);
 
     Clip containerClip = {m_position.x, m_position.x + m_width, m_position.y,
@@ -273,6 +318,12 @@ void Container::handleDrag(double x, double y)
     {
         subWidget->handleDrag(x, y);
     }
+}
+
+void Container::useVerticalLayout(bool isVertical)
+{
+    m_useVerticalLayout = isVertical;
+    m_needsLayout       = true;
 }
 
 }  // namespace Optikos

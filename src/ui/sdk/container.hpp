@@ -36,6 +36,8 @@ class Container : public Widget
     void                             setVisible(bool visible) override;
     void                             handleDrag(double x, double y) override;
 
+    void useVerticalLayout(bool isVertical);
+
     template <typename T>
     T* addSubWidget(std::unique_ptr<T> widget)
     {
@@ -68,10 +70,11 @@ class Container : public Widget
     void updateLayout();
 
     RenderData                            m_data;
-    AlignMode                             m_alignmentMode = AlignMode::Left;
-    int                                   m_offset        = 0;
-    int                                   m_interval      = 0;
-    bool                                  m_needsLayout   = true;
+    AlignMode                             m_alignmentMode     = AlignMode::Left;
+    int                                   m_offset            = 0;
+    int                                   m_interval          = 0;
+    bool                                  m_needsLayout       = true;
+    bool                                  m_useVerticalLayout = false;
     std::vector<std::unique_ptr<IWidget>> m_subWidgets;
 };
 

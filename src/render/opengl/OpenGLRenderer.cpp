@@ -93,10 +93,17 @@ void OpenGLRenderer::submit(const DrawCommand&& command)
 
 void OpenGLRenderer::flush()
 {
-    const auto& commands = m_renderQueue.getCommands();
-
     // TODO: sort by texture idx and then by shader idx to lower draw calls (probably will neede BTS
     // + tree created in start of program and not here).
+    
+    auto& commands = m_renderQueue.getMutableCommands();
+    
+    std::sort(commands.begin(), commands.end(), [](const DrawCommand& a, const DrawCommand& b) {
+        if (a.shaderId != b.shaderId)
+            return a.shaderId < b.shaderId;
+        return a.textureId < b.textureId;
+    });
+    
 
     for (const auto& cmd : commands)
     {
