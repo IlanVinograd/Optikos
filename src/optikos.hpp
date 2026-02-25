@@ -22,7 +22,6 @@
 unsigned int constexpr DEFAULT_WIDTH  = 800;
 unsigned int constexpr DEFAULT_HEIGHT = 600;
 
-//TODO: Scroller.
 //TODO: Image widget.
 //TODO: Drop down widget.
 //TODO: RenderQueue sorting optimization.

@@ -1,7 +1,5 @@
 #include "ui/sdk/slider.hpp"
 
-//TODO: Check if Value created between min and max.
-
 namespace Optikos
 {
 Slider::Slider(uint32_t width, uint32_t height, Vec2 position, OptikosType type, void* value,
@@ -14,6 +12,9 @@ Slider::Slider(uint32_t width, uint32_t height, Vec2 position, OptikosType type,
       m_dimmed(m_color),
       m_originalColor(m_color)
 {
+    if (m_min > m_max)
+        LOG_WARN("Slider was created with values m_min > m_max.", "log"); 
+
     setHoverDimming(0.5);
 
     updateData();
@@ -94,32 +95,32 @@ void Slider::handleDrag(double x, double y)
     (void) y;
 
     if (!m_onHold) return;
-    
-    float newPos = (float)x - m_position.x;
-    newPos = std::clamp(newPos, 0.0f, (float)m_width);
-    
+
+    float newPos = (float) x - m_position.x;
+    newPos       = std::clamp(newPos, 0.0f, (float) m_width);
+
     switch (m_type)
     {
         case OPTIKOS_INT:
         {
-            float min = (float)(*(int*)m_min);
-            float max = (float)(*(int*)m_max);
-            float ratio = newPos / m_width;
-            int newValue = (int)(min + ratio * (max - min));
-            *(int*)m_value = newValue;
+            float min       = (float) (*(int*) m_min);
+            float max       = (float) (*(int*) m_max);
+            float ratio     = newPos / m_width;
+            int   newValue  = (int) (min + ratio * (max - min));
+            *(int*) m_value = newValue;
             break;
         }
         case OPTIKOS_FLOAT:
         {
-            float min = *(float*)m_min;
-            float max = *(float*)m_max;
-            float ratio = newPos / m_width;
-            float newValue = min + ratio * (max - min);
-            *(float*)m_value = newValue;
+            float min         = *(float*) m_min;
+            float max         = *(float*) m_max;
+            float ratio       = newPos / m_width;
+            float newValue    = min + ratio * (max - min);
+            *(float*) m_value = newValue;
             break;
         }
     }
-    
+
     updateData();
 }
 

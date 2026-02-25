@@ -2,199 +2,244 @@
 #include <chrono>
 #include <deque>
 #include <string>
+#include <cmath>
+#include <vector>
 
 #include "optikos.hpp"
 #include "optikos_config.hpp"
 #include "utilities/logger.hpp"
 
+constexpr int   WIN_W       = 1300;
+constexpr int   WIN_H       = 800;
+constexpr int   TOPBAR_H    = 40;
+constexpr int   SIDEBAR_W   = 200;
+constexpr float MAIN_X      = (float)SIDEBAR_W + 30.0f;
+constexpr float MAIN_W      = (float)(WIN_W - SIDEBAR_W - 20);
+
+constexpr int   GRAPH_COUNT = 3;
+constexpr float GRAPH_H     = 185.0f;
+constexpr float GRAPH_GAP   = 8.0f;
+constexpr float GRAPHS_Y    = (float)TOPBAR_H + 8.0f;
+
+constexpr int   MAX_PLOT_PTS = 1000;
+
+constexpr Optikos::Color COL_PANEL     = {22,  22,  26,  255};
+constexpr Optikos::Color COL_PANEL2    = {28,  28,  33,  255};
+constexpr Optikos::Color COL_BG        = {14,  14,  18,  255};
+constexpr Optikos::Color COL_GRID      = {35,  35,  42,  255};
+constexpr Optikos::Color COL_TEXT      = {200, 200, 210, 255};
+constexpr Optikos::Color COL_TEXT_DIM  = {100, 100, 115, 255};
+constexpr Optikos::Color COL_SEPARATOR = {40,  40,  48,  255};
+constexpr Optikos::Color COL_SIN       = {50,  200, 100, 255};
+constexpr Optikos::Color COL_COS       = {60,  140, 255, 255};
+constexpr Optikos::Color COL_TAN       = {230, 100, 60,  255};
+constexpr Optikos::Color COL_ZERO      = {55,  55,  65,  255};
+
 int main()
 {
     Logger::add_logger();
-    Optikos::Optikos app = Optikos::Optikos("Optikos FPS Graph", 1400, 800);
-    app.setWindowTitleBar(Optikos::Color{25, 25, 28});
+    Optikos::Optikos app("Optikos — Graphs", WIN_W, WIN_H);
+    app.setWindowTitleBar(Optikos::Color{12, 12, 15});
 
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf");
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-Black.otf", "BOLD", 12.0);
 
-    auto* topBar = app.addWidget(
-        1, std::make_unique<Optikos::Container>(1400, 35, Optikos::Vec2{0, 0},
-                                                Optikos::Color{20, 20, 22, 255}));
+    auto mkLabel = [](const std::string& t, int w, int h,
+                      Optikos::Color c = COL_TEXT, bool bold = false)
+    {
+        auto l = std::make_unique<Optikos::Label>(t, Optikos::Vec2{0,0}, w, h, c);
+        if (bold) l->setFont("BOLD");
+        return l;
+    };
+
+    auto mkSep = [](int w){
+        return std::make_unique<Optikos::Container>(w, 1, Optikos::Vec2{0,0}, COL_SEPARATOR);
+    };
+
+    auto* topBar = app.addWidget(1,
+        std::make_unique<Optikos::Container>(WIN_W, TOPBAR_H, Optikos::Vec2{0,0}, COL_PANEL));
     topBar->setAutoExpand(Optikos::ExpandMode::Width);
     topBar->useVerticalLayout(false);
     topBar->setAlignment(Optikos::AlignMode::Left);
     topBar->setInterval(10);
-    topBar->setOffset(15);
+    topBar->setOffset(14);
 
-    auto titleLabel = std::make_unique<Optikos::Label>(
-        "OPTIKOS GUI - FPS STRESS TEST", Optikos::Vec2{0, 0}, 350, 35);
-    titleLabel->setFont("BOLD");
-    titleLabel->setColor(Optikos::Color(100, 200, 255, 255));
-    topBar->addSubWidget(std::move(titleLabel));
+    topBar->addSubWidget(mkLabel("  OPTIKOS", 120, TOPBAR_H / 2, {60,140,255,255}, true));
+    topBar->addSubWidget(std::make_unique<Optikos::Container>(1, TOPBAR_H-10, Optikos::Vec2{0,0}, COL_SEPARATOR));
+    topBar->addSubWidget(mkLabel("sin(x)", 80,  TOPBAR_H / 2, COL_SIN, true));
+    topBar->addSubWidget(mkLabel("cos(x)", 80,  TOPBAR_H / 2, COL_COS, true));
+    topBar->addSubWidget(mkLabel("tan(x)", 80,  TOPBAR_H / 2, COL_TAN, true));
+    topBar->addSubWidget(std::make_unique<Optikos::Container>(1, TOPBAR_H-10, Optikos::Vec2{0,0}, COL_SEPARATOR));
+    auto* timeLabel = topBar->addSubWidget(mkLabel("t = 0.00", 160, TOPBAR_H / 2, COL_TEXT_DIM));
 
-    auto fpsLabelPtr = std::make_unique<Optikos::Label>(
-        "FPS: 0", Optikos::Vec2{0, 0}, 150, 35);
-    fpsLabelPtr->setFont("BOLD");
-    fpsLabelPtr->setColor(Optikos::Color(100, 255, 100, 255));
-    auto* fpsLabel = topBar->addSubWidget(std::move(fpsLabelPtr));
+    auto* sidebar = app.addWidget(2,
+        std::make_unique<Optikos::Container>(SIDEBAR_W, WIN_H - TOPBAR_H,
+                                             Optikos::Vec2{0, (float)TOPBAR_H + 10}, COL_PANEL));
+    sidebar->useVerticalLayout(true);
+    sidebar->setAlignment(Optikos::AlignMode::Left);
+    sidebar->setInterval(5);
+    sidebar->setOffset(10);
 
-    auto avgLabelPtr = std::make_unique<Optikos::Label>(
-        "AVG: 0", Optikos::Vec2{0, 0}, 150, 35);
-    avgLabelPtr->setColor(Optikos::Color(200, 200, 100, 255));
-    auto* avgLabel = topBar->addSubWidget(std::move(avgLabelPtr));
+    sidebar->addSubWidget(mkLabel("CONTROLS", SIDEBAR_W-20, 26, {60,140,255,255}, true));
+    sidebar->addSubWidget(mkSep(SIDEBAR_W-20));
 
-    auto minLabelPtr = std::make_unique<Optikos::Label>(
-        "MIN: 0", Optikos::Vec2{0, 0}, 150, 35);
-    minLabelPtr->setColor(Optikos::Color(255, 100, 100, 255));
-    auto* minLabel = topBar->addSubWidget(std::move(minLabelPtr));
+    bool  paused   = false;
+    float speed    = 1.0f;
+    float freq     = 1.0f;
+    float ampSin   = 1.0f;
+    float ampCos   = 1.0f;
+    float ampTan   = 1.0f;
+    float plotPtsF = 550.0f;
 
-    auto maxLabelPtr = std::make_unique<Optikos::Label>(
-        "MAX: 0", Optikos::Vec2{0, 0}, 150, 35);
-    maxLabelPtr->setColor(Optikos::Color(100, 255, 200, 255));
-    auto* maxLabel = topBar->addSubWidget(std::move(maxLabelPtr));
+    auto  btnP = std::make_unique<Optikos::Button>(SIDEBAR_W-20, 32, Optikos::Vec2{0,0}, "Pause");
+    btnP->setColor({50,50,60,255}); btnP->setTextColor(COL_TEXT);
+    auto* btnPPtr = sidebar->addSubWidget(std::move(btnP));
+    btnPPtr->setEvent([&](){
+        paused = !paused;
+        btnPPtr->setText(paused ? "Resume" : "Pause");
+        btnPPtr->setColor(paused ? Optikos::Color{80,50,50,255} : Optikos::Color{50,50,60,255});
+    });
 
-    auto* graphBg = app.addWidget(
-        2, std::make_unique<Optikos::Container>(1380, 400, Optikos::Vec2{10, 45},
-                                                Optikos::Color{18, 18, 20, 255}));
-    graphBg->setAutoExpand(Optikos::ExpandMode::Width);
+    sidebar->addSubWidget(mkSep(SIDEBAR_W-20));
+    sidebar->addSubWidget(mkLabel("SPEED", SIDEBAR_W-20, 20, COL_TEXT_DIM));
+    float speedMin = 0.1f, speedMax = 5.0f;
+    sidebar->addSubWidget(std::make_unique<Optikos::Slider>(
+        SIDEBAR_W-20, 18, Optikos::Vec2{0,0}, Optikos::OPTIKOS_FLOAT, &speed, &speedMin, &speedMax));
 
-    for (int i = 0; i <= 4; i++)
+    sidebar->addSubWidget(mkLabel("FREQUENCY", SIDEBAR_W-20, 20, COL_TEXT_DIM));
+    float freqMin = 0.2f, freqMax = 4.0f;
+    sidebar->addSubWidget(std::make_unique<Optikos::Slider>(
+        SIDEBAR_W-20, 18, Optikos::Vec2{0,0}, Optikos::OPTIKOS_FLOAT, &freq, &freqMin, &freqMax));
+
+    sidebar->addSubWidget(mkSep(SIDEBAR_W-20));
+    sidebar->addSubWidget(mkLabel("SIN AMP", SIDEBAR_W-20, 20, COL_SIN));
+    float aMin = 0.1f, aMax = 1.0f;
+    sidebar->addSubWidget(std::make_unique<Optikos::Slider>(
+        SIDEBAR_W-20, 18, Optikos::Vec2{0,0}, Optikos::OPTIKOS_FLOAT, &ampSin, &aMin, &aMax));
+
+    sidebar->addSubWidget(mkLabel("COS AMP", SIDEBAR_W-20, 20, COL_COS));
+    float aMin2 = 0.1f, aMax2 = 1.0f;
+    sidebar->addSubWidget(std::make_unique<Optikos::Slider>(
+        SIDEBAR_W-20, 18, Optikos::Vec2{0,0}, Optikos::OPTIKOS_FLOAT, &ampCos, &aMin2, &aMax2));
+
+    sidebar->addSubWidget(mkLabel("TAN CLAMP", SIDEBAR_W-20, 20, COL_TAN));
+    float aMin3 = 0.1f, aMax3 = 1.0f;
+    sidebar->addSubWidget(std::make_unique<Optikos::Slider>(
+        SIDEBAR_W-20, 18, Optikos::Vec2{0,0}, Optikos::OPTIKOS_FLOAT, &ampTan, &aMin3, &aMax3));
+
+    sidebar->addSubWidget(mkSep(SIDEBAR_W-20));
+    sidebar->addSubWidget(mkLabel("POINTS", SIDEBAR_W-20, 20, COL_TEXT_DIM));
+    float ppMin = 10.0f, ppMax = (float)MAX_PLOT_PTS;
+    sidebar->addSubWidget(std::make_unique<Optikos::Slider>(
+        SIDEBAR_W-20, 18, Optikos::Vec2{0,0}, Optikos::OPTIKOS_FLOAT, &plotPtsF, &ppMin, &ppMax));
+
+    sidebar->resize(SIDEBAR_W, WIN_H - TOPBAR_H);
+
+    const char*    gNames[] = {"sin(x + t)", "cos(x + t)", "tan(x + t)"};
+    Optikos::Color gCols[]  = {COL_SIN, COL_COS, COL_TAN};
+
+    for (int g = 0; g < GRAPH_COUNT; g++)
     {
-        float y = 45.0f + (400.0f / 4.0f) * i;
-        auto  gridLine = std::make_unique<Optikos::Container>(
-            1380, 1, Optikos::Vec2{10, y}, Optikos::Color{40, 40, 45, 255});
-        gridLine->setAutoExpand(Optikos::ExpandMode::Width);
-        app.addWidget(10 + i, std::move(gridLine));
+        float gy = GRAPHS_Y + g * (GRAPH_H + GRAPH_GAP);
+
+        app.addWidget(100 + g, std::make_unique<Optikos::Container>(
+            (int)MAIN_W, (int)GRAPH_H, Optikos::Vec2{MAIN_X, gy}, COL_BG));
+
+        for (int li = 0; li <= 4; li++)
+        {
+            float ly = gy + (GRAPH_H / 4.0f) * li;
+            app.addWidget(200 + g * 10 + li, std::make_unique<Optikos::Container>(
+                (int)MAIN_W, 1, Optikos::Vec2{MAIN_X, ly}, COL_GRID));
+        }
+
+        float zeroY = gy + GRAPH_H * 0.5f;
+        app.addWidget(300 + g, std::make_unique<Optikos::Container>(
+            (int)MAIN_W, 1, Optikos::Vec2{MAIN_X, zeroY}, COL_ZERO));
+
+        app.addWidget(400 + g, std::make_unique<Optikos::Label>(
+            gNames[g], Optikos::Vec2{MAIN_X + 6, gy + 4}, 140, 20, gCols[g]));
+
+        app.addWidget(500 + g, std::make_unique<Optikos::Label>(
+            "+1", Optikos::Vec2{MAIN_X - 22, gy + 2}, 20, 16, COL_TEXT_DIM));
+        app.addWidget(600 + g, std::make_unique<Optikos::Label>(
+            "-1", Optikos::Vec2{MAIN_X - 22, gy + GRAPH_H - 18}, 20, 16, COL_TEXT_DIM));
+        app.addWidget(700 + g, std::make_unique<Optikos::Label>(
+            " 0", Optikos::Vec2{MAIN_X - 22, gy + GRAPH_H * 0.5f - 8}, 20, 16, COL_SEPARATOR));
     }
 
-    constexpr int   GRAPH_W        = 1380;
-    constexpr int   GRAPH_H        = 390;
-    constexpr int   BAR_W          = 3;
-    constexpr int   BAR_GAP        = 1;
-    constexpr int   MAX_BARS       = GRAPH_W / (BAR_W + BAR_GAP);
-    constexpr float GRAPH_Y        = 50.0f;
-    constexpr float GRAPH_BOTTOM_Y = GRAPH_Y + GRAPH_H;
-    constexpr float TARGET_FPS     = 144.0f;
+    constexpr int      PT_SIZE = 2;
+    constexpr uint32_t PTBASE  = 10000;
 
-    struct Bar
+    struct PlotPt { Optikos::Container* w; };
+    std::vector<std::vector<PlotPt>> pts(GRAPH_COUNT, std::vector<PlotPt>(MAX_PLOT_PTS));
+
+    for (int g = 0; g < GRAPH_COUNT; g++)
     {
-        Optikos::Container* widget = nullptr;
-        uint32_t            id     = 0;
-    };
-
-    std::deque<Bar>  bars;
-    std::deque<float> fpsHistory;
-    uint32_t         nextBarId = 100;
-
-    auto* stressContainer = app.addWidget(
-        3, std::make_unique<Optikos::Container>(1380, 290, Optikos::Vec2{10, 460},
-                                                Optikos::Color{22, 22, 25, 255}));
-    stressContainer->setAutoExpand(Optikos::ExpandMode::Width);
-    stressContainer->useVerticalLayout(false);
-    stressContainer->setInterval(2);
-    stressContainer->setOffset(5);
-
-    auto stressTitle = std::make_unique<Optikos::Label>(
-        "STRESS WIDGETS", Optikos::Vec2{0, 0}, 200, 25);
-    stressTitle->setFont("BOLD");
-    stressTitle->setColor(Optikos::Color(180, 180, 200));
-    app.addWidget(4, std::move(stressTitle));
-
-    auto* scrollStress = app.addWidget(
-        5, std::make_unique<Optikos::ScrollContainer>(1380, 250, Optikos::Vec2{10, 490},
-                                                      Optikos::Color{25, 25, 28, 255}));
-    scrollStress->useVerticalLayout(false);
-    scrollStress->setInterval(3);
-
-    static const Optikos::Color btnColors[] = {
-        {60, 120, 200, 255}, {80, 180, 100, 255}, {200, 100, 60, 255},
-        {160, 80, 200, 255}, {200, 180, 60, 255}, {60, 180, 180, 255},
-    };
-
-    for (int i = 0; i < 300; i++)
-    {
-        auto btn = std::make_unique<Optikos::Button>(
-            60, 240, Optikos::Vec2{0, 0},
-            "W" + std::to_string(i));
-        btn->setColor(btnColors[i % 6]);
-        btn->setTextColor(Optikos::Color(230, 230, 230));
-        scrollStress->addSubWidget(std::move(btn));
+        for (int i = 0; i < MAX_PLOT_PTS; i++)
+        {
+            uint32_t id = PTBASE + g * MAX_PLOT_PTS + i;
+            pts[g][i].w = app.addWidget(id,
+                std::make_unique<Optikos::Container>(
+                    PT_SIZE, PT_SIZE,
+                    Optikos::Vec2{-100.f, -100.f},
+                    gCols[g]));
+        }
     }
 
-    using clock     = std::chrono::high_resolution_clock;
-    auto  lastFrame = clock::now();
-    float minFps    = 99999.f;
-    float maxFps    = 0.f;
-    float avgFps    = 0.f;
-    int   frameCount = 0;
+    using clock = std::chrono::high_resolution_clock;
+    auto  last  = clock::now();
+    float t     = 0.f;
 
     while (!app.should_close())
     {
-        auto  now     = clock::now();
-        float dt      = std::chrono::duration<float>(now - lastFrame).count();
-        lastFrame     = now;
-        float fps     = (dt > 0.0f) ? 1.0f / dt : 0.0f;
+        auto  now    = clock::now();
+        float dt     = std::chrono::duration<float>(now - last).count();
+        last = now;
 
-        fpsHistory.push_back(fps);
-        if ((int)fpsHistory.size() > MAX_BARS)
-            fpsHistory.pop_front();
+        if (!paused)
+            t += dt * speed;
 
-        minFps = fps < minFps ? fps : minFps;
-        maxFps = fps > maxFps ? fps : maxFps;
-        frameCount++;
-        avgFps += (fps - avgFps) / frameCount;
-        if (frameCount > 10000) { frameCount = 1; avgFps = fps; }
-
-        fpsLabel->setText("FPS: " + std::to_string((int)fps));
-        avgLabel->setText("AVG: " + std::to_string((int)avgFps));
-        minLabel->setText("MIN: " + std::to_string((int)minFps));
-        maxLabel->setText("MAX: " + std::to_string((int)maxFps));
-
-        if (fps >= 60.f)
-            fpsLabel->setColor(Optikos::Color(100, 255, 100, 255));
-        else if (fps >= 30.f)
-            fpsLabel->setColor(Optikos::Color(255, 200, 50, 255));
-        else
-            fpsLabel->setColor(Optikos::Color(255, 80, 80, 255));
-
-        float clampedFps = fps > TARGET_FPS ? TARGET_FPS : fps;
-        float ratio      = clampedFps / TARGET_FPS;
-        int   barH       = (int)(ratio * GRAPH_H);
-        if (barH < 1) barH = 1;
-
-        float barY = GRAPH_BOTTOM_Y - barH;
-        float barX = 10.0f + (float)((int)fpsHistory.size() - 1) * (BAR_W + BAR_GAP);
-
-        Optikos::Color barColor;
-        if (fps >= 60.f)
-            barColor = {50, 200, 80, 255};
-        else if (fps >= 30.f)
-            barColor = {220, 180, 40, 255};
-        else
-            barColor = {220, 60, 60, 255};
-
-        auto bar = std::make_unique<Optikos::Container>(
-            BAR_W, barH, Optikos::Vec2{barX, barY}, barColor);
-        auto* barPtr = app.addWidget(nextBarId, std::move(bar));
-
-        Bar b;
-        b.widget = barPtr;
-        b.id     = nextBarId++;
-        bars.push_back(b);
-
-        while ((int)bars.size() > MAX_BARS)
         {
-            app.removeWidget(bars.front().id);
-            bars.pop_front();
-            for (int i = 0; i < (int)bars.size(); i++)
+            char buf[32];
+            std::snprintf(buf, sizeof(buf), "t = %.2f", t);
+            timeLabel->setText(buf);
+        }
+
+        int   plotPts = (int)plotPtsF;
+        float ptW     = MAIN_W / (float)plotPts;
+
+        for (int i = 0; i < plotPts; i++)
+        {
+            float x  = (float)i / plotPts * 4.0f * 3.14159f * freq;
+            float px = MAIN_X + i * ptW;
+
             {
-                if (bars[i].widget)
-                {
-                    Optikos::Vec2 pos = bars[i].widget->getPosition();
-                    pos.x   -= (BAR_W + BAR_GAP);
-                    bars[i].widget->setPosition(pos);
-                }
+                float v  = std::sin(x + t) * ampSin;
+                float gy = GRAPHS_Y + 0 * (GRAPH_H + GRAPH_GAP);
+                float py = gy + GRAPH_H * 0.5f - v * (GRAPH_H * 0.45f);
+                if (pts[0][i].w) pts[0][i].w->setPosition(Optikos::Vec2{px, py});
+            }
+            {
+                float v  = std::cos(x + t) * ampCos;
+                float gy = GRAPHS_Y + 1 * (GRAPH_H + GRAPH_GAP);
+                float py = gy + GRAPH_H * 0.5f - v * (GRAPH_H * 0.45f);
+                if (pts[1][i].w) pts[1][i].w->setPosition(Optikos::Vec2{px, py});
+            }
+            {
+                float raw = std::tan(x + t);
+                float v   = raw >  ampTan * 10.f ?  ampTan * 10.f
+                          : raw < -ampTan * 10.f ? -ampTan * 10.f : raw;
+                v /= 10.f;
+                float gy = GRAPHS_Y + 2 * (GRAPH_H + GRAPH_GAP);
+                float py = gy + GRAPH_H * 0.5f - v * (GRAPH_H * 0.45f);
+                if (pts[2][i].w) pts[2][i].w->setPosition(Optikos::Vec2{px, py});
             }
         }
+
+        for (int g = 0; g < GRAPH_COUNT; g++)
+            for (int i = plotPts; i < MAX_PLOT_PTS; i++)
+                if (pts[g][i].w)
+                    pts[g][i].w->setPosition(Optikos::Vec2{-100.f, -100.f});
 
         app.begin();
         app.end();

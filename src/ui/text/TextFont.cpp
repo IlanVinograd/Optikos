@@ -122,6 +122,7 @@ void TextFont::generateAtlas(std::string fontName, float fontSize)
         if ((int) bitmap.rows > maxRowHeight) maxRowHeight = (int) bitmap.rows;
         xpos += bitmap.width + 1;
     }
+    LOG_TRACE("New font atlas created with name: " + fontName + " and size: " + std::to_string(fontSize), "log");
 }
 
 RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& position,
