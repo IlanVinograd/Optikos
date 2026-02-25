@@ -23,6 +23,7 @@ set(COMMON_SOURCES
     src/shader/GLSL/GLShader.cpp
     src/render/RenderQueue.cpp
     src/ui/text/TextFont.cpp
+    src/ui/sdk/scrollContainer.cpp
 )
 
 add_executable(Optikos ${COMMON_SOURCES})

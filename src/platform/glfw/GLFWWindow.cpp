@@ -116,7 +116,8 @@ void* GLFWWindow::native_handle()
 
 void GLFWWindow::poll_events()
 {
-    glfwWaitEvents();
+    //glfwWaitEvents();
+    glfwPollEvents();
 }
 
 bool GLFWWindow::should_close() const

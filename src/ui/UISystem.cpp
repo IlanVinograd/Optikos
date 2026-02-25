@@ -28,6 +28,9 @@ void UISystem::checkIfClicked(double x, double y, int action)
     for (const auto& [id, widget] : widgets)
     {
        widget->handleClick(x, y, action); /* stub we check all clicks so can be overhead*/
+
+    //    if (widget->handleClick(x, y, action))
+    //         return;
     }
 }
 

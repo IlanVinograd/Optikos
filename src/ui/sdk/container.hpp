@@ -65,7 +65,7 @@ class Container : public Widget
     void setInterval(int interval);
     void setOffset(int offset);
 
-   private:
+   protected:
     void alignWidget(IWidget* subWidget, int i);
     void updateLayout();
 

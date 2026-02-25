@@ -14,6 +14,7 @@
 // TODO: wrap to .hpp
 #include "ui/sdk/button.hpp"
 #include "ui/sdk/container.hpp"
+#include "ui/sdk/scrollContainer.hpp"
 #include "ui/sdk/label.hpp"
 #include "ui/sdk/textBox.hpp"
 #include "ui/sdk/slider.hpp"

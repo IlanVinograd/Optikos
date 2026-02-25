@@ -85,12 +85,24 @@ class Widget : public IWidget
 
     inline void setClip(Clip clip) override
     {
-        m_clip = clip;
+        m_clip            = clip;
+        m_clipSetByParent = true;
     }
 
     inline Clip getClip() const override
     {
         return m_clip;
+    }
+
+    /**
+     * Set the widget position without triggering clip region updates or data refresh.
+     *
+     * This "silent" variant is intended for internal/layout adjustments where the caller
+     * is responsible for updating the clip region and calling updateData() if needed.
+     */
+    void setPositionSilent(Vec2 pos)
+    {
+        m_position = pos;
     }
 
    protected:
@@ -100,6 +112,7 @@ class Widget : public IWidget
     Clip       m_clip;
     bool       m_isVisible;
     bool       m_isClickable;
+    bool       m_clipSetByParent = false;
     ExpandMode m_isExpand;
     Color      m_color;
 };

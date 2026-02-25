@@ -21,9 +21,11 @@ void Container::render(Optikos::IRenderQueue& renderQueue)
 
 void Container::updateData()
 {
-    Clip containerClip = {m_position.x, m_position.x + m_width, m_position.y,
-                          m_position.y + m_height};
-    setClip(containerClip);
+    if (!m_clipSetByParent)
+    {
+        m_clip = {m_position.x, m_position.x + (float) m_width, m_position.y,
+                  m_position.y + (float) m_height};
+    }
 
     m_data.vertices = {
         {m_position.x, m_position.y, m_color.r, m_color.g, m_color.b, m_color.a, 0, 0, m_clip.xMin,
@@ -61,8 +63,13 @@ void Container::setPosition(Vec2 pos)
 {
     m_position = pos;
 
-    updateData();
+    if (!m_clipSetByParent)
+    {
+        m_clip = {m_position.x, m_position.x + (float) m_width, m_position.y,
+                  m_position.y + (float) m_height};
+    }
 
+    updateData();
     m_needsLayout = true;
 }
 
@@ -81,8 +88,13 @@ void Container::resize(int width, int height)
     m_width  = width;
     m_height = height;
 
-    updateData();
+    if (!m_clipSetByParent)
+    {
+        m_clip = {m_position.x, m_position.x + (float) m_width, m_position.y,
+                  m_position.y + (float) m_height};
+    }
 
+    updateData();
     m_needsLayout = true;
 }
 
@@ -132,7 +144,7 @@ void Container::setOffset(int offset)
 void Container::alignWidget(IWidget* subWidget, int index)
 {
     Vec2  newPos;
-    float primaryPos = 0.0f;
+    float primaryPos   = 0.0f;
     float secondaryPos = 0.0f;
 
     float totalSize = 0.0f;
@@ -324,6 +336,8 @@ void Container::useVerticalLayout(bool isVertical)
 {
     m_useVerticalLayout = isVertical;
     m_needsLayout       = true;
+
+    updateData();
 }
 
 }  // namespace Optikos
