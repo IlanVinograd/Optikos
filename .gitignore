@@ -61,3 +61,6 @@ Makefile
 # Logs
 *.log
 logs/log
+src/stb_image.h
+res/images/image.png
+res/images/image2.jpg

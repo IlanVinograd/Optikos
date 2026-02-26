@@ -24,6 +24,7 @@ set(COMMON_SOURCES
     src/render/RenderQueue.cpp
     src/ui/text/TextFont.cpp
     src/ui/sdk/scrollContainer.cpp
+    src/ui/sdk/image.cpp
 )
 
 add_executable(Optikos ${COMMON_SOURCES})

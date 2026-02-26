@@ -1,6 +1,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H
-//TODO: places which does operation change to new overloaded ones.
+
 namespace Optikos
 {
 struct Vec2
@@ -9,6 +9,16 @@ struct Vec2
     {
     }
 
+    bool operator==(const Vec2& other) const
+    {
+        return (x == other.x && y == other.y);
+    }
+
+    bool operator!=(const Vec2& other) const
+    {
+        return !(*this == other);
+    }
+    
     Vec2 operator+(const Vec2& other) const
     {
         return Vec2(x + other.x, y + other.y);

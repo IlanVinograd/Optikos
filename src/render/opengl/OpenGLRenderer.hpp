@@ -58,11 +58,12 @@ class OpenGLRenderer : public IRenderer
    private:
     struct Batch
     {
-        unsigned int              VAO       = 0;
-        unsigned int              VBO       = 0;
-        unsigned int              IBO       = 0;
-        unsigned int              shaderId  = 0;
-        unsigned int              textureId = 0;
+        unsigned int              VAO         = 0;
+        unsigned int              VBO         = 0;
+        unsigned int              IBO         = 0;
+        unsigned int              shaderId    = 0;
+        unsigned int              textureId   = 0;
+        int                       textureMode = TEXTURE_NONE;
         std::vector<Vertex>       vertices;
         std::vector<unsigned int> indices;
 

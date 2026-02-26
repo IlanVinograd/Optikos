@@ -27,10 +27,11 @@ Label::Label(std::string text, Vec2 position, uint32_t width, uint32_t height, C
 void Label::render(IRenderQueue& renderQueue)
 {
     DrawCommand cmd;
-    cmd.vertices  = getVertices();
-    cmd.indices   = getIndices();
-    cmd.shaderId  = 0;
-    cmd.textureId = TextFont::getInstance().getAtlasTextureId(m_fontName);
+    cmd.vertices    = getVertices();
+    cmd.indices     = getIndices();
+    cmd.shaderId    = 0;
+    cmd.textureId   = TextFont::getInstance().getAtlasTextureId(m_fontName);
+    cmd.textureMode = TEXTURE_FONT;
     renderQueue.submit(std::move(cmd));
 }
 

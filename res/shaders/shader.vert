@@ -39,15 +39,19 @@ out vec4 color;
 
 void main()
 {
-    if (v_Position.x < v_Size.x || v_Position.x > v_Size.y || 
-        v_Position.y < v_Size.z || v_Position.y > v_Size.w)
+    if (v_Position.x < v_Size.x || v_Position.x > v_Size.y || v_Position.y < v_Size.z ||
+        v_Position.y > v_Size.w)
     {
         color = vec4(0.0, 0.0, 0.0, 0.0);
+    }
+    else if (uHasTexture == 2)
+    {
+        color = texture(uTexture, v_TexCoord);
     }
     else if (uHasTexture == 1)
     {
         float sampledAlpha = texture(uTexture, v_TexCoord).r;
-        color = vec4(fsColor.rgb, fsColor.a * sampledAlpha);
+        color              = vec4(fsColor.rgb, fsColor.a * sampledAlpha);
     }
     else
     {

@@ -95,15 +95,16 @@ void OpenGLRenderer::flush()
 {
     // TODO: sort by texture idx and then by shader idx to lower draw calls (probably will neede BTS
     // + tree created in start of program and not here).
-    
+
     auto& commands = m_renderQueue.getMutableCommands();
-    
-    std::sort(commands.begin(), commands.end(), [](const DrawCommand& a, const DrawCommand& b) {
-        if (a.shaderId != b.shaderId)
-            return a.shaderId < b.shaderId;
-        return a.textureId < b.textureId;
-    });
-    
+
+    std::sort(commands.begin(), commands.end(),
+              [](const DrawCommand& a, const DrawCommand& b)
+              {
+                  if (a.shaderId != b.shaderId) return a.shaderId < b.shaderId;
+                  if (a.textureId != b.textureId) return a.textureId < b.textureId;
+                  return a.textureMode < b.textureMode;
+              });
 
     for (const auto& cmd : commands)
     {
@@ -117,8 +118,9 @@ void OpenGLRenderer::flush()
             m_currentBatch.clear();
         }
 
-        m_currentBatch.shaderId  = shaderId;
-        m_currentBatch.textureId = textureId;
+        m_currentBatch.shaderId    = shaderId;
+        m_currentBatch.textureId   = textureId;
+        m_currentBatch.textureMode = cmd.textureMode;
 
         unsigned int vertexOffset = static_cast<unsigned int>(m_currentBatch.vertices.size());
         m_currentBatch.vertices.insert(m_currentBatch.vertices.end(), cmd.vertices.begin(),
@@ -165,7 +167,7 @@ void OpenGLRenderer::renderBatch(const Batch& batch)
     }
 
     int toggleLoc = glGetUniformLocation(batch.shaderId, "uHasTexture");
-    if (toggleLoc != -1) glUniform1i(toggleLoc, hasTexture);
+    if (toggleLoc != -1) glUniform1i(toggleLoc, hasTexture ? batch.textureMode : 0);
 
     // TODO: unsigned int loc but is should be int [Shader] because if we get error it will be -1.
     int screenLoc = glGetUniformLocation(batch.shaderId, "uScreenSize");

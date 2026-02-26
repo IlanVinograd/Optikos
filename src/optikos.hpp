@@ -18,6 +18,7 @@
 #include "ui/sdk/label.hpp"
 #include "ui/sdk/textBox.hpp"
 #include "ui/sdk/slider.hpp"
+#include "ui/sdk/image.hpp"
 
 unsigned int constexpr DEFAULT_WIDTH  = 800;
 unsigned int constexpr DEFAULT_HEIGHT = 600;

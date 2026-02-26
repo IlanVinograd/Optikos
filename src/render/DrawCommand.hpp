@@ -13,12 +13,18 @@ struct Vertex
 
 namespace Optikos
 {
+
+int constexpr TEXTURE_NONE = 0;
+int constexpr TEXTURE_FONT = 1;
+int constexpr TEXTURE_IMG  = 2;
+
 struct DrawCommand
 {
     std::vector<Vertex>       vertices;
     std::vector<unsigned int> indices;
     unsigned int              shaderId;
     unsigned int              textureId;
+    int                       textureMode = TEXTURE_NONE;
 };
 }  // namespace Optikos
 
