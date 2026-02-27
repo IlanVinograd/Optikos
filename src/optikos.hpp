@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "input/IInputSystem.hpp"
-#include "optikos_config.hpp"
 #include "platform/IWindow.hpp"
 #include "render/IRenderer.hpp"
 #include "ui/UISystem.hpp"
@@ -22,7 +21,6 @@
 unsigned int constexpr DEFAULT_WIDTH  = 800;
 unsigned int constexpr DEFAULT_HEIGHT = 600;
 
-// TODO: Image widget.
 // TODO: Drop down widget.
 // TODO: RenderQueue sorting optimization.
 // TODO: Documention.

@@ -4,60 +4,98 @@ project(Optikos LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(glfw3 CONFIG REQUIRED)
-find_package(glad CONFIG REQUIRED)
+set(OPTIKOS_RENDERER "OPENGL" CACHE STRING "Render backend")
+set_property(CACHE OPTIKOS_RENDERER PROPERTY STRINGS "OPENGL" "VULKAN" "NONE")
+
+set(OPTIKOS_PLATFORM "GLFW" CACHE STRING "Platform backend")
+set_property(CACHE OPTIKOS_PLATFORM PROPERTY STRINGS "GLFW" "WIN32" "NONE")
+
+set(OPTIKOS_INPUT "GLFW" CACHE STRING "Input backend")
+set_property(CACHE OPTIKOS_INPUT PROPERTY STRINGS "GLFW" "WIN32" "NONE")
+
 find_package(Freetype REQUIRED)
+if(OPTIKOS_PLATFORM STREQUAL "GLFW" OR OPTIKOS_INPUT STREQUAL "GLFW")
+    find_package(glfw3 CONFIG REQUIRED)
+endif()
+if(OPTIKOS_RENDERER STREQUAL "OPENGL")
+    find_package(glad CONFIG REQUIRED)
+endif()
 
 set(COMMON_SOURCES
-    src/main.cpp
     src/optikos.cpp
     src/utilities/logger.cpp
-    src/render/opengl/OpenGLRenderer.cpp
-    src/input/glfw/GLFWInputSystem.cpp
     src/ui/UISystem.cpp
     src/ui/sdk/container.cpp
     src/ui/sdk/label.cpp
     src/ui/sdk/button.cpp
     src/ui/sdk/textBox.cpp
     src/ui/sdk/slider.cpp
-    src/shader/GLSL/GLShader.cpp
     src/render/RenderQueue.cpp
     src/ui/text/TextFont.cpp
     src/ui/sdk/scrollContainer.cpp
     src/ui/sdk/image.cpp
 )
 
-add_executable(Optikos ${COMMON_SOURCES})
+add_library(Optikos STATIC ${COMMON_SOURCES})
+add_library(Optikos::Optikos ALIAS Optikos)
 
-option(ENABLE_GPU_PROFILING "Enable GPU profiler" OFF)
-
-if(ENABLE_GPU_PROFILING)
-    target_compile_definitions(Optikos PRIVATE ENABLE_GPU_PROFILING)
+if(OPTIKOS_RENDERER STREQUAL "OPENGL")
+    target_sources(Optikos PRIVATE 
+        src/render/opengl/OpenGLRenderer.cpp
+        src/shader/GLSL/GLShader.cpp
+    )
+    target_compile_definitions(Optikos PUBLIC OPTIKOS_BACKEND_OPENGL)
+    target_compile_definitions(Optikos PRIVATE
+        OPTIKOS_SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/"
+    )
+    target_link_libraries(Optikos PUBLIC glad::glad)
 endif()
 
-if (WIN32)
-    set(WIN_SOURCES
-        src/platform/glfw/GLFWWindow.cpp
-    )
-    target_sources(Optikos PRIVATE ${WIN_SOURCES})
+if(OPTIKOS_PLATFORM STREQUAL "GLFW")
+    target_sources(Optikos PRIVATE src/platform/glfw/GLFWWindow.cpp)
+    target_compile_definitions(Optikos PUBLIC OPTIKOS_PLATFORM_GLWF)
+    target_link_libraries(Optikos PUBLIC glfw)
+endif()
+
+if(OPTIKOS_INPUT STREQUAL "GLFW")
+    target_sources(Optikos PRIVATE src/input/glfw/GLFWInputSystem.cpp)
+    target_compile_definitions(Optikos PUBLIC OPTIKOS_INPUT_GLWF)
+endif()
+
+if(WIN32)
     target_link_libraries(Optikos PRIVATE dwmapi)
-    target_compile_definitions(Optikos PRIVATE PLATFORM_WINDOWS)
+    target_compile_definitions(Optikos PUBLIC PLATFORM_WINDOWS)
 elseif(UNIX AND NOT APPLE)
-    set(LINUX_SOURCES
-        src/platform/glfw/GLFWWindow.cpp
-    )
-    target_sources(Optikos PRIVATE ${LINUX_SOURCES})
-    target_compile_definitions(Optikos PRIVATE PLATFORM_LINUX)
+    target_compile_definitions(Optikos PUBLIC PLATFORM_LINUX)
 endif()
 
-target_link_libraries(Optikos PRIVATE glad::glad glfw Freetype::Freetype)
-
-target_include_directories(Optikos PRIVATE
-    "${CMAKE_SOURCE_DIR}/src"
+target_include_directories(Optikos PUBLIC 
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+    "$<INSTALL_INTERFACE:include>"
 )
 
-target_compile_options(Optikos PRIVATE
-  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-  $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Weffc++ -pedantic -pedantic-errors -Waggregate-return -Wcast-align -Wcast-qual -Wchar-subscripts -Wcomment -Wconversion -Wdisabled-optimization -Werror -Wfloat-equal -Wformat -Wformat=2 -Wformat-nonliteral -Wformat-security -Wformat-y2k -Wimplicit -Wimport -Winit-self -Winline -Winvalid-pch -Wunsafe-loop-optimizations -Wlong-long -Wmissing-braces -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-include-dirs -Wmissing-noreturn -Wpacked -Wpadded -Wparentheses -Wpointer-arith -Wredundant-decls -Wreturn-type -Wsequence-point -Wshadow -Wsign-compare -Wstack-protector -Wstrict-aliasing -Wstrict-aliasing=2 -Wswitch -Wswitch-default -Wswitch-enum -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunreachable-code -Wunused -Wunused-function -Wunused-label -Wunused-parameter -Wunused-value -Wunused-variable -Wvariadic-macros -Wvolatile-register-var -Wwrite-strings>
-  $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Weffc++ -pedantic -pedantic-errors -Waggregate-return -Wcast-align -Wcast-qual -Wchar-subscripts -Wcomment -Wconversion -Wdisabled-optimization -Werror -Wfloat-equal -Wformat -Wformat=2 -Wformat-nonliteral -Wformat-security -Wformat-y2k -Wimplicit -Wimport -Winit-self -Winline -Winvalid-pch -Wunsafe-loop-optimizations -Wlong-long -Wmissing-braces -Wmissing-field-initializers -Wmissing-format-attribute -Wmissing-include-dirs -Wmissing-noreturn -Wpacked -Wpadded -Wparentheses -Wpointer-arith -Wredundant-decls -Wreturn-type -Wsequence-point -Wshadow -Wsign-compare -Wstack-protector -Wstrict-aliasing -Wstrict-aliasing=2 -Wswitch -Wswitch-default -Wswitch-enum -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunreachable-code -Wunused -Wunused-function -Wunused-label -Wunused-parameter -Wunused-value -Wunused-variable -Wvariadic-macros -Wvolatile-register-var -Wwrite-strings>
-)
+target_link_libraries(Optikos PUBLIC Freetype::Freetype)
+
+function(optikos_copy_resources TARGET)
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/res"
+            "$<TARGET_FILE_DIR:${TARGET}>/res"
+        COMMENT "Copying Optikos resources to ${TARGET}..."
+    )
+endfunction()
+
+option(DEV "Enable strict developer warnings" OFF)
+if(DEV)
+    target_compile_options(Optikos PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+        $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Werror>
+        $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Werror>
+    )
+else()
+    target_compile_options(Optikos PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W3>
+        $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra>
+        $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra>
+    )
+endif()

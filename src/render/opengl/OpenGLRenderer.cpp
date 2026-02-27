@@ -17,7 +17,10 @@ OpenGLRenderer::OpenGLRenderer(IWindow* window, std::unique_ptr<IShader> shader)
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(OpenGLRenderer::messageCallback, this);
 
-    ShaderSouces source = m_shader->parseShader("res/shaders/shader.vert");
+#ifndef OPTIKOS_SHADER_PATH
+#define OPTIKOS_SHADER_PATH "res/shaders/"
+#endif
+    ShaderSouces source = m_shader->parseShader(std::string(OPTIKOS_SHADER_PATH) + "shader.vert");
     m_defaultShader     = m_shader->createShader(source.vertexSource, source.fragmentSource);
 
     initializeBatch(m_currentBatch);
