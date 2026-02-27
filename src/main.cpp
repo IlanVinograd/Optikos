@@ -61,18 +61,11 @@ GLuint loadTexture(const char* filename, int* out_width, int* out_height)
 int main()
 {
     Logger::add_logger();
-    Optikos::Optikos app("Optikos — Graphs", WIN_W, WIN_H);
+    Optikos::Optikos app("Optikos", WIN_W, WIN_H);
     app.setWindowTitleBar(Optikos::Color{12, 12, 15});
 
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-light.otf");
     app.pushFont("C:/Users/ilanv/Optikos/res/fonts/Titillium-Black.otf", "BOLD", 12.0);
-
-    int    imgW, imgH;
-    int    w, h;
-    GLuint tex  = loadTexture("C:/Users/ilanv/Optikos/res/images/image.png", &imgW, &imgH);
-    GLuint tex2 = loadTexture("C:/Users/ilanv/Optikos/res/images/image2.jpg", &w, &h);
-    auto*  img  = app.addWidget(
-        1000000, std::make_unique<Optikos::Image>(tex, imgW, imgH, Optikos::Vec2(700, 700)));
 
     auto mkLabel =
         [](const std::string& t, int w, int h, Optikos::Color c = COL_TEXT, bool bold = false)
@@ -126,7 +119,6 @@ int main()
     btnP->setColor({50, 50, 60, 255});
     btnP->setTextColor(COL_TEXT);
     auto* btnPPtr = sidebar->addSubWidget(std::move(btnP));
-    bool  swap    = false;
     btnPPtr->setEvent(
         [&]()
         {
@@ -134,20 +126,6 @@ int main()
             btnPPtr->setText(paused ? "Resume" : "Pause");
             btnPPtr->setColor(paused ? Optikos::Color{80, 50, 50, 255}
                                      : Optikos::Color{50, 50, 60, 255});
-
-            // custom event
-            if (swap)
-            {
-                img->setTexture(tex2);
-                img->resize(w, h);
-            }
-            else
-            {
-                img->setTexture(tex);
-                img->resize(imgW, imgH);
-            }
-            swap = !swap;
-            //
         });
 
     sidebar->addSubWidget(mkSep(SIDEBAR_W - 20));

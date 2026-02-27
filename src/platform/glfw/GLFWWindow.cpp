@@ -60,6 +60,11 @@ GLFWWindow::~GLFWWindow()
     }
 }
 
+void GLFWWindow::setWindowShouldClose(bool flag)
+{
+    glfwSetWindowShouldClose(m_window, flag);
+}
+
 void GLFWWindow::setWindowTitleBar(Color color)
 {
 #ifdef PLATFORM_WINDOWS
@@ -116,7 +121,7 @@ void* GLFWWindow::native_handle()
 
 void GLFWWindow::poll_events()
 {
-    //glfwWaitEvents();
+    // glfwWaitEvents();
     glfwPollEvents();
 }
 

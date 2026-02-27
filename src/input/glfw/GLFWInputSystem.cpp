@@ -18,6 +18,48 @@ Cursor GLFWInputSystem::getCursor()
     return cursor;
 }
 
+void GLFWInputSystem::bind(const std::string& action, int key, unsigned int state = Pressed)
+{
+    m_actions[action].bindings.push_back({key, toGLFW(state), state});
+}
+
+void GLFWInputSystem::unbind(const std::string& action)
+{
+    m_actions.erase(action);
+}
+
+void GLFWInputSystem::onAction(const std::string& action, std::function<void()> cb)
+{
+    m_actions[action].callback = cb;
+}
+
+void GLFWInputSystem::dispatch(int key, int action)
+{
+    for (auto& [name, glfwAction] : m_actions)
+    {
+        for (auto& b : glfwAction.bindings)
+        {
+            if (b.key == key && b.action == action)
+                if (glfwAction.callback) glfwAction.callback();
+        }
+    }
+}
+
+int GLFWInputSystem::toGLFW(unsigned int s)
+{
+    switch (s)
+    {
+        case Pressed:
+            return GLFW_PRESS;
+        case Release:
+            return GLFW_RELEASE;
+        case Held:
+            return GLFW_REPEAT;
+        default:
+            return -1;
+    }
+}
+
 void GLFWInputSystem::cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
     auto* glfwWindow = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
@@ -110,6 +152,8 @@ void GLFWInputSystem::key_callback(GLFWwindow* window, int key, int scancode, in
     if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT) &&
         (action == GLFW_PRESS || action == GLFW_REPEAT))
         glfwWindow->getUiSystem()->passInput(key);
+
+    glfwWindow->getInputSystem()->dispatch(key, action);
 }
 
 }  // namespace Optikos

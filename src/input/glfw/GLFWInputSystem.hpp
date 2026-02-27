@@ -2,6 +2,7 @@
 #define GLFWINPUTSYSTEM_H
 
 #include <iostream>
+#include <unordered_map>
 
 #include "input/IInputSystem.hpp"
 #include "utilities/logger.hpp"
@@ -19,9 +20,18 @@ class GLFWInputSystem : public IInputSystem
 
     Cursor getCursor() override;
 
+    void bind(const std::string& action, int key, unsigned int state) override;
+    void unbind(const std::string& action) override;
+    void onAction(const std::string& action, std::function<void()> cb) override;
+    void dispatch(int key, int action) override;
+
    private:
     GLFWwindow* m_window = nullptr;
     Cursor      cursor;
+
+    std::unordered_map<std::string, Action> m_actions;
+
+    int toGLFW(unsigned int s);
 
     static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
     static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);

@@ -39,6 +39,7 @@ class IWindow
 {
    public:
     virtual ~IWindow()                                              = default;
+    virtual void          setWindowShouldClose(bool flag)           = 0;
     virtual void          setWindowTitleBar(Color color)            = 0;
     virtual void          makeContextCurrent()                      = 0;
     virtual void          setRenderer(IRenderer* renderer)          = 0;

@@ -10,23 +10,22 @@
 #include "ui/text/TextFont.hpp"
 #include "utilities/vec.hpp"
 
-
 // TODO: wrap to .hpp
 #include "ui/sdk/button.hpp"
 #include "ui/sdk/container.hpp"
-#include "ui/sdk/scrollContainer.hpp"
-#include "ui/sdk/label.hpp"
-#include "ui/sdk/textBox.hpp"
-#include "ui/sdk/slider.hpp"
 #include "ui/sdk/image.hpp"
+#include "ui/sdk/label.hpp"
+#include "ui/sdk/scrollContainer.hpp"
+#include "ui/sdk/slider.hpp"
+#include "ui/sdk/textBox.hpp"
 
 unsigned int constexpr DEFAULT_WIDTH  = 800;
 unsigned int constexpr DEFAULT_HEIGHT = 600;
 
-//TODO: Image widget.
-//TODO: Drop down widget.
-//TODO: RenderQueue sorting optimization.
-//TODO: Documention.
+// TODO: Image widget.
+// TODO: Drop down widget.
+// TODO: RenderQueue sorting optimization.
+// TODO: Documention.
 
 namespace Optikos
 {
@@ -56,6 +55,26 @@ class Optikos
     {
         Cursor cursor = m_inputSystem->getCursor();
         return Vec2{static_cast<float>(cursor.x), static_cast<float>(cursor.y)};
+    }
+
+    inline void bindKey(const std::string& action, int key, unsigned int state = Pressed)
+    {
+        m_inputSystem->bind(action, key, state);
+    }
+
+    inline void unbindKey(const std::string& action)
+    {
+        m_inputSystem->unbind(action);
+    }
+
+    inline void keyAction(const std::string& action, std::function<void()> cb)
+    {
+        m_inputSystem->onAction(action, cb);
+    }
+
+    inline void closeWindow(bool flag)
+    {
+        m_window->setWindowShouldClose(flag);
     }
 
    private:

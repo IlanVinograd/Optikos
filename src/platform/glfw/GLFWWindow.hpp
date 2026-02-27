@@ -28,6 +28,7 @@ class GLFWWindow : public IWindow
     explicit GLFWWindow(const int w, const int h, std::string_view title, GraphicsConfig config);
     ~GLFWWindow() override;
 
+    void setWindowShouldClose(bool flag) override;
     void setWindowTitleBar(Color color) override;
     void setRenderer(IRenderer* renderer) override;
 
