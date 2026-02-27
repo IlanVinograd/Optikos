@@ -1,5 +1,7 @@
 # Optikos
 
+![demo](https://github.com/IlanVinograd/Optikos/blob/main/res/images/example1.gif?raw=true)
+
 ```powershell
 rm -r build
 ```
