@@ -4,6 +4,30 @@ A lightweight cross-platform C++ UI framework.
 
 ![demo](https://github.com/IlanVinograd/Optikos/blob/main/res/images/example1.gif?raw=true)
 
+![f35](https://github.com/IlanVinograd/Optikos/blob/main/examples/f35.jpg?raw=true)
+
+[example1.cpp](https://github.com/IlanVinograd/Optikos/blob/main/examples/example1.cpp)
+
+## Example
+```cpp
+#include "optikos.hpp"
+
+int main()
+{
+    Optikos::Optikos app("Hello", 800, 480);
+
+    auto btn = std::make_unique<Optikos::Button>(120, 30, Optikos::Vec2(20, 20), "Click me");
+    btn->setEvent([]() { std::cout << "Clicked!\n"; });
+    app.addWidget(1, std::move(btn));
+
+    while (!app.should_close())
+    {
+        app.begin();
+        app.end();
+    }
+}
+```
+
 ---
 
 ## Backends
