@@ -4,7 +4,7 @@ A lightweight cross-platform C++ UI framework.
 
 ![demo](https://github.com/IlanVinograd/Optikos/blob/main/res/images/example1.gif?raw=true)
 
-![f35](https://github.com/IlanVinograd/Optikos/blob/main/examples/f35.jpg?raw=true)
+![example](https://github.com/IlanVinograd/Optikos/blob/main/res/images/example2.png?raw=true)
 
 [example1.cpp](https://github.com/IlanVinograd/Optikos/blob/main/examples/example1.cpp)
 
