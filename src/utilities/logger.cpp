@@ -30,31 +30,37 @@ void Logger::add_logger(const std::string& file)
     if (!entry.log.is_open()) throw std::runtime_error("Cannot open log file");
 
     auto* ptr    = &it_entry->second;
-    entry.worker = std::thread([ptr]() {
-        while (ptr->running.load())
+    entry.worker = std::thread(
+        [ptr]()
         {
-            std::unique_lock<std::mutex> lock(ptr->mutex);
-            ptr->cv.wait(lock, [ptr] { return !ptr->running.load() || !ptr->queue.empty(); });
-
-            while (!ptr->queue.empty())
+            while (ptr->running.load())
             {
-                auto message = std::move(ptr->queue.front());
-                ptr->queue.pop();
+                std::unique_lock<std::mutex> lock(ptr->mutex);
+                ptr->cv.wait(lock, [ptr] { return !ptr->running.load() || !ptr->queue.empty(); });
 
-                lock.unlock();
-                ptr->log << message << std::endl;
-                ptr->log.flush();
-                lock.lock();
+                while (!ptr->queue.empty())
+                {
+                    auto message = std::move(ptr->queue.front());
+                    ptr->queue.pop();
+
+                    lock.unlock();
+                    ptr->log << message << std::endl;
+                    ptr->log.flush();
+                    lock.lock();
+                }
             }
-        }
-    });
+        });
 }
 
 void Logger::log(const std::string& msg, const Severity severity, const std::string& file)
 {
     auto& logger = getInstance();
     auto  it     = logger.logs.find(file);
-    if (it == logger.logs.end()) throw std::runtime_error("file not exist");
+    if (it == logger.logs.end())
+    {
+        // throw std::runtime_error("file not exist");
+        return;
+    }
 
     auto        now   = std::chrono::system_clock::now();
     auto        local = std::chrono::zoned_time{std::chrono::current_zone(), now}.get_local_time();
