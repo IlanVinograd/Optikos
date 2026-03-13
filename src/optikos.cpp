@@ -13,6 +13,10 @@
 #include "input/glfw/GLFWInputSystem.hpp"
 #endif
 
+#ifndef OPTIKOS_DEFAULT_FONT_PATH
+#define OPTIKOS_DEFAULT_FONT_PATH "res/fonts/"
+#endif
+
 #include "ui/UISystem.hpp"
 
 namespace Optikos
@@ -43,6 +47,8 @@ Optikos::Optikos(std::string_view title, unsigned int width, unsigned int height
     m_window->setRenderer(m_renderer.get());
     m_window->setInputSystem(m_inputSystem.get());
     m_window->setUiSystem(m_uiSystem.get());
+
+    pushFont(std::string(OPTIKOS_DEFAULT_FONT_PATH) + "Titillium-Light.otf");
 }
 
 bool Optikos::should_close()

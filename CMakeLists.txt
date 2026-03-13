@@ -39,6 +39,10 @@ set(COMMON_SOURCES
 add_library(Optikos STATIC ${COMMON_SOURCES})
 add_library(Optikos::Optikos ALIAS Optikos)
 
+target_compile_definitions(Optikos PRIVATE
+    OPTIKOS_DEFAULT_FONT_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/fonts/"
+)
+
 if(OPTIKOS_RENDERER STREQUAL "OPENGL")
     target_sources(Optikos PRIVATE 
         src/render/opengl/OpenGLRenderer.cpp
