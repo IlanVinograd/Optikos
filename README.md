@@ -4,7 +4,11 @@ A lightweight cross-platform C++ UI framework.
 
 ![demo](https://github.com/IlanVinograd/Optikos/blob/main/res/images/example1.gif?raw=true)
 
+---
+
 Optikos provides a simple API for building desktop UIs in C++ — buttons, sliders, text inputs, scrollable containers, and image rendering out of the box.
+
+---
 
 ![example](https://github.com/IlanVinograd/Optikos/blob/main/res/images/example2.png?raw=true)
 
