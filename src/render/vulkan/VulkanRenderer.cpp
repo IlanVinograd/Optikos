@@ -25,6 +25,8 @@ VulkanRenderer::VulkanRenderer(IWindow* window, std::unique_ptr<IShader> shader)
 
 VulkanRenderer::~VulkanRenderer()
 {
+    vkDeviceWaitIdle(m_device);
+
     for (const auto& [it, tex] : m_textures)
     {
         if (tex.imageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, tex.imageView, nullptr);
@@ -43,12 +45,15 @@ VulkanRenderer::~VulkanRenderer()
 
     for (size_t i = 0; i < m_imageAvailableSemaphores.size(); i++)
     {
-        vkDestroySemaphore(m_device, m_imageAvailableSemaphores[i], nullptr);
-        vkDestroyFence(m_device, m_inFlightFences[i], nullptr);
+        if (m_imageAvailableSemaphores[i])
+            vkDestroySemaphore(m_device, m_imageAvailableSemaphores[i], nullptr);
+
+        if (m_inFlightFences[i]) vkDestroyFence(m_device, m_inFlightFences[i], nullptr);
     }
     for (size_t i = 0; i < m_renderFinishedSemaphores.size(); i++)
     {
-        vkDestroySemaphore(m_device, m_renderFinishedSemaphores[i], nullptr);
+        if (m_renderFinishedSemaphores[i])
+            vkDestroySemaphore(m_device, m_renderFinishedSemaphores[i], nullptr);
     }
     if (m_commandPool) vkDestroyCommandPool(m_device, m_commandPool, nullptr);
     cleanupSwapChain();
@@ -356,7 +361,7 @@ void VulkanRenderer::createSwapChain()
     VkPresentModeKHR   presentMode   = chooseSwapPresentMode(presentModes);
     VkExtent2D         extent        = chooseSwapExtent(caps);
 
-    uint32_t imageCount = caps.minImageCount + 1;
+    imageCount = caps.minImageCount + 1;
 
     if (caps.maxImageCount > 0 && imageCount > caps.maxImageCount)
     {
@@ -397,7 +402,6 @@ void VulkanRenderer::createSwapChain()
     VkSwapchainKHR oldSwapChain = m_swapChain;
     createInfo.oldSwapchain     = oldSwapChain;
 
-    // ШАГ 2: Создаем новый
     if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
     {
         LOG_ERROR("[createSwapChain] Error while trying create swap chain", "log");
@@ -1096,6 +1100,68 @@ unsigned int VulkanRenderer::loadTexture(const std::vector<unsigned char>& data,
     unsigned int id = m_nextTextureId++;
     m_textures[id]  = tex;
     return id;
+}
+
+void VulkanRenderer::registerTextures(void* texHandle, uint32_t id)
+{
+    ViewPort* viewPort = static_cast<ViewPort*>(texHandle);
+    if (!viewPort)
+    {
+        LOG_ERROR("[registerTextures] texHandle is null for id: " + std::to_string(id), "log");
+        return;
+    }
+
+    auto it        = m_textures.find(id);
+    bool isNewSlot = (it == m_textures.end());
+
+    Texture& tex = m_textures[id];
+
+    tex.image          = viewPort->image;
+    tex.imageMemory    = viewPort->imageMemory;
+    tex.imageView      = viewPort->imageView;
+    tex.sampler        = getOrCreateDefaultSampler();
+    tex.isRenderTarget = true;
+
+    if (isNewSlot)
+    {
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool     = m_descriptorPool;
+        allocInfo.descriptorSetCount = 1;
+        allocInfo.pSetLayouts        = &m_descriptorSetLayout;
+
+        if (vkAllocateDescriptorSets(m_device, &allocInfo, &tex.descriptorSet) != VK_SUCCESS)
+        {
+            LOG_ERROR("[registerTextures] failed to allocate descriptor set for id: " +
+                          std::to_string(id),
+                      "log");
+            return;
+        }
+
+        LOG_TRACE("[registerTextures] new viewport slot registered, id: " + std::to_string(id),
+                  "log");
+    }
+    else
+    {
+        LOG_TRACE(
+            "[registerTextures] existing viewport slot updated (resize), id: " + std::to_string(id),
+            "log");
+    }
+
+    VkDescriptorImageInfo imageInfo{};
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    imageInfo.imageView   = tex.imageView;
+    imageInfo.sampler     = tex.sampler;
+
+    VkWriteDescriptorSet descriptorWrite{};
+    descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite.dstSet          = tex.descriptorSet;
+    descriptorWrite.dstBinding      = 0;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pImageInfo      = &imageInfo;
+    vkUpdateDescriptorSets(m_device, 1, &descriptorWrite, 0, nullptr);
 }
 
 void VulkanRenderer::resetToDefault()
@@ -1807,7 +1873,11 @@ void VulkanRenderer::drawFrame()
         // recordCommandBuffer(m_commandBuffers[m_currentFrame], m_currentFrame);
     }
 
-    vkWaitForFences(m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
+    {
+        ZoneScopedN("vkWaitForFences");
+        vkWaitForFences(m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
+    }
+
     uint32_t imageIndex;
 
     VkResult result = vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX,
@@ -1825,7 +1895,10 @@ void VulkanRenderer::drawFrame()
         throw std::runtime_error("failed to acquire swap chain image!");
     }
 
-    vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
+    {
+        ZoneScopedN("vkResetFences");
+        vkResetFences(m_device, 1, &m_inFlightFences[m_currentFrame]);
+    }
 
     vkResetCommandBuffer(m_commandBuffers[m_currentFrame], 0);
     recordCommandBuffer(m_commandBuffers[m_currentFrame], imageIndex);
@@ -1866,9 +1939,10 @@ void VulkanRenderer::drawFrame()
     presentInfo.pImageIndices   = &imageIndex;
 
     presentInfo.pResults = nullptr;
-
-    result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
-
+    {
+        ZoneScopedN("vkQueuePresentKHR");
+        result = vkQueuePresentKHR(m_presentQueue, &presentInfo);
+    }
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
     {
         m_framebufferResized = false;

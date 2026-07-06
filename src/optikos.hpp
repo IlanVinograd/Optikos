@@ -28,6 +28,9 @@ unsigned int constexpr DEFAULT_HEIGHT = 600;
 
 namespace Optikos
 {
+unsigned int constexpr VIEWPORT_TEXTURE_BASE_ID = 1;
+unsigned int constexpr MAX_VIEWPORT_SLOTS       = 32;
+
 class Optikos
 {
    public:

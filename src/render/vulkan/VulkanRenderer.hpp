@@ -56,7 +56,7 @@ size_t constexpr WH_POS       = offsetof(Vertex, fw);
 constexpr const char* APP_NAME    = "Optikos";
 constexpr const char* ENGINE_NAME = "No Engine";
 
-constexpr const int MAX_FRAMES_IN_FLIGHT = 2;
+constexpr const int MAX_FRAMES_IN_FLIGHT = 3;
 
 class VulkanRenderer : public IRenderer
 {
@@ -72,7 +72,9 @@ class VulkanRenderer : public IRenderer
     void         swap_buffer() override;
     unsigned int loadTexture(const std::vector<unsigned char>& data, int width,
                              int height) override;
-    void         waitIdle()
+    void         registerTextures(void* texHandle, uint32_t id) override;
+
+    void waitIdle()
     {
         vkDeviceWaitIdle(m_device);
     }
@@ -95,6 +97,9 @@ class VulkanRenderer : public IRenderer
         config.pipelineLayout   = &m_pipelineLayout;
         config.graphicsPipeline = &m_graphicsPipeline;
         config.commandPool      = &m_commandPool;
+        config.currentFrame     = &m_currentFrame;
+        config.imageCount       = &imageCount;
+        config.frame_in_flight  = &MAX_FRAMES_IN_FLIGHT;
 
         return config.isValid();
     }
@@ -180,8 +185,10 @@ class VulkanRenderer : public IRenderer
         VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
         uint32_t        width = 0, height = 0;
         bool            isRenderTarget = false;
-    };
 
+        std::array<VkImageView, MAX_FRAMES_IN_FLIGHT>     externalViews{};
+        std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> externalDescriptorSets{};
+    };
     // TODO: can be padding
     // https://docs.vulkan.org/guide/latest/push_constants.html#:~:text=The%20following%20diagram%20provides%20a%20visualization%20of%20how%20push%20constant%20offsets%20work.
     struct PushConstants
@@ -274,6 +281,7 @@ class VulkanRenderer : public IRenderer
     int  m_width = 0, m_height = 0;
 
     uint32_t m_currentFrame = 0;
+    uint32_t imageCount     = 0;
 
     std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
@@ -281,7 +289,7 @@ class VulkanRenderer : public IRenderer
     unsigned int                                  m_defaultShader = DEFAULT_SHADER;
 
     std::unordered_map<unsigned int, Texture> m_textures;
-    unsigned int                              m_nextTextureId = 1;
+    unsigned int                              m_nextTextureId = 100;
 
     void createInstance();
     void setupDebugMessenger();

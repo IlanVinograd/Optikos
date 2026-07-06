@@ -17,7 +17,9 @@ class IRenderer
     virtual void swap_buffer()                         = 0;
     virtual unsigned int loadTexture(const std::vector<unsigned char>& data, int width,
                                      int height)       = 0;
-    virtual void         waitIdle()
+    virtual void         registerTextures(void* texHandle, uint32_t id) = 0;
+
+    virtual void waitIdle()
     {
         // used to finish last render if needed
     }

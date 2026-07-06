@@ -7,14 +7,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(OPTIKOS_ENABLE_PROFILING "Enable Tracy profiler" OFF)
 set(TRACY_ENABLE ${OPTIKOS_ENABLE_PROFILING} CACHE BOOL "" FORCE)
 
-include(FetchContent)
+# include(FetchContent)
 
-FetchContent_Declare(
-    tracy
-    GIT_REPOSITORY https://github.com/wolfpld/tracy.git
-    GIT_TAG        v0.13.1
-)
-FetchContent_MakeAvailable(tracy)
+# FetchContent_Declare(
+#     tracy
+#     GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+#     GIT_TAG        v0.13.1
+# )
+# FetchContent_MakeAvailable(tracy)
 
 set(OPTIKOS_RENDERER "OPENGL" CACHE STRING "Render backend")
 set_property(CACHE OPTIKOS_RENDERER PROPERTY STRINGS "OPENGL" "VULKAN" "NONE")

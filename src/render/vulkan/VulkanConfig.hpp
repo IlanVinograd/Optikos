@@ -26,6 +26,10 @@ struct SharedVulkanConfig
     const VkPipeline*       graphicsPipeline = nullptr;
     const VkCommandPool*    commandPool      = nullptr;
 
+    const uint32_t* currentFrame    = nullptr;
+    const uint32_t* imageCount      = 0;
+    const int*      frame_in_flight = 0;
+
     bool isValid() const
     {
         if (!instance || !physicalDevice || !device || !surface || !graphicsQueue ||
@@ -42,6 +46,14 @@ struct SharedVulkanConfig
                *commandPool != VK_NULL_HANDLE && *swapChainFormat != VK_FORMAT_UNDEFINED &&
                swapChainExtent->width > 0 && swapChainExtent->height > 0;
     }
+};
+
+struct ViewPort
+{
+    VkImage         image         = VK_NULL_HANDLE;
+    VkDeviceMemory  imageMemory   = VK_NULL_HANDLE;
+    VkImageView     imageView     = VK_NULL_HANDLE;
+    VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 };
 
 #endif /* VULKAN_CONFIG_HPP */
