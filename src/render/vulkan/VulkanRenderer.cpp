@@ -1146,6 +1146,7 @@ void VulkanRenderer::registerTextures(void* texHandle, uint32_t id)
         LOG_TRACE(
             "[registerTextures] existing viewport slot updated (resize), id: " + std::to_string(id),
             "log");
+        vkDeviceWaitIdle(m_device);
     }
 
     VkDescriptorImageInfo imageInfo{};
