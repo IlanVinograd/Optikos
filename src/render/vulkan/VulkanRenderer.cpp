@@ -1,3 +1,6 @@
+#define VMA_IMPLEMENTATION
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
+
 #include "VulkanRenderer.hpp"
 
 #include <tracy/Tracy.hpp>
@@ -21,17 +24,22 @@ VulkanRenderer::VulkanRenderer(IWindow* window, std::unique_ptr<IShader> shader)
     createCommandPool();
     createCommandBuffers();
     createSyncObjects();
+    createVMA();
 }
 
 VulkanRenderer::~VulkanRenderer()
 {
     vkDeviceWaitIdle(m_device);
 
-    for (const auto& [it, tex] : m_textures)
+    for (auto& [id, tex] : m_textures)
     {
-        if (tex.imageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, tex.imageView, nullptr);
-        vkDestroyImage(m_device, tex.image, nullptr);
-        vkFreeMemory(m_device, tex.imageMemory, nullptr);
+        if (!tex.isRenderTarget)
+        {
+            if (tex.imageView != VK_NULL_HANDLE)
+                vkDestroyImageView(m_device, tex.imageView, nullptr);
+
+            vmaDestroyImage(m_allocator, tex.image, tex.imageAllocation);
+        }
     }
 
     if (m_defaultSampler != VK_NULL_HANDLE) vkDestroySampler(m_device, m_defaultSampler, nullptr);
@@ -81,6 +89,8 @@ VulkanRenderer::~VulkanRenderer()
     if (m_graphicsPipeline) vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
     if (m_renderPass) vkDestroyRenderPass(m_device, m_renderPass, nullptr);
     if (m_pipelineLayout) vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+
+    if (m_allocator) vmaDestroyAllocator(m_allocator);
 
     if (m_device) vkDestroyDevice(m_device, nullptr);
     if (m_surface) vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
@@ -795,6 +805,23 @@ void VulkanRenderer::createSyncObjects()
     LOG_TRACE("[createSyncObjects] synchronization objects successfully created", "log");
 }
 
+void VulkanRenderer::createVMA()
+{
+    VmaVulkanFunctions vulkanFunctions    = {};
+    vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
+    vulkanFunctions.vkGetDeviceProcAddr   = &vkGetDeviceProcAddr;
+
+    VmaAllocatorCreateInfo allocatorCreateInfo = {};
+    allocatorCreateInfo.flags                  = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+    allocatorCreateInfo.vulkanApiVersion       = VK_API_VERSION_1_2;
+    allocatorCreateInfo.physicalDevice         = Selected().m_physDevice;
+    allocatorCreateInfo.device                 = m_device;
+    allocatorCreateInfo.instance               = m_instance;
+    allocatorCreateInfo.pVulkanFunctions       = &vulkanFunctions;
+
+    vmaCreateAllocator(&allocatorCreateInfo, &m_allocator);
+}
+
 void VulkanRenderer::recreateSwapChain()
 {
     while (m_width <= 0 && m_height <= 0)
@@ -1040,25 +1067,37 @@ unsigned int VulkanRenderer::loadTexture(const std::vector<unsigned char>& data,
         return NO_TEXTURE;
     }
 
-    VkBuffer       stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
+    VkBufferCreateInfo bufferInfo           = {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+    bufferInfo.usage                        = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    bufferInfo.size                         = imageSize;
+    VmaAllocationCreateInfo allocInfoCreate = {};
+    allocInfoCreate.usage                   = VMA_MEMORY_USAGE_AUTO;
+    allocInfoCreate.flags =
+        VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
-    createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
+    VkBuffer          stagingBuffer;
+    VmaAllocation     allocation;
+    VmaAllocationInfo stagingAllocInfo{};
 
-    void* mappedData;
-    vkMapMemory(m_device, stagingBufferMemory, 0, imageSize, 0, &mappedData);
-    memcpy(mappedData, data.data(), static_cast<size_t>(imageSize));
-    vkUnmapMemory(m_device, stagingBufferMemory);
+    vmaCreateBuffer(m_allocator, &bufferInfo, &allocInfoCreate, &stagingBuffer, &allocation,
+                    &stagingAllocInfo);
+
+    // createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    //              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+    //              stagingBuffer, stagingBufferMemory);
+
+    // void* mappedData;
+    // vkMapMemory(m_device, stagingBufferMemory, 0, imageSize, 0, &mappedData);
+    memcpy(stagingAllocInfo.pMappedData, data.data(), static_cast<size_t>(imageSize));
+    // vkUnmapMemory(m_device, stagingBufferMemory);
 
     Texture tex;
     tex.width  = width;
     tex.height = height;
 
     createImage(width, height, imageFormat, VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, tex.image, tex.imageMemory);
+                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, tex.image,
+                tex.imageAllocation);
 
     transitionImageLayout(tex.image, imageFormat, VK_IMAGE_LAYOUT_UNDEFINED,
                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -1068,8 +1107,8 @@ unsigned int VulkanRenderer::loadTexture(const std::vector<unsigned char>& data,
     transitionImageLayout(tex.image, imageFormat, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    vkDestroyBuffer(m_device, stagingBuffer, nullptr);
-    vkFreeMemory(m_device, stagingBufferMemory, nullptr);
+    // vkDestroyBuffer(m_device, stagingBuffer, nullptr);
+    vmaDestroyBuffer(m_allocator, stagingBuffer, allocation);
 
     tex.imageView = createImageView(tex.image, imageFormat);
 
@@ -1116,11 +1155,11 @@ void VulkanRenderer::registerTextures(void* texHandle, uint32_t id)
 
     Texture& tex = m_textures[id];
 
-    tex.image          = viewPort->image;
-    tex.imageMemory    = viewPort->imageMemory;
-    tex.imageView      = viewPort->imageView;
-    tex.sampler        = getOrCreateDefaultSampler();
-    tex.isRenderTarget = true;
+    tex.image           = viewPort->image;
+    tex.imageAllocation = viewPort->imageAllocation;
+    tex.imageView       = viewPort->imageView;
+    tex.sampler         = getOrCreateDefaultSampler();
+    tex.isRenderTarget  = true;
 
     if (isNewSlot)
     {
@@ -1705,16 +1744,13 @@ void VulkanRenderer::cleanupFrame(uint64_t finishedFrame)
 }
 
 void VulkanRenderer::createImage(uint32_t width, uint32_t height, VkFormat format,
-                                 VkImageTiling tiling, VkImageUsageFlags usage,
-                                 VkMemoryPropertyFlags properties, VkImage& image,
-                                 VkDeviceMemory& imageMemory)
+                                 VkImageTiling tiling, VkImageUsageFlags usage, VkImage& image,
+                                 VmaAllocation& imageAllocation)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType     = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width  = width;
-    imageInfo.extent.height = height;
-    imageInfo.extent.depth  = 1;
+    imageInfo.extent        = {width, height, 1};
     imageInfo.mipLevels     = 1;
     imageInfo.arrayLayers   = 1;
     imageInfo.format        = format;
@@ -1722,32 +1758,17 @@ void VulkanRenderer::createImage(uint32_t width, uint32_t height, VkFormat forma
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.usage         = usage;
     imageInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
-    imageInfo.sharingMode =
-        VK_SHARING_MODE_EXCLUSIVE;  // TODO: we want use in diffrenet queue like game render queue
-                                    // so need to think about it
+    imageInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateImage(m_device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+    VmaAllocationCreateInfo allocCreateInfo{};
+    allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
+
+    if (vmaCreateImage(m_allocator, &imageInfo, &allocCreateInfo, &image, &imageAllocation,
+                       nullptr) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create image!");
+        LOG_ERROR("[createImage] vmaCreateImage failed", "log");
+        throw std::runtime_error("failed to create image via VMA!");
     }
-
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(m_device, image, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize  = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(m_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-    {
-        LOG_ERROR("[createImage] failed to allocate image memory", "log");
-        throw std::runtime_error("failed to allocate image memory!");
-    }
-
-    LOG_TRACE("[createImage] Created image", "log");
-
-    vkBindImageMemory(m_device, image, imageMemory, 0);
 }
 
 VkCommandBuffer VulkanRenderer::beginSingleTimeCommands()

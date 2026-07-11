@@ -22,6 +22,7 @@
 #include "render/RenderQueue.hpp"
 #include "shader/IShader.hpp"
 #include "utilities/logger.hpp"
+#include "vk_mem_alloc.h"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -88,6 +89,7 @@ class VulkanRenderer : public IRenderer
         config.physicalDevice   = &Selected().m_physDevice;
         config.device           = &m_device;
         config.surface          = &m_surface;
+        config.allocator        = &m_allocator;
         config.graphicsQueue    = &m_graphicsQueue;
         config.presentQueue     = &m_presentQueue;
         config.swapChain        = &m_swapChain;
@@ -178,11 +180,11 @@ class VulkanRenderer : public IRenderer
 
     struct Texture
     {
-        VkImage         image         = VK_NULL_HANDLE;
-        VkDeviceMemory  imageMemory   = VK_NULL_HANDLE;
-        VkImageView     imageView     = VK_NULL_HANDLE;
-        VkSampler       sampler       = VK_NULL_HANDLE;
-        VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+        VkImage         image           = VK_NULL_HANDLE;
+        VmaAllocation   imageAllocation = VK_NULL_HANDLE;
+        VkImageView     imageView       = VK_NULL_HANDLE;
+        VkSampler       sampler         = VK_NULL_HANDLE;
+        VkDescriptorSet descriptorSet   = VK_NULL_HANDLE;
         uint32_t        width = 0, height = 0;
         bool            isRenderTarget = false;
 
@@ -285,6 +287,8 @@ class VulkanRenderer : public IRenderer
 
     std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
+    VmaAllocator m_allocator = VK_NULL_HANDLE;
+
     std::unordered_map<std::string, unsigned int> m_shaderCache;
     unsigned int                                  m_defaultShader = DEFAULT_SHADER;
 
@@ -304,6 +308,7 @@ class VulkanRenderer : public IRenderer
     void createCommandPool();
     void createCommandBuffers();
     void createSyncObjects();
+    void createVMA();
 
     void recreateSwapChain();
     void cleanupSwapChain();
@@ -344,8 +349,7 @@ class VulkanRenderer : public IRenderer
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-                     VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
-                     VkDeviceMemory& imageMemory);
+                     VkImageUsageFlags usage, VkImage& image, VmaAllocation& imageAllocation);
 
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
                       VkBuffer& buffer, VkDeviceMemory& bufferMemory);

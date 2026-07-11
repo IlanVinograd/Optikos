@@ -193,7 +193,8 @@ RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& posi
         float v2 = v1 + static_cast<float>(ch.height) / atlas.atlasSize;
 
         // ZoneScopedN("insert");
-        // TODO: main problem of label overhead when too much insert calls.
+        // TODO: main problem of label overhead when too much insert calls. try to stop call this
+        // method i we go outside the textBox or label.
 
         data.vertices.emplace_back(x, y, textColor.r, textColor.g, textColor.b, textColor.a, u1, v1,
                                    clip.xMin, clip.xMax, clip.yMin, clip.yMax);

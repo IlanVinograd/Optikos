@@ -35,6 +35,7 @@ endif()
 if(OPTIKOS_RENDERER STREQUAL "VULKAN")
     find_package(Vulkan REQUIRED MODULE) 
     find_package(unofficial-shaderc CONFIG REQUIRED)
+    find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 endif()
 
 set(COMMON_SOURCES
@@ -83,6 +84,7 @@ if(OPTIKOS_RENDERER STREQUAL "VULKAN")
 
     target_link_libraries(Optikos PUBLIC Vulkan::Vulkan)
     target_link_libraries(Optikos PRIVATE unofficial::shaderc::shaderc)
+    target_link_libraries(Optikos PRIVATE GPUOpen::VulkanMemoryAllocator)
 
     if(NOT Vulkan_GLSLC_EXECUTABLE)
         message(FATAL_ERROR "Vulkan glslc compiler not found! Make sure Vulkan SDK is installed correctly.")
