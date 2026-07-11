@@ -46,8 +46,7 @@ VulkanRenderer::~VulkanRenderer()
 
     for (auto& pending : m_pendingDeletes)
     {
-        vkDestroyBuffer(m_device, pending.buffer, nullptr);
-        vkFreeMemory(m_device, pending.memory, nullptr);
+        vmaDestroyBuffer(m_allocator, pending.buffer, pending.memory);
     }
     m_pendingDeletes.clear();
 
@@ -69,16 +68,12 @@ VulkanRenderer::~VulkanRenderer()
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         if (m_currentBatch.m_vertexBuffer[i] != VK_NULL_HANDLE)
-            vkDestroyBuffer(m_device, m_currentBatch.m_vertexBuffer[i], nullptr);
-
-        if (m_currentBatch.m_vertexBufferMemory[i] != VK_NULL_HANDLE)
-            vkFreeMemory(m_device, m_currentBatch.m_vertexBufferMemory[i], nullptr);
+            vmaDestroyBuffer(m_allocator, m_currentBatch.m_vertexBuffer[i],
+                             m_currentBatch.m_vertexBufferMemory[i]);
 
         if (m_currentBatch.m_indexBuffer[i] != VK_NULL_HANDLE)
-            vkDestroyBuffer(m_device, m_currentBatch.m_indexBuffer[i], nullptr);
-
-        if (m_currentBatch.m_indexBufferMemory[i] != VK_NULL_HANDLE)
-            vkFreeMemory(m_device, m_currentBatch.m_indexBufferMemory[i], nullptr);
+            vmaDestroyBuffer(m_allocator, m_currentBatch.m_indexBuffer[i],
+                             m_currentBatch.m_indexBufferMemory[i]);
     }
 
     if (m_descriptorSetLayout)
@@ -328,7 +323,8 @@ void VulkanRenderer::createLogicalDevice()
     deviceCreateInfo.pEnabledFeatures     = &deviceFeatures;
 
     std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                                 VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME};
+                                                 VK_KHR_SHADER_DRAW_PARAMETERS_EXTENSION_NAME,
+                                                 VK_EXT_MEMORY_BUDGET_EXTENSION_NAME};
 
 #ifdef __APPLE__
     deviceExtensions.push_back("VK_KHR_portability_subset");
@@ -1622,9 +1618,8 @@ uint32_t VulkanRenderer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFla
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void VulkanRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
-                                  VkMemoryPropertyFlags properties, VkBuffer& buffer,
-                                  VkDeviceMemory& bufferMemory)
+void VulkanRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer& buffer,
+                                  VmaAllocation& allocation, void** mappedData)
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -1632,27 +1627,21 @@ void VulkanRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
     bufferInfo.usage       = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateBuffer(m_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+    VmaAllocationCreateInfo allocCreateInfo{};
+    allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+    allocCreateInfo.flags =
+        VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+    VmaAllocationInfo allocInfoOut{};
+
+    if (vmaCreateBuffer(m_allocator, &bufferInfo, &allocCreateInfo, &buffer, &allocation,
+                        &allocInfoOut) != VK_SUCCESS)
     {
-        LOG_ERROR("[createVertexBuffer] failed to create vertex buffer", "log");
-        throw std::runtime_error("failed to create buffer!");
+        LOG_ERROR("[createBuffer] vmaCreateBuffer failed", "log");
+        throw std::runtime_error("failed to create buffer via VMA!");
     }
 
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(m_device, buffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize  = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(m_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-    {
-        LOG_ERROR("[createVertexBuffer] failed to allocate vertex buffer memory", "log");
-        throw std::runtime_error("failed to allocate buffer memory!");
-    }
-
-    vkBindBufferMemory(m_device, buffer, bufferMemory, 0);
+    if (mappedData) *mappedData = allocInfoOut.pMappedData;
 }
 
 void VulkanRenderer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
@@ -1666,30 +1655,23 @@ void VulkanRenderer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevice
     endSingleTimeCommands(commandBuffer);
 }
 
-// TODO: add to log which buffer exactly was change
-void VulkanRenderer::ensureBufferCapacity(VkBuffer& buffer, VkDeviceMemory& memory, void*& mapped,
+void VulkanRenderer::ensureBufferCapacity(VkBuffer& buffer, VmaAllocation& memory, void*& mapped,
                                           VkDeviceSize& capacity, VkDeviceSize requiredSize,
                                           VkBufferUsageFlags usage)
 {
     if (requiredSize <= capacity) return;
 
-    if (mapped)
-    {
-        vkUnmapMemory(m_device, memory);
-        mapped = nullptr;
-    }
-
-    if (buffer || memory)
+    if (buffer != VK_NULL_HANDLE)
         m_pendingDeletes.push_back({buffer, memory, m_currentFrame + MAX_FRAMES_IN_FLIGHT});
 
     VkDeviceSize newCapacity = std::max(requiredSize, capacity * 2);
     if (capacity == 0) newCapacity = std::max(newCapacity, (VkDeviceSize) 65536);
 
-    createBuffer(newCapacity, usage,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, buffer,
-                 memory);
+    buffer = VK_NULL_HANDLE;
+    mapped = nullptr;
 
-    vkMapMemory(m_device, memory, 0, newCapacity, 0, &mapped);
+    createBuffer(newCapacity, usage, buffer, memory, &mapped);
+
     capacity = newCapacity;
 
     LOG_TRACE("[ensureBufferCapacity] buffer (re)created with size: " + std::to_string(newCapacity),
@@ -1734,8 +1716,7 @@ void VulkanRenderer::cleanupFrame(uint64_t finishedFrame)
     {
         if (it->frameIndex <= finishedFrame)
         {
-            vkDestroyBuffer(m_device, it->buffer, nullptr);
-            vkFreeMemory(m_device, it->memory, nullptr);
+            vmaDestroyBuffer(m_allocator, it->buffer, it->memory);
             it = m_pendingDeletes.erase(it);
         }
         else
@@ -1899,6 +1880,7 @@ void VulkanRenderer::drawFrame()
         ZoneScopedN("vkWaitForFences");
         vkWaitForFences(m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);
     }
+    cleanupFrame(m_currentFrame);
 
     uint32_t imageIndex;
 

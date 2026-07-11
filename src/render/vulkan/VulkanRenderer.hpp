@@ -123,15 +123,17 @@ class VulkanRenderer : public IRenderer
         std::vector<Vertex>       vertices;
         std::vector<unsigned int> indices;
 
-        std::array<VkBuffer, MAX_FRAMES_IN_FLIGHT>       m_vertexBuffer       = {VK_NULL_HANDLE};
-        std::array<VkDeviceMemory, MAX_FRAMES_IN_FLIGHT> m_vertexBufferMemory = {VK_NULL_HANDLE};
-        std::array<void*, MAX_FRAMES_IN_FLIGHT>          m_vertexMapped       = {nullptr};
-        std::array<VkDeviceSize, MAX_FRAMES_IN_FLIGHT>   m_vertexCapacity     = {0};
+        std::array<VkBuffer, MAX_FRAMES_IN_FLIGHT> m_vertexBuffer = {VK_NULL_HANDLE};
+        // std::array<VkDeviceMemory, MAX_FRAMES_IN_FLIGHT> m_vertexBufferMemory = {VK_NULL_HANDLE};
+        std::array<VmaAllocation, MAX_FRAMES_IN_FLIGHT> m_vertexBufferMemory = {VK_NULL_HANDLE};
+        std::array<void*, MAX_FRAMES_IN_FLIGHT>         m_vertexMapped       = {nullptr};
+        std::array<VkDeviceSize, MAX_FRAMES_IN_FLIGHT>  m_vertexCapacity     = {0};
 
-        std::array<VkBuffer, MAX_FRAMES_IN_FLIGHT>       m_indexBuffer       = {VK_NULL_HANDLE};
-        std::array<VkDeviceMemory, MAX_FRAMES_IN_FLIGHT> m_indexBufferMemory = {VK_NULL_HANDLE};
-        std::array<void*, MAX_FRAMES_IN_FLIGHT>          m_indexMapped       = {nullptr};
-        std::array<VkDeviceSize, MAX_FRAMES_IN_FLIGHT>   m_indexCapacity     = {0};
+        std::array<VkBuffer, MAX_FRAMES_IN_FLIGHT> m_indexBuffer = {VK_NULL_HANDLE};
+        // std::array<VkDeviceMemory, MAX_FRAMES_IN_FLIGHT> m_indexBufferMemory = {VK_NULL_HANDLE};
+        std::array<VmaAllocation, MAX_FRAMES_IN_FLIGHT> m_indexBufferMemory = {VK_NULL_HANDLE};
+        std::array<void*, MAX_FRAMES_IN_FLIGHT>         m_indexMapped       = {nullptr};
+        std::array<VkDeviceSize, MAX_FRAMES_IN_FLIGHT>  m_indexCapacity     = {0};
 
         void clear()
         {
@@ -201,9 +203,9 @@ class VulkanRenderer : public IRenderer
     };
     struct PendingDeletion
     {
-        VkBuffer       buffer;
-        VkDeviceMemory memory;
-        uint64_t       frameIndex;
+        VkBuffer      buffer;
+        VmaAllocation memory;
+        uint64_t      frameIndex;
     };
 
     std::vector<PendingDeletion> m_pendingDeletes;
@@ -351,12 +353,12 @@ class VulkanRenderer : public IRenderer
     void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
                      VkImageUsageFlags usage, VkImage& image, VmaAllocation& imageAllocation);
 
-    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
-                      VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer& buffer,
+                      VmaAllocation& allocation, void** mappedData = nullptr);
 
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
-    void ensureBufferCapacity(VkBuffer& buffer, VkDeviceMemory& memory, void*& mapped,
+    void ensureBufferCapacity(VkBuffer& buffer, VmaAllocation& memory, void*& mapped,
                               VkDeviceSize& capacity, VkDeviceSize requiredSize,
                               VkBufferUsageFlags usage);
 
