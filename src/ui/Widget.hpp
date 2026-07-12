@@ -103,6 +103,7 @@ class Widget : public IWidget
     void setPositionSilent(Vec2 pos)
     {
         m_position = pos;
+        markDirty();
     }
 
    protected:

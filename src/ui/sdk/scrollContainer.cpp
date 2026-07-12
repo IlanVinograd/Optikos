@@ -16,7 +16,9 @@ void ScrollContainer::render(IRenderQueue& renderQueue)
 {
     if (!m_isVisible) return;
 
-    if (m_dirtyLayout)
+    updateLayout();
+
+    if (m_contentDirty || m_dirtyLayout)
     {
         updateData();
         for (auto& w : m_subWidgets) w->updateData();
@@ -168,6 +170,9 @@ void ScrollContainer::handleDrag(double x, double y)
     float thumbLength = calcScrollLength();
     float trackLength = viewSize - thumbLength;
 
+    float rawPosUnclamped = m_useVerticalLayout ? (float) y - m_position.y - thumbLength / 2.0f
+                                                : (float) x - m_position.x - thumbLength / 2.0f;
+
     float rawPos = m_useVerticalLayout ? (float) y - m_position.y - thumbLength / 2.0f
                                        : (float) x - m_position.x - thumbLength / 2.0f;
 
@@ -185,6 +190,7 @@ void ScrollContainer::handleDrag(double x, double y)
         else
             pos.x -= delta;
         static_cast<Widget*>(w.get())->setPositionSilent(pos);
+        ;
     }
     m_dirtyLayout = true;
 }
@@ -220,6 +226,8 @@ void ScrollContainer::setHoverDimming(float dimming)
 
 bool ScrollContainer::isInsideGrab(double x, double y) const
 {
+    const_cast<ScrollContainer*>(this)->ensureContentHeight();
+
     Clip  clip      = getClip();
     float scrollPos = findScroller();
 
@@ -292,4 +300,14 @@ void ScrollContainer::setScrollThumbWidth(float width)
 {
     m_scrollWidth = width;
 }
+
+void ScrollContainer::ensureContentHeight()
+{
+    if (m_contentDirty)
+    {
+        m_contentHeight = calcContentHeight();
+        m_contentDirty  = false;
+    }
+}
+
 }  // namespace Optikos

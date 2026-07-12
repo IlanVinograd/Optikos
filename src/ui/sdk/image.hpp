@@ -20,6 +20,10 @@ class Image : public Widget
     void                             resize(int width, int height) override;
     void                             setPosition(Vec2 pos) override;
     void                             handleEvent() override;
+    void                             markDirty() override
+    {
+        m_needUpdate = true;
+    }
 
     void setTexture(OpTextureID id);
 

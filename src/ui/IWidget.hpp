@@ -125,6 +125,10 @@ class IWidget
         return inWidget && inClip;
     }
 
+    virtual void markDirty()
+    {
+    }
+
    private:
 };
 

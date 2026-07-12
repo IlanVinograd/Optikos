@@ -35,6 +35,10 @@ class Container : public Widget
     void                             setPosition(Vec2 pos) override;
     void                             setVisible(bool visible) override;
     void                             handleDrag(double x, double y) override;
+    void                             markDirty() override
+    {
+        m_needsLayout = true;
+    }
 
     void useVerticalLayout(bool isVertical);
 

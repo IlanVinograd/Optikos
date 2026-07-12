@@ -44,6 +44,8 @@ class ScrollContainer : public Container
     float calcScrollLength() const;
     float calcContentHeight();
 
+    void ensureContentHeight();
+
     float m_scrollOffset  = 0.0f;
     float m_contentHeight = 0.0f;
 

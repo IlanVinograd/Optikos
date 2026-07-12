@@ -27,6 +27,10 @@ class Label : public Widget
     bool                             wantsHoverEvents() const override;
     void                             resize(int width, int height) override;
     void                             setPosition(Vec2 pos) override;
+    void                             markDirty() override
+    {
+        m_dirty = true;
+    }
 
     void setText(const std::string& text);
     void setFont(const std::string& font);
