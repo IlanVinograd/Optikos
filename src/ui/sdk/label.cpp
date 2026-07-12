@@ -45,8 +45,8 @@ void Label::updateData()
 
     if (!m_dirty) return;
 
-    m_data = TextFont::getInstance().generateTextQuads(m_text, m_position, m_width, m_height,
-                                                       m_clip, m_fontName, m_color);
+    m_data = TextFont::getInstance().generateTextQuads(m_text, &m_overflowed, m_position, m_width,
+                                                       m_height, m_clip, m_fontName, m_color);
 
     m_dirty = false;
 }

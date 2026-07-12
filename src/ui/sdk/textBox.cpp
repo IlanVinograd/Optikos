@@ -235,15 +235,22 @@ bool TextBox::isFocused() const
 
 void TextBox::handleCursor(double x, double y)
 {
-    // TODO: OPTIMIZE CURSOR CLICK POSITION
-    auto&  font     = TextFont::getInstance();
-    Vec2   textSize = font.getSizeText(m_placeholder, m_fontName);
-    double xTextPos = (m_width / 2) - (textSize.x / 2) + m_position.x;
-    m_cursorEnd     = font.getPosText(x - xTextPos, m_placeholder, m_fontName);
-
-    (void) xTextPos;
-    (void) x;
     (void) y;
+
+    if (!m_label) return;
+
+    auto& font = TextFont::getInstance();
+
+    Vec2     labelPos   = m_label->getPosition();
+    uint32_t labelWidth = m_label->getWidth();
+
+    TextFont::TextMetrics metrics = font.measureVisibleText(m_placeholder, labelWidth, m_fontName);
+
+    double xTextPos = labelPos.x + (labelWidth - metrics.visibleLength) / 2.0;
+
+    m_cursorEnd = font.getPosText(x - xTextPos, m_placeholder, labelWidth, m_fontName);
+
+    if (m_cursorEnd < 0) m_cursorEnd = (int) m_placeholder.length();
 }
 
 void TextBox::manageCursor(unsigned int codepoint)

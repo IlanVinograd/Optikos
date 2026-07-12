@@ -2,6 +2,7 @@
 #define TEXTFONT_H
 
 #include <ft2build.h>
+
 #include <cmath>
 
 #include "ui/IWidget.hpp"
@@ -25,20 +26,26 @@ Color constexpr DEFAULT_COLOR             = Color{255, 255, 255, 255};
 class TextFont
 {
    public:
+    struct TextMetrics
+    {
+        float visibleLength;
+        int   visibleChars;
+    };
+
     static TextFont& getInstance()
     {
         static TextFont instance;
         return instance;
     }
 
-    TextFont(const TextFont&) = delete;
+    TextFont(const TextFont&)            = delete;
     TextFont& operator=(const TextFont&) = delete;
 
     ~TextFont();
 
     void       loadFont(std::string_view fontPath, std::string fontName = DEFAULT0_FONT,
                         float fontSize = DEFAULT0_FONTSIZE);
-    RenderData generateTextQuads(const std::string& text, const Vec2& position,
+    RenderData generateTextQuads(const std::string& text, bool* isOverflowed, const Vec2& position,
                                  const uint32_t& width, const uint32_t& height, const Clip& clip,
                                  const std::string& fontName  = DEFAULT0_FONT,
                                  const Color&       textColor = DEFAULT_COLOR);
@@ -47,9 +54,13 @@ class TextFont
     const std::vector<unsigned char>& getAtlasData(std::string fontName = DEFAULT0_FONT) const;
     unsigned int                      getAtlasSize(std::string fontName = DEFAULT0_FONT) const;
     Vec2 getSizeText(const std::string& text, std::string fontName = DEFAULT0_FONT);
-    int getPosText(double startText, const std::string& text, std::string fontName = DEFAULT0_FONT);
+    int  getPosText(double startText, const std::string& text, const uint32_t& width,
+                    std::string fontName = DEFAULT0_FONT);
 
     void setAtlasTextureId(unsigned int id, std::string fontName = DEFAULT0_FONT);
+
+    TextMetrics measureVisibleText(const std::string& text, uint32_t width,
+                                   std::string fontName = DEFAULT0_FONT);
 
    private:
     TextFont();

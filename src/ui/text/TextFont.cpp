@@ -129,10 +129,10 @@ void TextFont::generateAtlas(std::string fontName, float fontSize)
         "log");
 }
 
-RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& position,
-                                       const uint32_t& width, const uint32_t& height,
-                                       const Clip& clip, const std::string& fontName,
-                                       const Color& textColor)
+RenderData TextFont::generateTextQuads(const std::string& text, bool* isOverflowed,
+                                       const Vec2& position, const uint32_t& width,
+                                       const uint32_t& height, const Clip& clip,
+                                       const std::string& fontName, const Color& textColor)
 {
     ZoneScopedN("TextFont::generateTextQuads");
 
@@ -149,30 +149,40 @@ RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& posi
 
     Atlas& atlas = it->second;
 
-    float textLength = 0;
-    float maxAscent  = 0;
-    float maxDecent  = 0;
+    TextMetrics metrics   = measureVisibleText(text, width, fontName);
+    int         countChar = metrics.visibleChars;
+
+    if (isOverflowed) *isOverflowed = (countChar < (int) text.size());
+
+    float maxAscent = 0;
+    float maxDecent = 0;
+    int   scanned   = 0;
     for (const auto& symbol : text)
     {
+        if (scanned >= countChar) break;
+        scanned++;
+
         auto charIt = atlas.characters.find(symbol);
         if (charIt != atlas.characters.end())
         {
             const Character& ch = charIt->second;
-            textLength += ch.advance;
-
-            maxAscent = std::max(maxAscent, (float) ch.bearing_y);
-            maxDecent = std::max(maxDecent, (float) ch.height - (float) ch.bearing_y);
+            maxAscent           = std::max(maxAscent, (float) ch.bearing_y);
+            maxDecent           = std::max(maxDecent, (float) ch.height - (float) ch.bearing_y);
         }
     }
 
     float textHeight = maxAscent + maxDecent;
-    float xpos       = position.x + (width - textLength) / 2.0f;
+    float xpos       = position.x + (width - metrics.visibleLength) / 2.0f;
     float yBaseline  = position.y + (height - textHeight) / 2.0f + maxAscent;
 
     unsigned int offset = 0;
+    int          drawn  = 0;
 
     for (const auto& symbol : text)
     {
+        if (drawn >= countChar) break;
+        drawn++;
+
         auto charIt = atlas.characters.find(symbol);
         if (charIt == atlas.characters.end())
         {
@@ -192,10 +202,6 @@ RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& posi
         float u2 = u1 + static_cast<float>(ch.width) / atlas.atlasSize;
         float v2 = v1 + static_cast<float>(ch.height) / atlas.atlasSize;
 
-        // ZoneScopedN("insert");
-        // TODO: main problem of label overhead when too much insert calls. try to stop call this
-        // method i we go outside the textBox or label.
-
         data.vertices.emplace_back(x, y, textColor.r, textColor.g, textColor.b, textColor.a, u1, v1,
                                    clip.xMin, clip.xMax, clip.yMin, clip.yMax);
         data.vertices.emplace_back(x + w, y, textColor.r, textColor.g, textColor.b, textColor.a, u2,
@@ -209,7 +215,6 @@ RenderData TextFont::generateTextQuads(const std::string& text, const Vec2& posi
                                                  offset + 3, offset + 2});
 
         offset += 4;
-
         xpos += ch.advance;
     }
 
@@ -252,7 +257,8 @@ Vec2 TextFont::getSizeText(const std::string& text, std::string fontName)
     return {textLength, maxAscent + maxDecent};
 }
 
-int TextFont::getPosText(double startText, const std::string& text, std::string fontName)
+int TextFont::getPosText(double startText, const std::string& text, const uint32_t& width,
+                         std::string fontName)
 {
     if (startText <= 0) return 0;
 
@@ -277,6 +283,7 @@ int TextFont::getPosText(double startText, const std::string& text, std::string 
             if (startText <= textLength - ch.advance / 2) return newPosition;
             newPosition++;
         }
+        if (textLength > width) return newPosition;
     }
     return newPosition;
 }
@@ -321,6 +328,26 @@ unsigned int TextFont::CalculateAtlasSize(float fontSize)
     atlasSize |= atlasSize >> 8;
     atlasSize |= atlasSize >> 16;
     return atlasSize + 1;
+}
+
+TextFont::TextMetrics TextFont::measureVisibleText(const std::string& text, uint32_t width,
+                                                   std::string fontName)
+{
+    auto it = m_Atlases.find(fontName);
+    if (it == m_Atlases.end()) return {0.0f, 0};
+
+    Atlas& atlas      = it->second;
+    float  textLength = 0;
+    int    countChar  = 0;
+
+    for (const auto& symbol : text)
+    {
+        if (textLength > width) break;
+        countChar++;
+        auto charIt = atlas.characters.find(symbol);
+        if (charIt != atlas.characters.end()) textLength += charIt->second.advance;
+    }
+    return {textLength, countChar};
 }
 
 }  // namespace Optikos
