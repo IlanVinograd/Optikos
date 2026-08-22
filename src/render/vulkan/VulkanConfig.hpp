@@ -57,6 +57,10 @@ struct ViewPort
     VmaAllocation   imageAllocation = VK_NULL_HANDLE;
     VkImageView     imageView       = VK_NULL_HANDLE;
     VkDescriptorSet descriptorSet   = VK_NULL_HANDLE;
+
+    VkImage       depthImage           = VK_NULL_HANDLE;
+    VmaAllocation depthImageAllocation = VK_NULL_HANDLE;
+    VkImageView   depthImageView       = VK_NULL_HANDLE;
 };
 
 #endif /* VULKAN_CONFIG_HPP */

@@ -1865,6 +1865,7 @@ void VulkanRenderer::drawFrame()
     {
         // m_width  = m_window->getWidth();
         // m_height = m_window->getHeight();
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));  // ~60fps throttle
         return;
     }
 
