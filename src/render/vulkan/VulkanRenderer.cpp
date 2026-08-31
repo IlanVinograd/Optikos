@@ -316,8 +316,13 @@ void VulkanRenderer::createLogicalDevice()
     deviceFeatures.geometryShader     = VK_TRUE;
     deviceFeatures.tessellationShader = VK_TRUE;
 
+    VkPhysicalDeviceVulkan12Features features12{};
+    features12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+    features12.descriptorBindingPartiallyBound = VK_TRUE;
+
     VkDeviceCreateInfo deviceCreateInfo{};
     deviceCreateInfo.sType                = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.pNext                = &features12;
     deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     deviceCreateInfo.pQueueCreateInfos    = queueCreateInfos.data();
     deviceCreateInfo.pEnabledFeatures     = &deviceFeatures;
